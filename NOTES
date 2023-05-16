@@ -1,0 +1,19 @@
+
+Modified files: 
+- minimizer_mapper.cpp
+- subcommand/minimizer_main.cpp
+
+To run giraffe:
+
+./vg_1.44.0/bin/vg giraffe -f READS -t 60 -m euka_dir/euka_db.min -d euka_dir/euka_db.dist -Z euka_dir/euka_db.giraffe.gbz > test.gam
+
+
+BEAR DATA NO CORRECTION
+
+Number of mapped fragments: 4085
+Number of fragments after filtering: 1127
+
+BEAR DATA WITH CORRECTION
+
+Number of mapped fragments: 4114
+Number of fragments after filtering: 1131
