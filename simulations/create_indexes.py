@@ -11,7 +11,7 @@ def to_ry(sequence):
 # Function to extract k-mers from a sequence
 def get_kmers(sequence, k):
     kmers = [sequence[i:i+k] for i in range(len(sequence)-k+1)]
-    valid_bases = set('ACGT')
+    valid_bases = set('ACGTRY')
     kmers = [kmer for kmer in kmers if set(kmer).issubset(valid_bases)]
     return kmers
 
@@ -35,14 +35,15 @@ def simulate(index, num_kmers, k):
 def simulate_ry(index, num_kmers, k):
     found = 0
     for _ in range(num_kmers):
-        kmer = ''.join(random.choice('RY') for _ in range(k))
+        kmer = ''.join(random.choice('ACGT') for _ in range(k))
+        kmer = to_ry(kmer)
         if kmer in index:
             found += 1
     return found
 
 # Function to simulate ancient DNA damage
 def simulate_damage(sequence, rate):
-    conversion = {'C': 'T', 'G': 'A'}
+    conversion = {'C': 'T', 'G': 'A', 'A': 'A', 'T': 'T'}
     damaged_sequence = ''
     for base in sequence:
         if base in 'CG' and random.random() < rate:
