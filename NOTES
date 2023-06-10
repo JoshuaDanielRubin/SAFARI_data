@@ -1,6 +1,8 @@
 Modified files: 
 - src/minimizer_mapper.cpp
 - src/subcommand/minimizer_main.cpp
+- src/index_registry.cpp
+- index_registry.hpp
 - depts/gbwtgraph/src/utils.cpp
 - include/gbwtgraph/utils.h
 
