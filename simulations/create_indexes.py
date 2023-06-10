@@ -23,28 +23,30 @@ def construct_index(kmers):
     return index
 
 # Function to simulate k-mer finding in an index
-def simulate(index, sequence, num_kmers, k):
+def simulate(index, sequence, reference_sequence, num_kmers, k):
     found = 0
     correct = 0
     for _ in range(num_kmers):
         start = random.randint(0, len(sequence) - k)
         kmer = sequence[start:start+k]
+        reference_kmer = reference_sequence[start:start+k]
         if kmer in index:
             found += 1
-            if start in index[kmer]:
+            if start in index[reference_kmer]:
                 correct += 1
     return found, correct
 
 # Function to simulate RY-mer finding in an index
-def simulate_ry(index, sequence, num_kmers, k):
+def simulate_ry(index, sequence, reference_sequence, num_kmers, k):
     found = 0
     correct = 0
     for _ in range(num_kmers):
         start = random.randint(0, len(sequence) - k)
         kmer = to_ry(sequence[start:start+k])
+        reference_kmer = to_ry(reference_sequence[start:start+k])
         if kmer in index:
             found += 1
-            if start in index[kmer]:
+            if start in index[reference_kmer]:
                 correct += 1
     return found, correct
 
@@ -85,11 +87,11 @@ def main():
     rymer_index = construct_index(rymers)
 
     # Run simulation for k-mer index
-    found_kmers, correct_kmers = simulate(kmer_index, damaged_genome_str, args.n, args.k)
+    found_kmers, correct_kmers = simulate(kmer_index, damaged_genome_str, genome_str, args.n, args.k)
     print(f'Found {found_kmers} out of {args.n} random k-mers in k-mer index, {correct_kmers} were correctly located')
 
     # Run simulation for RY-mer index
-    found_rymers, correct_rymers = simulate_ry(rymer_index, damaged_genome_str, args.n, args.k)
+    found_rymers, correct_rymers = simulate_ry(rymer_index, damaged_genome_str, genome_str, args.n, args.k)
     print(f'Found {found_rymers} out of {args.n} random RY-mers in RY-mer index, {correct_rymers} were correctly located')
 
 if __name__ == "__main__":
