@@ -22,17 +22,18 @@ def construct_index(kmers):
         index[kmer].append(i)
     return index
 
-# Function to simulate k-mer finding in an index
-def simulate(index, num_kmers, k):
+def simulate(index, num_kmers, k, damage_rate):
     found = 0
     for _ in range(num_kmers):
         kmer = ''.join(random.choice('ACGT') for _ in range(k))
+        if random.random() < damage_rate:
+            kmer = simulate_damage(kmer, damage_rate)
         if kmer in index:
             found += 1
     return found
 
 # Function to simulate RY-mer finding in an index
-def simulate_ry(index, num_kmers, k):
+def simulate_ry(index, num_kmers, k, damage_rate):
     found = 0
     for _ in range(num_kmers):
         kmer = ''.join(random.choice('ACGT') for _ in range(k))
@@ -78,12 +79,12 @@ def main():
     rymer_index = construct_index(rymers)
 
     # Run simulation for k-mer index
-    found_kmers = simulate(kmer_index, args.n, args.k)
+    found_kmers = simulate(kmer_index, args.n, args.k, args.damage_rate)
 
     print(f'Found {found_kmers} out of {args.n} random k-mers in k-mer index')
 
     # Run simulation for RY-mer index
-    found_rymers = simulate_ry(rymer_index, args.n, args.k)
+    found_rymers = simulate_ry(rymer_index, args.n, args.k, args.damage_rate)
     print(f'Found {found_rymers} out of {args.n} random k-mers in RY-mer index')
 
 if __name__ == "__main__":
