@@ -22,25 +22,31 @@ def construct_index(kmers):
         index[kmer].append(i)
     return index
 
-def simulate(index, num_kmers, k, damage_rate):
+# Function to simulate k-mer finding in an index
+def simulate(index, sequence, num_kmers, k):
     found = 0
+    correct = 0
     for _ in range(num_kmers):
-        kmer = ''.join(random.choice('ACGT') for _ in range(k))
-        if random.random() < damage_rate:
-            kmer = simulate_damage(kmer, damage_rate)
+        start = random.randint(0, len(sequence) - k)
+        kmer = sequence[start:start+k]
         if kmer in index:
             found += 1
-    return found
+            if start in index[kmer]:
+                correct += 1
+    return found, correct
 
 # Function to simulate RY-mer finding in an index
-def simulate_ry(index, num_kmers, k, damage_rate):
+def simulate_ry(index, sequence, num_kmers, k):
     found = 0
+    correct = 0
     for _ in range(num_kmers):
-        kmer = ''.join(random.choice('ACGT') for _ in range(k))
-        kmer = to_ry(kmer)
+        start = random.randint(0, len(sequence) - k)
+        kmer = to_ry(sequence[start:start+k])
         if kmer in index:
             found += 1
-    return found
+            if start in index[kmer]:
+                correct += 1
+    return found, correct
 
 # Function to simulate ancient DNA damage
 def simulate_damage(sequence, rate):
@@ -79,13 +85,12 @@ def main():
     rymer_index = construct_index(rymers)
 
     # Run simulation for k-mer index
-    found_kmers = simulate(kmer_index, args.n, args.k, args.damage_rate)
-
-    print(f'Found {found_kmers} out of {args.n} random k-mers in k-mer index')
+    found_kmers, correct_kmers = simulate(kmer_index, damaged_genome_str, args.n, args.k)
+    print(f'Found {found_kmers} out of {args.n} random k-mers in k-mer index, {correct_kmers} were correctly located')
 
     # Run simulation for RY-mer index
-    found_rymers = simulate_ry(rymer_index, args.n, args.k, args.damage_rate)
-    print(f'Found {found_rymers} out of {args.n} random k-mers in RY-mer index')
+    found_rymers, correct_rymers = simulate_ry(rymer_index, damaged_genome_str, args.n, args.k)
+    print(f'Found {found_rymers} out of {args.n} random RY-mers in RY-mer index, {correct_rymers} were correctly located')
 
 if __name__ == "__main__":
     main()
