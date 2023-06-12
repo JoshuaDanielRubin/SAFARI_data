@@ -5,7 +5,7 @@ from collections import defaultdict
 
 # Function to convert a sequence to RY representation
 def to_ry(sequence):
-    conversion = {'A': 'R', 'G': 'R', 'C': 'Y', 'T': 'Y'}
+    conversion = {'A': 'R', 'G': 'G', 'C': 'C', 'T': 'Y'}
     return ''.join(conversion[base] for base in sequence if base in 'ACGT')
 
 # Function to extract k-mers from a sequence
