@@ -2,10 +2,12 @@ import argparse
 import random
 from Bio import SeqIO
 from collections import defaultdict
+from sklearn import metrics
+import numpy as np
 
 # Function to convert a sequence to RY representation
 def to_ry(sequence):
-    conversion = {'A': 'R', 'G': 'G', 'C': 'C', 'T': 'Y'}
+    conversion = {'A': 'R', 'G': 'R', 'C': 'Y', 'T': 'Y'}
     return ''.join(conversion[base] for base in sequence if base in 'ACGT')
 
 # Function to extract k-mers from a sequence
@@ -22,34 +24,6 @@ def construct_index(kmers):
         index[kmer].append(i)
     return index
 
-# Function to simulate k-mer finding in an index
-def simulate(index, sequence, reference_sequence, num_kmers, k):
-    found = 0
-    correct = 0
-    for _ in range(num_kmers):
-        start = random.randint(0, len(sequence) - k)
-        kmer = sequence[start:start+k]
-        reference_kmer = reference_sequence[start:start+k]
-        if kmer in index:
-            found += 1
-            if start in index[reference_kmer]:
-                correct += 1
-    return found, correct
-
-# Function to simulate RY-mer finding in an index
-def simulate_ry(index, sequence, reference_sequence, num_kmers, k):
-    found = 0
-    correct = 0
-    for _ in range(num_kmers):
-        start = random.randint(0, len(sequence) - k)
-        kmer = to_ry(sequence[start:start+k])
-        reference_kmer = to_ry(reference_sequence[start:start+k])
-        if kmer in index:
-            found += 1
-            if start in index[reference_kmer]:
-                correct += 1
-    return found, correct
-
 # Function to simulate ancient DNA damage
 def simulate_damage(sequence, rate):
     conversion = {'C': 'T', 'G': 'A', 'A': 'A', 'T': 'T'}
@@ -61,12 +35,63 @@ def simulate_damage(sequence, rate):
             damaged_sequence += base
     return damaged_sequence
 
+# Function to simulate k-mer and RY-mer finding in indexes and compute sensitivity, specificity, and AUC
+def simulate(index_kmer, index_ry, sequence, k):
+    true_positive_kmer = 0
+    false_positive_kmer = 0
+
+    true_positive_ry = 0
+    false_positive_ry = 0
+
+    y_true_kmer = []
+    y_pred_kmer = []
+
+    y_true_ry = []
+    y_pred_ry = []
+
+    for start in range(len(sequence) - k):
+        kmer = sequence[start:start + k]
+        ry_kmer = to_ry(kmer)
+
+        if kmer in index_kmer:
+            if start in index_kmer[kmer]:
+                true_positive_kmer += 1
+                y_pred_kmer.append(1)
+            else:
+                false_positive_kmer += 1
+                y_pred_kmer.append(0)
+            y_true_kmer.append(1)
+        else:
+            y_pred_kmer.append(0)
+            y_true_kmer.append(0)
+
+        if ry_kmer in index_ry:
+            if start in index_ry[ry_kmer]:
+                true_positive_ry += 1
+                y_pred_ry.append(1)
+            else:
+                false_positive_ry += 1
+                y_pred_ry.append(0)
+            y_true_ry.append(1)
+        else:
+            y_pred_ry.append(0)
+            y_true_ry.append(0)
+
+    sensitivity_kmer = true_positive_kmer / (len(sequence) - k)
+    specificity_kmer = (len(sequence) - k - false_positive_kmer) / (len(sequence) - k)
+    auc_kmer = metrics.roc_auc_score(y_true_kmer, y_pred_kmer)
+
+    sensitivity_ry = true_positive_ry / (len(sequence) - k)
+    specificity_ry = (len(sequence) - k - false_positive_ry) / (len(sequence) - k)
+    auc_ry = metrics.roc_auc_score(y_true_ry, y_pred_ry)
+
+    return (sensitivity_kmer, specificity_kmer, auc_kmer), (sensitivity_ry, specificity_ry, auc_ry)
+
 def main():
     # Argument parsing
     parser = argparse.ArgumentParser(description='Generate k-mer and RY-mer indexes from a genome')
     parser.add_argument('--genome', type=str, default='rCRS.fa', help='Path to the reference genome fasta file')
     parser.add_argument('--k', type=int, default=10, help='Size of the k-mers')
-    parser.add_argument('--n', type=int, default=10000, help='Number of k-mers for simulation')
     parser.add_argument('--damage_rate', type=float, default=0.1, help='Rate of ancient DNA damage (C->T and G->A mutations)')
     args = parser.parse_args()
 
@@ -86,13 +111,11 @@ def main():
     rymers = get_kmers(ry_genome_str, args.k)
     rymer_index = construct_index(rymers)
 
-    # Run simulation for k-mer index
-    found_kmers, correct_kmers = simulate(kmer_index, damaged_genome_str, genome_str, args.n, args.k)
-    print(f'Found {found_kmers} out of {args.n} random k-mers in k-mer index, {correct_kmers} were correctly located')
+    # Run simulation for k-mer and RY-mer indexes and compute sensitivity, specificity, and AUC
+    (sensitivity_kmer, specificity_kmer, auc_kmer), (sensitivity_ry, specificity_ry, auc_ry) = simulate(kmer_index, rymer_index, damaged_genome_str, args.k)
 
-    # Run simulation for RY-mer index
-    found_rymers, correct_rymers = simulate_ry(rymer_index, damaged_genome_str, genome_str, args.n, args.k)
-    print(f'Found {found_rymers} out of {args.n} random RY-mers in RY-mer index, {correct_rymers} were correctly located')
+    print(f'For k-mer index: Sensitivity = {sensitivity_kmer}, Specificity = {specificity_kmer}, AUC = {auc_kmer}')
+    print(f'For RY-mer index: Sensitivity = {sensitivity_ry}, Specificity = {specificity_ry}, AUC = {auc_ry}')
 
 if __name__ == "__main__":
     main()
