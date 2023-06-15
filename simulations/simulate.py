@@ -37,11 +37,13 @@ def generate_reads(S, N, L, delta):
 
 def find_seeds(index, read, k):
     seeds = defaultdict(list)
+    total_seeds = 0
     for i in range(len(read) - k + 1):
         kmer = read[i:i+k]
         if kmer in index:
             seeds[kmer].extend(index[kmer])
-    return seeds
+            total_seeds += len(index[kmer])
+    return seeds, total_seeds
 
 def check_seeds(seeds, read_origin):
     correct = 0
@@ -59,23 +61,26 @@ def main(N, delta, k, W):
 
     total_correct_minimizer_seeds = 0
     total_correct_rymer_seeds = 0
-    total_seeds = 0
+    total_minimizer_seeds = 0
+    total_rymer_seeds = 0
 
     for read, origin in reads:
-        minimizer_seeds = find_seeds(minimizer_index, read, k)
         rymer_read = ''.join(['R' if base in 'GA' else 'Y' for base in read])
-        rymer_seeds = find_seeds(rymer_index, rymer_read, k)
+        minimizer_seeds, minimizer_seeds_count = find_seeds(minimizer_index, read, k)
+        rymer_seeds, rymer_seeds_count = find_seeds(rymer_index, rymer_read, k)
+
         correct_minimizer_seeds = check_seeds(minimizer_seeds, origin)
         correct_rymer_seeds = check_seeds(rymer_seeds, origin)
         total_correct_minimizer_seeds += correct_minimizer_seeds
         total_correct_rymer_seeds += correct_rymer_seeds
-        total_seeds += len(minimizer_seeds)
+        total_minimizer_seeds += minimizer_seeds_count
+        total_rymer_seeds += rymer_seeds_count
 
-    fraction_correct_minimizer_seeds = total_correct_minimizer_seeds / total_seeds
-    fraction_correct_rymer_seeds = total_correct_rymer_seeds / total_seeds
+    fraction_correct_minimizer_seeds = total_correct_minimizer_seeds / total_minimizer_seeds
+    fraction_correct_rymer_seeds = total_correct_rymer_seeds / total_rymer_seeds
 
-    print(f'Total correct minimizer seeds: {total_correct_minimizer_seeds}  Fraction of correct minimizer seeds: {fraction_correct_minimizer_seeds:.4f}')
-    print(f'Total correct rymer seeds: {total_correct_rymer_seeds}  Fraction of correct rymer seeds: {fraction_correct_rymer_seeds:.4f}')
+    print(f'Total correct minimizer seeds: {total_correct_minimizer_seeds}  Sensitivity of minimizer seeds: {fraction_correct_minimizer_seeds:.4f}  Precision of minimizer seeds: {total_correct_minimizer_seeds / total_minimizer_seeds:.4f}')
+    print(f'Total correct rymer seeds: {total_correct_rymer_seeds}  Sensitivity of rymer seeds: {fraction_correct_rymer_seeds:.4f}  Precision of rymer seeds: {total_correct_rymer_seeds / total_rymer_seeds:.4f}')
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
