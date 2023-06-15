@@ -1,6 +1,8 @@
 import random
 from collections import defaultdict
 import argparse
+import csv
+import os
 
 def generate_dna(length):
     return ''.join(random.choice('ACGT') for _ in range(length))
@@ -103,6 +105,22 @@ def compute_rymer_recovery(minimizer_seeds, rymer_seeds, deaminated_bases, k):
 
     return rymer_recovery_rate
 
+def write_header(filename):
+    header = ['N', 'L', 'delta', 'k', 'W', 'Total minimizer seeds', 'Total rymer seeds',
+              'Minimizer precision', 'Rymer precision', 'Rymer spuriousness',
+              'Rymer recovery rate', 'Injectivity']
+
+    if not os.path.exists(filename) or os.path.getsize(filename) == 0:
+        with open(filename, 'w', newline='') as tsvfile:
+            writer = csv.writer(tsvfile, delimiter='\t')
+            writer.writerow(header)
+
+def append_row(filename, params, stats):
+    row = [*params, *stats]
+    with open(filename, 'a', newline='') as tsvfile:
+        writer = csv.writer(tsvfile, delimiter='\t')
+        writer.writerow(row)
+
 def main(N, L, delta, k, W):
     S = generate_dna(10000)
     minimizer_index, rymer_index, rymer_minimizer_map = create_minimizer_index(S, W, k)
@@ -132,15 +150,22 @@ def main(N, L, delta, k, W):
         rymer_recovery_rate = compute_rymer_recovery(minimizer_seeds, rymer_seeds, deaminated_bases, k)
         rymer_recovery_sum += rymer_recovery_rate
 
-    print(f'Total minimizer seeds: {total_minimizer_seeds}')
-    print(f'Total rymer seeds: {total_rymer_seeds}')
-    print(f'Minimizer precision: {minimizer_precision / len(reads) if len(reads) > 0 else 0}')
-    print(f'Rymer precision: {rymer_precision / len(reads) if len(reads) > 0 else 0}')
-    print(f'Rymer spuriousness: {rymer_spuriousness_sum / len(reads) if len(reads) > 0 else 0}')
-    print(f'Rymer recovery rate: {rymer_recovery_sum / len(reads) if len(reads) > 0 else 0}')
-
     injectivity = calculate_injectivity(rymer_minimizer_map)
-    print(f'Injectivity: {injectivity}')
+
+    params = [N, L, delta, k, W]
+    stats = [
+        total_minimizer_seeds,
+        total_rymer_seeds,
+        minimizer_precision / len(reads) if len(reads) > 0 else 0,
+        rymer_precision / len(reads) if len(reads) > 0 else 0,
+        rymer_spuriousness_sum / len(reads) if len(reads) > 0 else 0,
+        rymer_recovery_sum / len(reads) if len(reads) > 0 else 0,
+        injectivity
+    ]
+
+    filename = 'results.tsv'
+    write_header(filename)
+    append_row(filename, params, stats)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
