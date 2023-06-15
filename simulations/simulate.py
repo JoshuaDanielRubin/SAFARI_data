@@ -12,6 +12,7 @@ def reverse_complement(kmer):
 def create_minimizer_index(S, W, k):
     minimizer_index = defaultdict(list)
     rymer_index = defaultdict(list)
+    rymer_minimizer_map = {}
 
     for i in range(len(S) - W + 1):
         window = S[i:i+W]
@@ -21,8 +22,11 @@ def create_minimizer_index(S, W, k):
             rymer = ''.join(['R' if base in 'GA' else 'Y' for base in kmer])
             minimizer_index[minimizer].append(i + j)
             rymer_index[rymer].append(i + j)
+            if rymer not in rymer_minimizer_map:
+                rymer_minimizer_map[rymer] = set()
+            rymer_minimizer_map[rymer].add(minimizer)
 
-    return minimizer_index, rymer_index
+    return minimizer_index, rymer_index, rymer_minimizer_map
 
 def generate_reads(S, N, L, delta):
     reads = []
@@ -55,9 +59,17 @@ def compute_stats(seeds):
         precision = 0
     return total_seeds_found, precision
 
+def calculate_injectivity(rymer_minimizer_map):
+    unique_minimizers = set()
+    total_rymers = len(rymer_minimizer_map)
+    for minimizers in rymer_minimizer_map.values():
+        unique_minimizers.update(minimizers)
+    injectivity = total_rymers / len(unique_minimizers)
+    return injectivity
+
 def main(N, L, delta, k, W):
     S = generate_dna(10000)
-    minimizer_index, rymer_index = create_minimizer_index(S, W, k)
+    minimizer_index, rymer_index, rymer_minimizer_map = create_minimizer_index(S, W, k)
     reads = generate_reads(S, N, L, delta)
 
     total_minimizer_seeds = 0
@@ -82,6 +94,9 @@ def main(N, L, delta, k, W):
     print(f'Total rymer seeds: {total_rymer_seeds}')
     print(f'Minimizer precision: {minimizer_precision / len(reads) if len(reads) > 0 else 0}')
     print(f'Rymer precision: {rymer_precision / len(reads) if len(reads) > 0 else 0}')
+
+    injectivity = calculate_injectivity(rymer_minimizer_map)
+    print(f'Injectivity: {injectivity}')
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
