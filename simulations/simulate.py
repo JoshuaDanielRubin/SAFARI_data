@@ -154,15 +154,14 @@ def main(N, L, delta, k, W):
 
     params = [N, L, delta, k, W]
     stats = [
-        total_minimizer_seeds,
-        total_rymer_seeds,
-        minimizer_precision / len(reads) if len(reads) > 0 else 0,
-        rymer_precision / len(reads) if len(reads) > 0 else 0,
-        rymer_spuriousness_sum / len(reads) if len(reads) > 0 else 0,
-        rymer_recovery_sum / len(reads) if len(reads) > 0 else 0,
-        injectivity
-    ]
-
+    total_minimizer_seeds,
+    total_rymer_seeds,
+    "{:.3f}".format(minimizer_precision / len(reads)) if len(reads) > 0 else 0,
+    "{:.3f}".format(rymer_precision / len(reads)) if len(reads) > 0 else 0,
+    "{:.3f}".format(rymer_spuriousness_sum / len(reads)) if len(reads) > 0 else 0,
+    "{:.3f}".format(rymer_recovery_sum / len(reads)) if len(reads) > 0 else 0,
+    "{:.3f}".format(injectivity)
+            ]
     filename = 'results.tsv'
     write_header(filename)
     append_row(filename, params, stats)
