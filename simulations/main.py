@@ -46,10 +46,10 @@ def main(N, L, delta, k, W, unique_minimizer_sketch, stdout):
     
     if unique_minimizer_sketch:
         sketch = UniqueMinimizerSketch(S, W, k)
-        sketch_type = 'Unique Minimizer Sketch'
+        sketch_type = 'Unique'
     else:
         sketch = MinimizerSketch(S, W, k)
-        sketch_type = 'Minimizer Sketch'
+        sketch_type = 'Naive'
     
     read_generator = ReadGenerator(S, delta)
     reads = read_generator.generate_reads(N, L)
