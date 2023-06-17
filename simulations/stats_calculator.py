@@ -24,7 +24,7 @@ class StatsCalculator:
 
     def compute_rymer_spuriousness(self):
         minimizer_kmers = {pos for pos, _ in self.minimizer_seeds}
-        rymer_kmers = {pos for pos, correct in self.rymer_seeds if correct}
+        rymer_kmers = {pos for pos, correct in self.rymer_seeds}
 
         # Kmers where the minimizer does not match but the rymer does, and is correct
         spurious_rymer_kmers = rymer_kmers.difference(minimizer_kmers)
@@ -42,19 +42,19 @@ class StatsCalculator:
         rymer_kmers = {pos for pos, correct in self.rymer_seeds if correct}
 
         # Kmers where the minimizer does not match but the rymer does, and is correct
-        spurious_rymer_kmers = rymer_kmers.difference(minimizer_kmers)
+        rymer_kmers = rymer_kmers.difference(minimizer_kmers)
 
         # Of these, the ones that can be explained by deamination
-        deaminated_rymer_kmers = {pos for pos in spurious_rymer_kmers for i in range(self.k) if pos + i in self.deaminated_bases}
+        deaminated_rymer_kmers = {pos for pos in rymer_kmers for i in range(self.k) if pos + i in self.deaminated_bases}
 
         # Fraction of these kmers over the total number of spurious rymer kmers
-        if spurious_rymer_kmers:
-            rymer_recovery_rate = len(deaminated_rymer_kmers) / len(spurious_rymer_kmers)
+        if rymer_kmers:
+            rymer_recovery_rate = len(deaminated_rymer_kmers) / len(rymer_kmers)
         else:
             rymer_recovery_rate = 0
 
-        #print("Number of Minimizers: " + str(len(minimizer_kmers)))
-        #print("Number of Rymers: " + str(len(rymer_kmers)))
+        print("NUMBER OF RYMER BUT NOT KMERS: " + str(len(rymer_kmers)))
+        print("NUMBER EXPLAINED BY DEAM: " + str(len(deaminated_rymer_kmers)))
 
         return rymer_recovery_rate
 
