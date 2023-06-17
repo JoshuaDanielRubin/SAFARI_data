@@ -4,6 +4,127 @@ import argparse
 import csv
 import os
 
+
+class MinimizerSketch:
+    def __init__(self, S, W, k):
+        self.S = S
+        self.W = W
+        self.k = k
+        self.minimizer_index, self.rymer_index, self.rymer_minimizer_map = self.create_minimizer_index()
+
+    def create_minimizer_index(self):
+        minimizer_index = defaultdict(list)
+        rymer_index = defaultdict(list)
+        rymer_minimizer_map = {}
+
+        for i in range(len(self.S) - self.W + 1):
+            window = self.S[i:i + self.W]
+            for j in range(len(window) - self.k + 1):
+                kmer = window[j:j + self.k]
+                minimizer = min(kmer, self.reverse_complement(kmer))
+                rymer = ''.join(['R' if base in 'GA' else 'Y' for base in kmer])
+                minimizer_index[minimizer].append(i + j)
+                rymer_index[rymer].append(i + j)
+                if rymer not in rymer_minimizer_map:
+                    rymer_minimizer_map[rymer] = set()
+                rymer_minimizer_map[rymer].add(minimizer)
+
+        return minimizer_index, rymer_index, rymer_minimizer_map
+
+    @staticmethod
+    def reverse_complement(kmer):
+        complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'}
+        return "".join(complement[base] for base in reversed(kmer))
+
+    def find_seeds(self, index, read, origin):
+        seeds = []
+        for i in range(len(read) - self.k + 1):
+            kmer = read[i:i + self.k]
+            if kmer in index:
+                seeds.extend([(pos, pos == origin + i) for pos in index[kmer]])
+        return seeds
+
+
+class ReadGenerator:
+    def __init__(self, S, delta):
+        self.S = S
+        self.delta = delta
+
+    def generate_reads(self, N, L):
+        reads = []
+        for _ in range(N):
+            start = random.randint(0, len(self.S) - L)
+            read = list(self.S[start:start + L])
+            deaminated_bases = set()
+            for i in range(len(read)):
+                if (read[i] == 'C' or read[i] == 'G') and random.random() < self.delta:
+                    if read[i] == 'C':
+                        read[i] = 'T'
+                    elif read[i] == 'G':
+                        read[i] = 'A'
+                    deaminated_bases.add(i)
+            reads.append((''.join(read), start, deaminated_bases))
+        return reads
+
+
+class StatsCalculator:
+    def __init__(self, minimizer_seeds, rymer_seeds, deaminated_bases, k):
+        self.minimizer_seeds = minimizer_seeds
+        self.rymer_seeds = rymer_seeds
+        self.deaminated_bases = deaminated_bases
+        self.k = k
+
+    def compute_stats(self):
+        total_minimizer_seeds, minimizer_precision = self.compute_seed_stats(self.minimizer_seeds)
+        total_rymer_seeds, rymer_precision = self.compute_seed_stats(self.rymer_seeds)
+        rymer_spuriousness = self.compute_rymer_spuriousness()
+        rymer_recovery_rate = self.compute_rymer_recovery()
+        return total_minimizer_seeds, total_rymer_seeds, minimizer_precision, rymer_precision, rymer_spuriousness, rymer_recovery_rate
+
+    @staticmethod
+    def compute_seed_stats(seeds):
+        total_seeds_found = len(seeds)
+        correct_seeds = sum(correct for _, correct in seeds)
+        if total_seeds_found > 0:
+            precision = correct_seeds / total_seeds_found
+        else:
+            precision = 0
+        return total_seeds_found, precision
+
+    def compute_rymer_spuriousness(self):
+        minimizer_kmers = {pos for pos, _ in self.minimizer_seeds}
+        rymer_kmers = {pos for pos, correct in self.rymer_seeds if correct}
+
+        # Kmers where the minimizer does not match but the rymer does, and is correct
+        spurious_rymer_kmers = rymer_kmers.difference(minimizer_kmers)
+
+        # Fraction of these kmers over the total number of rymer seeds
+        if rymer_kmers:
+            rymer_spuriousness = 1 - (len(spurious_rymer_kmers) / len(rymer_kmers))
+        else:
+            rymer_spuriousness = 0
+
+        return rymer_spuriousness
+
+    def compute_rymer_recovery(self):
+        minimizer_kmers = {pos for pos, _ in self.minimizer_seeds}
+        rymer_kmers = {pos for pos, correct in self.rymer_seeds if correct}
+
+        # Kmers where the minimizer does not match but the rymer does, and is correct
+        spurious_rymer_kmers = rymer_kmers.difference(minimizer_kmers)
+
+        # Of these, the ones that can be explained by deamination
+        deaminated_rymer_kmers = {pos for pos in spurious_rymer_kmers for i in range(self.k) if pos + i in self.deaminated_bases}
+
+        # Fraction of these kmers over the total number of spurious rymer kmers
+        if spurious_rymer_kmers:
+            rymer_recovery_rate = len(deaminated_rymer_kmers) / len(spurious_rymer_kmers)
+        else:
+            rymer_recovery_rate = 0
+
+        return rymer_recovery_rate
+
+
 def print_stats(params, stats):
     labels = ['N', 'L', 'delta', 'k', 'W', 'Total minimizer seeds', 'Total rymer seeds',
               'Minimizer precision', 'Rymer precision', 'Rymer spuriousness',
@@ -11,64 +132,10 @@ def print_stats(params, stats):
     for label, value in zip(labels, params + stats):
         print(f'{label}: {value}')
 
+
 def generate_dna(length):
     return ''.join(random.choice('ACGT') for _ in range(length))
 
-def reverse_complement(kmer):
-    complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'}
-    return "".join(complement[base] for base in reversed(kmer))
-
-def create_minimizer_index(S, W, k):
-    minimizer_index = defaultdict(list)
-    rymer_index = defaultdict(list)
-    rymer_minimizer_map = {}
-
-    for i in range(len(S) - W + 1):
-        window = S[i:i+W]
-        for j in range(len(window) - k + 1):
-            kmer = window[j:j+k]
-            minimizer = min(kmer, reverse_complement(kmer))
-            rymer = ''.join(['R' if base in 'GA' else 'Y' for base in kmer])
-            minimizer_index[minimizer].append(i + j)
-            rymer_index[rymer].append(i + j)
-            if rymer not in rymer_minimizer_map:
-                rymer_minimizer_map[rymer] = set()
-            rymer_minimizer_map[rymer].add(minimizer)
-
-    return minimizer_index, rymer_index, rymer_minimizer_map
-
-def generate_reads(S, N, L, delta):
-    reads = []
-    for _ in range(N):
-        start = random.randint(0, len(S) - L)
-        read = list(S[start:start+L])
-        deaminated_bases = set()
-        for i in range(len(read)):
-            if (read[i] == 'C' or read[i] == 'G') and random.random() < delta:
-                if read[i] == 'C':
-                    read[i] = 'T'
-                elif read[i] == 'G':
-                    read[i] = 'A'
-                deaminated_bases.add(i)
-        reads.append((''.join(read), start, deaminated_bases))
-    return reads
-
-def find_seeds(index, read, k, origin):
-    seeds = []
-    for i in range(len(read) - k + 1):
-        kmer = read[i:i+k]
-        if kmer in index:
-            seeds.extend([(pos, pos == origin + i) for pos in index[kmer]])
-    return seeds
-
-def compute_stats(seeds):
-    total_seeds_found = len(seeds)
-    correct_seeds = sum(correct for _, correct in seeds)
-    if total_seeds_found > 0:
-        precision = correct_seeds / total_seeds_found
-    else:
-        precision = 0
-    return total_seeds_found, precision
 
 def calculate_injectivity(rymer_minimizer_map):
     unique_minimizers = set()
@@ -78,38 +145,6 @@ def calculate_injectivity(rymer_minimizer_map):
     injectivity = total_rymers / len(unique_minimizers)
     return injectivity
 
-def compute_rymer_spuriousness(minimizer_seeds, rymer_seeds):
-    minimizer_kmers = {pos for pos, _ in minimizer_seeds}
-    rymer_kmers = {pos for pos, correct in rymer_seeds if correct}
-
-    # Kmers where the minimizer does not match but the rymer does, and is correct
-    spurious_rymer_kmers = rymer_kmers.difference(minimizer_kmers)
-
-    # Fraction of these kmers over the total number of rymer seeds
-    if rymer_kmers:
-        rymer_spuriousness = 1 - (len(spurious_rymer_kmers) / len(rymer_kmers))
-    else:
-        rymer_spuriousness = 0
-
-    return rymer_spuriousness
-
-def compute_rymer_recovery(minimizer_seeds, rymer_seeds, deaminated_bases, k):
-    minimizer_kmers = {pos for pos, _ in minimizer_seeds}
-    rymer_kmers = {pos for pos, correct in rymer_seeds if correct}
-
-    # Kmers where the minimizer does not match but the rymer does, and is correct
-    spurious_rymer_kmers = rymer_kmers.difference(minimizer_kmers)
-
-    # Of these, the ones that can be explained by deamination
-    deaminated_rymer_kmers = {pos for pos in spurious_rymer_kmers for i in range(k) if pos+i in deaminated_bases}
-
-    # Fraction of these kmers over the total number of spurious rymer kmers
-    if spurious_rymer_kmers:
-        rymer_recovery_rate = len(deaminated_rymer_kmers) / len(spurious_rymer_kmers)
-    else:
-        rymer_recovery_rate = 0
-
-    return rymer_recovery_rate
 
 def write_header(filename):
     header = ['N', 'L', 'delta', 'k', 'W', 'Total minimizer seeds', 'Total rymer seeds',
@@ -121,16 +156,19 @@ def write_header(filename):
             writer = csv.writer(tsvfile, delimiter='\t')
             writer.writerow(header)
 
+
 def append_row(filename, params, stats):
     row = [*params, *stats]
     with open(filename, 'a', newline='') as tsvfile:
         writer = csv.writer(tsvfile, delimiter='\t')
         writer.writerow(row)
 
+
 def main(N, L, delta, k, W, stdout):
     S = generate_dna(10000)
-    minimizer_index, rymer_index, rymer_minimizer_map = create_minimizer_index(S, W, k)
-    reads = generate_reads(S, N, L, delta)
+    sketch = MinimizerSketch(S, W, k)
+    read_generator = ReadGenerator(S, delta)
+    reads = read_generator.generate_reads(N, L)
 
     total_minimizer_seeds = 0
     total_rymer_seeds = 0
@@ -140,34 +178,32 @@ def main(N, L, delta, k, W, stdout):
     rymer_recovery_sum = 0
 
     for read, origin, deaminated_bases in reads:
-        minimizer_seeds = find_seeds(minimizer_index, read, k, origin)
+        minimizer_seeds = sketch.find_seeds(sketch.minimizer_index, read, origin)
         rymer_read = ''.join(['R' if base in 'GA' else 'Y' for base in read])
-        rymer_seeds = find_seeds(rymer_index, rymer_read, k, origin)
+        rymer_seeds = sketch.find_seeds(sketch.rymer_index, rymer_read, origin)
 
-        minimizer_seeds_found, minimizer_seed_precision = compute_stats(minimizer_seeds)
-        rymer_seeds_found, rymer_seed_precision = compute_stats(rymer_seeds)
+        stats_calculator = StatsCalculator(minimizer_seeds, rymer_seeds, deaminated_bases, k)
+        total_minimizer, total_rymer, minimizer_prec, rymer_prec, rymer_spuriousness, rymer_recovery = stats_calculator.compute_stats()
 
-        total_minimizer_seeds += minimizer_seeds_found
-        total_rymer_seeds += rymer_seeds_found
-        minimizer_precision += minimizer_seed_precision
-        rymer_precision += rymer_seed_precision
-        rymer_spuriousness = compute_rymer_spuriousness(minimizer_seeds, rymer_seeds)
+        total_minimizer_seeds += total_minimizer
+        total_rymer_seeds += total_rymer
+        minimizer_precision += minimizer_prec
+        rymer_precision += rymer_prec
         rymer_spuriousness_sum += rymer_spuriousness
-        rymer_recovery_rate = compute_rymer_recovery(minimizer_seeds, rymer_seeds, deaminated_bases, k)
-        rymer_recovery_sum += rymer_recovery_rate
+        rymer_recovery_sum += rymer_recovery
 
-    injectivity = calculate_injectivity(rymer_minimizer_map)
+    injectivity = calculate_injectivity(sketch.rymer_minimizer_map)
 
     params = [N, L, delta, k, W]
     stats = [
-    total_minimizer_seeds,
-    total_rymer_seeds,
-    "{:.3f}".format(minimizer_precision / len(reads)) if len(reads) > 0 else 0,
-    "{:.3f}".format(rymer_precision / len(reads)) if len(reads) > 0 else 0,
-    "{:.3f}".format(rymer_spuriousness_sum / len(reads)) if len(reads) > 0 else 0,
-    "{:.3f}".format(rymer_recovery_sum / len(reads)) if len(reads) > 0 else 0,
-    "{:.3f}".format(injectivity)
-            ]
+        total_minimizer_seeds,
+        total_rymer_seeds,
+        "{:.3f}".format(minimizer_precision / len(reads)) if len(reads) > 0 else 0,
+        "{:.3f}".format(rymer_precision / len(reads)) if len(reads) > 0 else 0,
+        "{:.3f}".format(rymer_spuriousness_sum / len(reads)) if len(reads) > 0 else 0,
+        "{:.3f}".format(rymer_recovery_sum / len(reads)) if len(reads) > 0 else 0,
+        "{:.3f}".format(injectivity)
+    ]
 
     if stdout:
         print_stats(params, stats)
@@ -175,6 +211,7 @@ def main(N, L, delta, k, W, stdout):
         filename = 'results.tsv'
         write_header(filename)
         append_row(filename, params, stats)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
