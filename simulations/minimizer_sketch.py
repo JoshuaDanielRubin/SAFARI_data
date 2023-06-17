@@ -18,19 +18,18 @@ class UniqueMinimizerSketch:
             for j in range(len(window) - self.k + 1):
                 kmer = window[j:j + self.k]
                 minimizer = min(kmer, self.reverse_complement(kmer))
-                rymer = ''.join(['R' if base in 'GA' else 'Y' for base in kmer])
-                minimizers.append((minimizer, rymer))
-                minimizer_index[minimizer].append(i + j)
-                rymer_index[rymer].append(i + j)
-                rymer_minimizer_map[rymer].add(minimizer)
+                minimizers.append((minimizer, i + j))
 
             # select the most unique minimizer in the window
-            unique_minimizer = min(minimizers, key=lambda x: (len(rymer_minimizer_map[x[1]]), x[0]))
+            unique_minimizer = min(minimizers, key=lambda x: (len(minimizer_index[x[0]]), x[0]))
 
-            # update the minimizer index, rymer index, and rymer minimizer map with the selected minimizer
-            minimizer, rymer = unique_minimizer
-            minimizer_index[minimizer].append(i)
-            rymer_index[rymer].append(i)
+            # update the minimizer index with the selected minimizer
+            minimizer, pos = unique_minimizer
+            minimizer_index[minimizer].append(pos)
+
+            # create rymer and update rymer index and rymer minimizer map
+            rymer = ''.join(['R' if base in 'GA' else 'Y' for base in minimizer])
+            rymer_index[rymer].append(pos)
             rymer_minimizer_map[rymer].add(minimizer)
 
         return minimizer_index, rymer_index, rymer_minimizer_map
@@ -48,6 +47,7 @@ class UniqueMinimizerSketch:
                 seeds.extend([(pos, pos == origin + i) for pos in index[kmer]])
         return seeds
 
+
 class MinimizerSketch:
     def __init__(self, S, W, k):
         self.S = S
@@ -62,15 +62,24 @@ class MinimizerSketch:
 
         for i in range(len(self.S) - self.W + 1):
             window = self.S[i:i + self.W]
+            minimizers = []
             for j in range(len(window) - self.k + 1):
                 kmer = window[j:j + self.k]
                 minimizer = min(kmer, self.reverse_complement(kmer))
-                rymer = ''.join(['R' if base in 'GA' else 'Y' for base in kmer])
-                minimizer_index[minimizer].append(i + j)
-                rymer_index[rymer].append(i + j)
-                if rymer not in rymer_minimizer_map:
-                    rymer_minimizer_map[rymer] = set()
-                rymer_minimizer_map[rymer].add(minimizer)
+                minimizers.append((minimizer, i + j))
+
+            # select the minimizer in the window
+            minimizer, pos = min(minimizers)
+
+            # update the minimizer index
+            minimizer_index[minimizer].append(pos)
+
+            # create rymer and update rymer index and rymer minimizer map
+            rymer = ''.join(['R' if base in 'GA' else 'Y' for base in minimizer])
+            rymer_index[rymer].append(pos)
+            if rymer not in rymer_minimizer_map:
+                rymer_minimizer_map[rymer] = set()
+            rymer_minimizer_map[rymer].add(minimizer)
 
         return minimizer_index, rymer_index, rymer_minimizer_map
 

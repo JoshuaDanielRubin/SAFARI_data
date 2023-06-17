@@ -53,5 +53,8 @@ class StatsCalculator:
         else:
             rymer_recovery_rate = 0
 
+        #print("Number of Minimizers: " + str(len(minimizer_kmers)))
+        #print("Number of Rymers: " + str(len(rymer_kmers)))
+
         return rymer_recovery_rate
 
