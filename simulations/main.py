@@ -3,7 +3,7 @@ import csv
 import os
 import random
 
-from minimizer_sketch import MinimizerSketch
+from minimizer_sketch import MinimizerSketch, UniqueMinimizerSketch
 from read_generator import ReadGenerator
 from stats_calculator import StatsCalculator
 
@@ -13,10 +13,9 @@ def generate_dna(length):
 def print_stats(params, stats):
     labels = ['N', 'L', 'delta', 'k', 'W', 'Total minimizer seeds', 'Total rymer seeds',
               'Minimizer precision', 'Rymer precision', 'Rymer spuriousness',
-              'Rymer recovery rate', 'Injectivity']
+              'Rymer recovery rate', 'Injectivity', 'Minimizer sketch']
     for label, value in zip(labels, params + stats):
         print(f'{label}: {value}')
-
 
 def calculate_injectivity(rymer_minimizer_map):
     unique_minimizers = set()
@@ -26,17 +25,15 @@ def calculate_injectivity(rymer_minimizer_map):
     injectivity = total_rymers / len(unique_minimizers)
     return injectivity
 
-
 def write_header(filename):
     header = ['N', 'L', 'delta', 'k', 'W', 'Total minimizer seeds', 'Total rymer seeds',
               'Minimizer precision', 'Rymer precision', 'Rymer spuriousness',
-              'Rymer recovery rate', 'Injectivity']
+              'Rymer recovery rate', 'Injectivity', 'Minimizer sketch']
 
     if not os.path.exists(filename) or os.path.getsize(filename) == 0:
         with open(filename, 'w', newline='') as tsvfile:
             writer = csv.writer(tsvfile, delimiter='\t')
             writer.writerow(header)
-
 
 def append_row(filename, params, stats):
     row = [*params, *stats]
@@ -44,10 +41,16 @@ def append_row(filename, params, stats):
         writer = csv.writer(tsvfile, delimiter='\t')
         writer.writerow(row)
 
-
-def main(N, L, delta, k, W, stdout):
+def main(N, L, delta, k, W, unique_minimizer_sketch, stdout):
     S = generate_dna(10000)
-    sketch = MinimizerSketch(S, W, k)
+    
+    if unique_minimizer_sketch:
+        sketch = UniqueMinimizerSketch(S, W, k)
+        sketch_type = 'Unique Minimizer Sketch'
+    else:
+        sketch = MinimizerSketch(S, W, k)
+        sketch_type = 'Minimizer Sketch'
+    
     read_generator = ReadGenerator(S, delta)
     reads = read_generator.generate_reads(N, L)
 
@@ -83,7 +86,8 @@ def main(N, L, delta, k, W, stdout):
         "{:.3f}".format(rymer_precision / len(reads)) if len(reads) > 0 else 0,
         "{:.3f}".format(rymer_spuriousness_sum / len(reads)) if len(reads) > 0 else 0,
         "{:.3f}".format(rymer_recovery_sum / len(reads)) if len(reads) > 0 else 0,
-        "{:.3f}".format(injectivity)
+        "{:.3f}".format(injectivity),
+        sketch_type
     ]
 
     if stdout:
@@ -93,7 +97,6 @@ def main(N, L, delta, k, W, stdout):
         write_header(filename)
         append_row(filename, params, stats)
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--N', type=int, default=1000, help='Number of reads')
@@ -101,6 +104,7 @@ if __name__ == "__main__":
     parser.add_argument('--delta', type=float, default=0.01, help='Mutation rate')
     parser.add_argument('--k', type=int, default=15, help='Length of k-mer')
     parser.add_argument('--W', type=int, default=30, help='Length of window')
+    parser.add_argument('--unique', action='store_true', help='Use unique minimizer sketch')
     parser.add_argument('--stdout', action='store_true', help='Print results to stdout instead of writing to a file')
     args = parser.parse_args()
 
@@ -110,5 +114,5 @@ if __name__ == "__main__":
     assert args.k > 0, "Length of k-mer must be greater than 0"
     assert args.W >= args.k, "Length of window must be greater than or equal to length of k-mer"
 
-    main(args.N, args.L, args.delta, args.k, args.W, args.stdout)
+    main(args.N, args.L, args.delta, args.k, args.W, args.unique, args.stdout)
 
