@@ -1,23 +1,26 @@
 #!/bin/bash
 
 # Define the filename of the Python script
-python_script="simulate.py"
+python_script="main.py"
 
 # Run the Python script with varying parameters
-for N in 500 1000 1500
+for W in 20
 do
-    for L in 80 100 120
+    for L in 100
     do
-        for delta in 0.01 0.02 0.03
+        for delta in 0.01 0.5
         do
-            for k in 10 15 20
+            for k in 10 15
             do
-                for W in 20 30 40
+                for N in 100 500 1000 1500 3000
                 do
-                    if [ $W -ge $k ]; then
-                        echo "Running with N=$N, L=$L, delta=$delta, k=$k, W=$W"
-                        python3 $python_script --N $N --L $L --delta $delta --k $k --W $W
-                    fi
+                    for unique_flag in "" "--unique"
+                    do
+                        if [ $W -ge $k ]; then
+                            echo "Running with N=$N, L=$L, delta=$delta, k=$k, W=$W $unique_flag"
+                            python3 $python_script --N $N --L $L --delta $delta --k $k --W $W $unique_flag
+                        fi
+                    done
                 done
             done
         done
