@@ -53,8 +53,8 @@ class StatsCalculator:
         else:
             rymer_recovery_rate = 0
 
-        print("NUMBER OF RYMER BUT NOT KMERS: " + str(len(rymer_kmers)))
-        print("NUMBER EXPLAINED BY DEAM: " + str(len(deaminated_rymer_kmers)))
+        #print("NUMBER OF RYMER BUT NOT KMERS: " + str(len(rymer_kmers)))
+        #print("NUMBER EXPLAINED BY DEAM: " + str(len(deaminated_rymer_kmers)))
 
         return rymer_recovery_rate
 

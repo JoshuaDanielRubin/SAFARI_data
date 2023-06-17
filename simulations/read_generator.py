@@ -1,6 +1,5 @@
 import random
 
-
 class ReadGenerator:
     def __init__(self, S, delta):
         self.S = S
@@ -18,7 +17,7 @@ class ReadGenerator:
                         read[i] = 'T'
                     elif read[i] == 'G':
                         read[i] = 'A'
-                    deaminated_bases.add(i)
+                    deaminated_bases.add((start + i) % len(self.S))  # store the absolute position
             reads.append((''.join(read), start, deaminated_bases))
         return reads
 

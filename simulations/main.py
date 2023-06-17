@@ -42,7 +42,7 @@ def append_row(filename, params, stats):
         writer.writerow(row)
 
 def main(N, L, delta, k, W, unique_minimizer_sketch, stdout):
-    S = generate_dna(10000)
+    S = generate_dna(20000)
     
     if unique_minimizer_sketch:
         sketch = UniqueMinimizerSketch(S, W, k)
