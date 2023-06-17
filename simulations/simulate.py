@@ -4,6 +4,13 @@ import argparse
 import csv
 import os
 
+def print_stats(params, stats):
+    labels = ['N', 'L', 'delta', 'k', 'W', 'Total minimizer seeds', 'Total rymer seeds',
+              'Minimizer precision', 'Rymer precision', 'Rymer spuriousness',
+              'Rymer recovery rate', 'Injectivity']
+    for label, value in zip(labels, params + stats):
+        print(f'{label}: {value}')
+
 def generate_dna(length):
     return ''.join(random.choice('ACGT') for _ in range(length))
 
@@ -121,7 +128,7 @@ def append_row(filename, params, stats):
         writer = csv.writer(tsvfile, delimiter='\t')
         writer.writerow(row)
 
-def main(N, L, delta, k, W):
+def main(N, L, delta, k, W, stdout):
     S = generate_dna(10000)
     minimizer_index, rymer_index, rymer_minimizer_map = create_minimizer_index(S, W, k)
     reads = generate_reads(S, N, L, delta)
@@ -162,9 +169,13 @@ def main(N, L, delta, k, W):
     "{:.3f}".format(rymer_recovery_sum / len(reads)) if len(reads) > 0 else 0,
     "{:.3f}".format(injectivity)
             ]
-    filename = 'results.tsv'
-    write_header(filename)
-    append_row(filename, params, stats)
+
+    if stdout:
+        print_stats(params, stats)
+    else:
+        filename = 'results.tsv'
+        write_header(filename)
+        append_row(filename, params, stats)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -173,6 +184,7 @@ if __name__ == "__main__":
     parser.add_argument('--delta', type=float, default=0.01, help='Mutation rate')
     parser.add_argument('--k', type=int, default=15, help='Length of k-mer')
     parser.add_argument('--W', type=int, default=30, help='Length of window')
+    parser.add_argument('--stdout', action='store_true', help='Print results to stdout instead of writing to a file')
     args = parser.parse_args()
 
     assert 0 <= args.delta <= 1, "Mutation rate must be between 0 and 1"
@@ -181,5 +193,5 @@ if __name__ == "__main__":
     assert args.k > 0, "Length of k-mer must be greater than 0"
     assert args.W >= args.k, "Length of window must be greater than or equal to length of k-mer"
 
-    main(args.N, args.L, args.delta, args.k, args.W)
+    main(args.N, args.L, args.delta, args.k, args.W, args.stdout)
 
