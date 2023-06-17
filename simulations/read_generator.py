@@ -9,8 +9,8 @@ class ReadGenerator:
     def generate_reads(self, N, L):
         reads = []
         for _ in range(N):
-            start = random.randint(0, len(self.S) - L)
-            read = list(self.S[start:start + L])
+            start = random.randint(0, len(self.S) - 1)
+            read = [self.S[i % len(self.S)] for i in range(start, start + L)] # Circular!
             deaminated_bases = set()
             for i in range(len(read)):
                 if (read[i] == 'C' or read[i] == 'G') and random.random() < self.delta:
