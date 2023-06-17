@@ -101,7 +101,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--N', type=int, default=1000, help='Number of reads')
     parser.add_argument('--L', type=int, default=100, help='Read length')
-    parser.add_argument('--delta', type=float, default=0.01, help='Mutation rate')
+    parser.add_argument('--delta', type=float, default=0.3, help='Mutation rate')
     parser.add_argument('--k', type=int, default=15, help='Length of k-mer')
     parser.add_argument('--W', type=int, default=30, help='Length of window')
     parser.add_argument('--unique', action='store_true', help='Use unique minimizer sketch')
