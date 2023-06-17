@@ -101,12 +101,11 @@ def compute_rymer_recovery(minimizer_seeds, rymer_seeds, deaminated_bases, k):
     spurious_rymer_kmers = rymer_kmers.difference(minimizer_kmers)
 
     # Of these, the ones that can be explained by deamination
-    deaminated_kmers = {pos+i for pos in spurious_rymer_kmers for i in range(k)}  # Flattened
-    deaminated_rymer_kmers = deaminated_kmers.intersection(deaminated_bases)
+    deaminated_rymer_kmers = {pos for pos in spurious_rymer_kmers for i in range(k) if pos+i in deaminated_bases}
 
     # Fraction of these kmers over the total number of spurious rymer kmers
     if spurious_rymer_kmers:
-        rymer_recovery_rate = len(deaminated_rymer_kmers) / len(deaminated_kmers)
+        rymer_recovery_rate = len(deaminated_rymer_kmers) / len(spurious_rymer_kmers)
     else:
         rymer_recovery_rate = 0
 
