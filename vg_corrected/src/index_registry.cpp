@@ -3709,7 +3709,7 @@ IndexRegistry VGIndexes::get_vg_index_registry() {
     });
 
 
- ////////////////////////////////////
+     ////////////////////////////////////
     // Rymers Recipes
     ////////////////////////////////////
 
@@ -3746,7 +3746,7 @@ IndexRegistry VGIndexes::get_vg_index_registry() {
         init_in(infile_dist, dist_filename);
         auto distance_index = vg::io::VPKG::load_one<SnarlDistanceIndex>(dist_filename);
         gbwtgraph::DefaultMinimizerIndex rymers(IndexingParameters::rymer_k,
-                                                    IndexingParameters::rymer_w
+                                                IndexingParameters::rymer_w
                                                     );
                 
 

@@ -332,6 +332,8 @@ protected:
      */
     std::vector<Minimizer> find_minimizers(const std::string& sequence, Funnel& funnel) const;
 
+    std::vector<Minimizer> find_rymers(const std::string& sequence, Funnel& funnel) const;
+
     /**
      * Find seeds for all minimizers passing the filters.
      */

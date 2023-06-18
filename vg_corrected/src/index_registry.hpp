@@ -107,12 +107,12 @@ struct IndexingParameters {
     static int minimizer_k;
     // length of window if using minimizers [11]
     static int minimizer_w;
+    // length of internal s-mer if using bounded syncmers [18]
+    static int minimizer_s;
     // length of rymer used in rymer index [29]
     static int rymer_k;
     // length of window if using minimizers [11]
     static int rymer_w;
-    // length of internal s-mer if using bounded syncmers [18]
-    static int minimizer_s;
     // length of internal s-mer if using bounded syncmers [18]
     static int rymer_s;
     // the number of paths that will make up the path cover GBWT [16]

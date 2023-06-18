@@ -24,7 +24,7 @@
 //#define debug
 // Turn on printing of minimizer fact tables
 //#define print_minimizer_table
-#define print_minimizer_table_rymer
+//#define print_minimizer_table_rymer
 // Dump local graphs that we align against
 //#define debug_dump_graph
 // Dump fragment length distribution information
@@ -561,6 +561,18 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
     std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel);
     std::vector<Minimizer> minimizers_rymer = this->find_minimizers(gbwtgraph::convertToRymerSpace(aln.sequence()), funnel_rymer);
 
+    for (size_t i = 0; i < minimizers.size(); ++i) {
+        cerr << "Minimizer number of hits: " << minimizers[i].hits << endl;
+        cerr << "Minimizer candidates in a window: " << minimizers[i].candidates_per_window << endl;
+    }
+
+    for (size_t i = 0; i < minimizers_rymer.size(); ++i) {
+        cerr << "Rymer number of hits: " << minimizers_rymer[i].hits << endl;
+        cerr << "Rymer candidates in a window: " << minimizers_rymer[i].candidates_per_window << endl;
+    }
+
+    cerr << endl << endl;
+
     //Since there can be two different versions of a distance index, find seeds and clusters differently
 
     //One of these two will be filled
@@ -599,6 +611,7 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
     // Also find the best and second-best cluster scores.
     if (this->track_provenance) {
         funnel.substage("score");
+        funnel_rymer.substage("score");
     }
     double best_cluster_score = 0.0, second_best_cluster_score = 0.0;
     for (size_t i = 0; i < clusters.size(); i++) {
@@ -1266,34 +1279,35 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
     }
 
 #ifdef print_minimizer_table
-    cerr << aln.sequence() << "\t";
-    for (char c : aln.quality()) {
-        cerr << (char)(c+33);
-    }
-    cerr << "\t" << clusters.size();
+    cerr << "KMER: " << aln.sequence() << "\t" << std::endl;
+    //for (char c : aln.quality()) {
+    //    cerr << (char)(c+33);
+   // }
+    //cerr << "\t" << clusters.size();
     for (size_t i = 0 ; i < minimizers.size() ; i++) {
+        cerr << "NEW MINIMIZER" << endl;
         auto& minimizer = minimizers[i];
         cerr << "\t"
-             << minimizer.value.key.decode(minimizer.length) << "\t"
-             << minimizer.forward_offset() << "\t"
-             << minimizer.agglomeration_start << "\t"
-             << minimizer.agglomeration_length << "\t"
-             << minimizer.hits << "\t"
-             << minimizer_kept_count[i];
-         if (minimizer_kept_count[i]>0) {
-             assert(minimizer.hits<=hard_hit_cap) ;
-         }
+             << minimizer.value.key.decode(minimizer.length) << "\t" << endl;
+             //<< minimizer.forward_offset() << "\t"
+             //<< minimizer.agglomeration_start << "\t"
+             //<< minimizer.agglomeration_length << "\t"
+             //<< minimizer.hits << "\t"
+             //<< minimizer_kept_count[i];
+        // if (minimizer_kept_count[i]>0) {
+        //     assert(minimizer.hits<=hard_hit_cap) ;
+        // }
     }
-    cerr << "\t" << uncapped_mapq << "\t" << mapq_explored_cap << "\t"  << mappings.front().mapping_quality() << "\t";
-    cerr << "\t";
-    for (auto& score : scores) {
-        cerr << score << ",";
-    }
-    if (track_correctness) {
-        cerr << "\t" << funnel.last_correct_stage() << endl;
-    } else {
-        cerr << "\t" << "?" << endl;
-    }
+    //cerr << "\t" << uncapped_mapq << "\t" << mapq_explored_cap << "\t"  << mappings.front().mapping_quality() << "\t";
+    //cerr << "\t";
+    //for (auto& score : scores) {
+    //    cerr << score << ",";
+   // }
+   // if (track_correctness) {
+     //   cerr << "\t" << funnel.last_correct_stage() << endl;
+    //} else {
+     //   cerr << "\t" << "?" << endl;
+   // }
 #endif
 
 #ifdef print_minimizer_table_rymer
