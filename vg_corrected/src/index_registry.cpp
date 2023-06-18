@@ -492,7 +492,7 @@ IndexRegistry VGIndexes::get_vg_index_registry() {
     
     registry.register_index("GBWTGraph", "gg");
     registry.register_index("Giraffe GBZ", "giraffe.gbz");
-    
+    registry.register_index("Rymers", "ry");
     registry.register_index("Minimizers", "min");
     
     /*********************
@@ -3708,6 +3708,7 @@ IndexRegistry VGIndexes::get_vg_index_registry() {
         return all_outputs;
     });
 
+
     ////////////////////////////////////
     // Minimizers Recipes
     ////////////////////////////////////
@@ -3795,7 +3796,8 @@ vector<IndexName> VGIndexes::get_default_giraffe_indexes() {
     vector<IndexName> indexes{
         "Giraffe Distance Index",
         "Giraffe GBZ",
-        "Minimizers"
+        "Minimizers",
+        "Rymers"
     };
     return indexes;
 }

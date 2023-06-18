@@ -23,14 +23,14 @@
 // Turn on debugging prints
 //#define debug
 // Turn on printing of minimizer fact tables
-//#define print_minimizer_table
-//#define print_minimizer_table_rymer
+#define print_minimizer_table
+#define print_minimizer_table_rymer
 // Dump local graphs that we align against
 //#define debug_dump_graph
 // Dump fragment length distribution information
 //#define debug_fragment_distr
 //Do a brute force check that clusters are correct
-//#define debug_validate_clusters
+#define debug_validate_clusters
 
 namespace vg {
 
@@ -553,27 +553,11 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
         return aln.sequence();
     });
 
-    std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel);
+    //std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel);
 
     // Get the original sequence and the fully converted sequence
-    //std::vector<Minimizer> minimizers_og = this->find_minimizers(aln.sequence(), funnel);
-    //std::vector<Minimizer> minimizers_rymer = this->find_minimizers(gbwtgraph::convertToRymerSpace(aln.sequence()), funnel);
-
-    // Combine minimizers from both sequences
-    //std::vector<Minimizer> minimizers(minimizers_og.begin(), minimizers_og.end());
-    //minimizers.insert(minimizers.end(), minimizers_rymer.begin(), minimizers_rymer.end());
-
-    //std::vector<std::string> partially_converted_sequences = gbwtgraph::convertPartialToRymerSpace(aln.sequence(), 10, 50);
-    //for (const auto& sequence : partially_converted_sequences) {
-    //    std::vector<Minimizer> minimizers_partial = this->find_minimizers(sequence, funnel);
-    //    minimizers.insert(minimizers.end(), minimizers_partial.begin(), minimizers_partial.end());
-   // }
-
-    // Sort the vector
-    //std::sort(minimizers.begin(), minimizers.end(), [](const Minimizer& a, const Minimizer& b) {
-    //    return a.score > b.score;  // Use > for descending order
-    //});
-
+    std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel);
+    std::vector<Minimizer> minimizers_rymer = this->find_minimizers(gbwtgraph::convertToRymerSpace(aln.sequence()), funnel);
 
     //Since there can be two different versions of a distance index, find seeds and clusters differently
 
@@ -583,7 +567,9 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
 
     // Find the seeds and mark the minimizers that were located.
     vector<Seed> seeds = this->find_seeds<Seed>(minimizers, aln, funnel);
-    //vector<Seed> seeds_rymer = this->find_seeds<Seed>(minimizers_rymer, aln, funnel);
+
+    // Find the seeds and mark the rymers that were located.
+    vector<Seed> seeds_rymer = this->find_seeds<Seed>(minimizers_rymer, aln, funnel);
 
     // Cluster the seeds. Get sets of input seed indexes that go together.
     if (track_provenance) {
@@ -591,14 +577,20 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
     }
 
     clusters = clusterer.cluster_seeds(seeds, get_distance_limit(aln.sequence().size()));
-    //clusters_rymer = clusterer.cluster_seeds(seeds_rymer, get_distance_limit(aln.sequence().size()));
+    clusters_rymer = clusterer.cluster_seeds(seeds_rymer, get_distance_limit(aln.sequence().size()));
 
 #ifdef debug_validate_clusters
     vector<vector<Cluster>> all_clusters;
+    vector<vector<Cluster>> all_clusters_rymer;
     all_clusters.emplace_back(clusters);
+    all_clusters_rymer.emplace_back(clusters_rymer);
     vector<vector<Seed>> all_seeds;
+    vector<vector<Seed>> all_seeds_rymer;
     all_seeds.emplace_back(seeds);
+    all_seeds_rymer.emplace_back(seeds_rymer);
     validate_clusters(all_clusters, all_seeds, get_distance_limit(aln.sequence().size()), 0);
+    validate_clusters(all_clusters_rymer, all_seeds_rymer, get_distance_limit(aln.sequence().size()), 0);
+    cerr << "CLUSTERS ARE VALID!" << endl;
 #endif
 
     // Determine the scores and read coverages for each cluster.
@@ -617,7 +609,7 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
             second_best_cluster_score = cluster.score;
         }
     }
-/*
+
     double best_cluster_score_rymer = 0.0, second_best_cluster_score_rymer = 0.0;
     for (size_t i = 0; i < clusters_rymer.size(); i++) {
         Cluster& cluster_rymer = clusters_rymer[i];
@@ -629,7 +621,7 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
             second_best_cluster_score_rymer = cluster_rymer.score;
         }
     }
-*/
+
     if (show_work) {
         #pragma omp critical (cerr)
         {
@@ -643,15 +635,15 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
     // otherwise be. This ensures that we won't throw away all but one cluster
     // based on score alone, unless it is really bad.
     double cluster_score_cutoff = best_cluster_score - cluster_score_threshold;
-    //double cluster_score_cutoff_rymer = best_cluster_score_rymer - cluster_score_threshold_rymer;
+    double cluster_score_cutoff_rymer = best_cluster_score_rymer - cluster_score_threshold_rymer;
 
     if (cluster_score_cutoff - pad_cluster_score_threshold < second_best_cluster_score) {
         cluster_score_cutoff = std::min(cluster_score_cutoff, second_best_cluster_score);
     }
 
-    //if (cluster_score_cutoff_rymer - pad_cluster_score_threshold_rymer < second_best_cluster_score_rymer) {
-    //    cluster_score_cutoff_rymer = std::min(cluster_score_cutoff_rymer, second_best_cluster_score_rymer);
-   // }
+    if (cluster_score_cutoff_rymer - pad_cluster_score_threshold_rymer < second_best_cluster_score_rymer) {
+        cluster_score_cutoff_rymer = std::min(cluster_score_cutoff_rymer, second_best_cluster_score_rymer);
+    }
 
     if (track_provenance) {
         if (align_from_chains) {
@@ -665,35 +657,35 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
     
     // These are the chains for all the clusters, as score and sequence of visited seeds.
     vector<pair<int, vector<size_t>>> cluster_chains;
-    //vector<pair<int, vector<size_t>>> cluster_chains_rymer;
+    vector<pair<int, vector<size_t>>> cluster_chains_rymer;
 
     // These are the GaplessExtensions for all the clusters.
     vector<vector<GaplessExtension>> cluster_extensions;
-    //vector<vector<GaplessExtension>> cluster_extensions_rymer;
+    vector<vector<GaplessExtension>> cluster_extensions_rymer;
 
     // We use one or the other.
     if (align_from_chains) {
         cluster_chains.reserve(clusters.size());
-        //cluster_chains_rymer.reserve(clusters_rymer.size());
+        cluster_chains_rymer.reserve(clusters_rymer.size());
     } else {
         cluster_extensions.reserve(clusters.size());
-        //cluster_extensions_rymer.reserve(clusters_rymer.size());
+        cluster_extensions_rymer.reserve(clusters_rymer.size());
     }
     // To compute the windows for explored minimizers, we need to get
     // all the minimizers that are explored.
     SmallBitset minimizer_explored(minimizers.size());
-    //SmallBitset minimizer_explored_rymer(minimizers_rymer.size());
+    SmallBitset minimizer_explored_rymer(minimizers_rymer.size());
 
     //How many hits of each minimizer ended up in each cluster we kept?
     vector<vector<size_t>> minimizer_kept_cluster_count;
-    //vector<vector<size_t>> minimizer_kept_cluster_count_rymer;
+    vector<vector<size_t>> minimizer_kept_cluster_count_rymer;
 
     size_t kept_cluster_count = 0;
     size_t kept_cluster_count_rymer = 0;
 
     // What cluster seeds, in start position order, went into each processed cluster result?
     vector<vector<size_t>> processed_cluster_sorted_seeds;
-    //vector<vector<size_t>> processed_cluster_sorted_seeds_rymer;
+    vector<vector<size_t>> processed_cluster_sorted_seeds_rymer;
 
     //Process clusters sorted by both score and read coverage
     process_until_threshold_c<double>(clusters.size(), [&](size_t i) -> double {
@@ -856,9 +848,9 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
         for (size_t i = 0; i < cluster_chains.size(); i++) {
             cluster_alignment_score_estimates[i] = cluster_chains[i].first;
         }
-        //for (size_t i = 0; i < cluster_chains_rymer.size(); i++) {
-        //    cluster_alignment_score_estimates_rymer[i] = cluster_chains_rymer[i].first;
-       // }
+        for (size_t i = 0; i < cluster_chains_rymer.size(); i++) {
+            cluster_alignment_score_estimates_rymer[i] = cluster_chains_rymer[i].first;
+        }
     } else {
         // Just score the extension groups, with a slightly simpler algorithm; don't chain them
         cluster_alignment_score_estimates = this->score_extensions(cluster_extensions, aln, funnel);
@@ -870,7 +862,7 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
 
     //How many of each minimizer ends up in a cluster that actually gets turned into an alignment?
     vector<size_t> minimizer_kept_count(minimizers.size(), 0);
-    //vector<size_t> minimizer_kept_count_rymer(minimizers_rymer.size(), 0);
+    vector<size_t> minimizer_kept_count_rymer(minimizers_rymer.size(), 0);
 
     // Now start the alignment step. Everything has to become an alignment.
 
