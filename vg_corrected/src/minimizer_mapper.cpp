@@ -546,7 +546,9 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
 
     // Make a new funnel instrumenter to watch us map this read.
     Funnel funnel;
+    Funnel funnel_rymer;
     funnel.start(aln.name());
+    funnel_rymer.start(aln.name());
 
     // Prepare the RNG for shuffling ties, if needed
     LazyRNG rng([&]() {
@@ -557,7 +559,7 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
 
     // Get the original sequence and the fully converted sequence
     std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel);
-    std::vector<Minimizer> minimizers_rymer = this->find_minimizers(gbwtgraph::convertToRymerSpace(aln.sequence()), funnel);
+    std::vector<Minimizer> minimizers_rymer = this->find_minimizers(gbwtgraph::convertToRymerSpace(aln.sequence()), funnel_rymer);
 
     //Since there can be two different versions of a distance index, find seeds and clusters differently
 
@@ -569,11 +571,12 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
     vector<Seed> seeds = this->find_seeds<Seed>(minimizers, aln, funnel);
 
     // Find the seeds and mark the rymers that were located.
-    vector<Seed> seeds_rymer = this->find_seeds<Seed>(minimizers_rymer, aln, funnel);
+    vector<Seed> seeds_rymer = this->find_seeds<Seed>(minimizers_rymer, aln, funnel_rymer);
 
     // Cluster the seeds. Get sets of input seed indexes that go together.
     if (track_provenance) {
         funnel.stage("cluster");
+        funnel_rymer.stage("cluster");
     }
 
     clusters = clusterer.cluster_seeds(seeds, get_distance_limit(aln.sequence().size()));
