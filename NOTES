@@ -1,15 +1,25 @@
 Modified files: 
 - src/minimizer_mapper.cpp
 - src/subcommand/minimizer_main.cpp
+- src/subcommand/giraffe_main.cpp
 - src/index_registry.cpp
 - index_registry.hpp
 - depts/gbwtgraph/src/utils.cpp
 - include/gbwtgraph/utils.h
 
+To create the indexes
+
+./vg_corrected/bin/vg minimizer -t 60 -p -g ../euka_dir/euka_db.gbwt -d ../euka_dir/euka_db.dist -o test.min ../euka_dir/euka
+_db.og > test.min
+
+./vg_corrected/bin/vg rymer -t 60 -p -g ../euka_dir/euka_db.gbwt -d ../euka_dir/euka_db.dist -o test.min ../euka_dir/euka
+_db.og > test.ry
+
+
 To run giraffe:
 
 ./vg_corrected/bin/vg giraffe -f test_data/BearCreak/BearCreakCombo.pp.rmdup.fq.gz -t 60 \
--m ../euka_dir/euka_db.min -d ../euka_dir/euka_db.dist -Z ../euka_dir/euka_db.giraffe.gbz > test.gam
+-m test.min -q test.ry -d ../euka_dir/euka_db.dist -Z ../euka_dir/euka_db.giraffe.gbz > test.gam
 
 Use vg filter -q 1 to get only the mapped alignments
 
