@@ -1295,11 +1295,11 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
 
 #ifdef print_minimizer_table_rymer
     cerr << endl << endl;
-    cerr << aln.sequence() << endl;
+    cerr << "kmer in read: " << '\t' << aln.sequence() << endl;
     //for (char c : aln.quality()) {
     //    cerr << (char)(c+33);
    // }
-    cerr << "\t" << clusters_rymer.size();
+    //cerr << "\t" << clusters_rymer.size();
     for (size_t i = 0 ; i < minimizers_rymer.size() ; i++) {
         cerr << endl << "NEW RYMER" << endl;
         auto& minimizer_rymer = minimizers_rymer[i];
