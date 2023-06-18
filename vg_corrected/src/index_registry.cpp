@@ -3709,6 +3709,58 @@ IndexRegistry VGIndexes::get_vg_index_registry() {
     });
 
 
+ ////////////////////////////////////
+    // Rymers Recipes
+    ////////////////////////////////////
+
+    registry.register_recipe({"Rymers"}, {"Giraffe Distance Index", "Giraffe GBZ"},
+                             [](const vector<const IndexFile*>& inputs,
+                                const IndexingPlan* plan,
+                                AliasGraph& alias_graph,
+                                const IndexGroup& constructing) {
+        if (IndexingParameters::verbosity != IndexingParameters::None) {
+            cerr << "[IndexRegistry]: Constructing rymer index." << endl;
+        }
+        
+        // TODO: should the distance index input be a joint simplification to avoid serializing it?
+        
+        assert(inputs.size() == 2);
+        auto dist_filenames = inputs[0]->get_filenames();
+        auto gbz_filenames = inputs[1]->get_filenames();
+        assert(dist_filenames.size() == 1);
+        assert(gbz_filenames.size() == 1);
+        auto dist_filename = dist_filenames.front();
+        auto gbz_filename = gbz_filenames.front();
+                
+        assert(constructing.size() == 1);
+        vector<vector<string>> all_outputs(constructing.size());
+        auto rymer_output = *constructing.begin();
+        auto& output_names = all_outputs[0];
+        
+
+        ifstream infile_gbz;
+        init_in(infile_gbz, gbz_filename);
+        auto gbz = vg::io::VPKG::load_one<gbwtgraph::GBZ>(infile_gbz);
+        
+        ifstream infile_dist;
+        init_in(infile_dist, dist_filename);
+        auto distance_index = vg::io::VPKG::load_one<SnarlDistanceIndex>(dist_filename);
+        gbwtgraph::DefaultMinimizerIndex rymers(IndexingParameters::rymer_k,
+                                                    IndexingParameters::rymer_w
+                                                    );
+                
+
+        gbwtgraph::index_haplotypes_rymer(gbz->graph, rymers, [&](const pos_t& pos) -> gbwtgraph::payload_type {
+            return MIPayload::encode(get_minimizer_distances(*distance_index, pos));
+        });
+        
+        string output_name = plan->output_filepath(rymer_output);
+        save_minimizer(rymers, output_name, IndexingParameters::verbosity == IndexingParameters::Debug);
+        
+        output_names.push_back(output_name);
+        return all_outputs;
+    });
+
     ////////////////////////////////////
     // Minimizers Recipes
     ////////////////////////////////////
