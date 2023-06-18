@@ -23,7 +23,7 @@
 // Turn on debugging prints
 //#define debug
 // Turn on printing of minimizer fact tables
-#define print_minimizer_table
+//#define print_minimizer_table
 #define print_minimizer_table_rymer
 // Dump local graphs that we align against
 //#define debug_dump_graph
@@ -590,7 +590,6 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
     all_seeds_rymer.emplace_back(seeds_rymer);
     validate_clusters(all_clusters, all_seeds, get_distance_limit(aln.sequence().size()), 0);
     validate_clusters(all_clusters_rymer, all_seeds_rymer, get_distance_limit(aln.sequence().size()), 0);
-    cerr << "CLUSTERS ARE VALID!" << endl;
 #endif
 
     // Determine the scores and read coverages for each cluster.
@@ -1296,22 +1295,21 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
 
 #ifdef print_minimizer_table_rymer
     cerr << endl << endl;
-    cerr << "RYMERS: " << endl;
     cerr << aln.sequence() << endl;
     //for (char c : aln.quality()) {
     //    cerr << (char)(c+33);
    // }
     cerr << "\t" << clusters_rymer.size();
     for (size_t i = 0 ; i < minimizers_rymer.size() ; i++) {
-        cerr << endl << "NEW MINIMIZER" << endl;
+        cerr << endl << "NEW RYMER" << endl;
         auto& minimizer_rymer = minimizers_rymer[i];
         cerr << "\t"
-             << minimizer_rymer.value.key.decode_rymer(minimizer_rymer.length) << "\t"
-             << minimizer_rymer.forward_offset() << "\t"
-             << minimizer_rymer.agglomeration_start << "\t"
-             << minimizer_rymer.agglomeration_length << "\t"
-             << minimizer_rymer.hits << "\t"
-             << minimizer_kept_count_rymer[i];
+             << minimizer_rymer.value.key.decode_rymer(minimizer_rymer.length) << "\t";
+             //<< minimizer_rymer.forward_offset() << "\t"
+             //<< minimizer_rymer.agglomeration_start << "\t"
+             //<< minimizer_rymer.agglomeration_length << "\t"
+             //<< minimizer_rymer.hits << "\t"
+             //<< minimizer_kept_count_rymer[i];
          if (minimizer_kept_count_rymer[i]>0) {
              assert(minimizer_rymer.hits<=hard_hit_cap_rymer) ;
          }
