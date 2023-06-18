@@ -10,10 +10,10 @@ Modified files:
 To create the indexes
 
 ./vg_corrected/bin/vg minimizer -t 60 -p -g ../euka_dir/euka_db.gbwt -d ../euka_dir/euka_db.dist -o test.min ../euka_dir/euka
-_db.og > test.min
+_db.og
 
-./vg_corrected/bin/vg rymer -t 60 -p -g ../euka_dir/euka_db.gbwt -d ../euka_dir/euka_db.dist -o test.min ../euka_dir/euka
-_db.og > test.ry
+./vg_corrected/bin/vg rymer -t 60 -p -g ../euka_dir/euka_db.gbwt -d ../euka_dir/euka_db.dist -o test.ry ../euka_dir/euka
+_db.og
 
 
 To run giraffe:
