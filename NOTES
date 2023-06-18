@@ -9,11 +9,9 @@
 
 To create the indexes on the euka graph
 
-./vg_corrected/bin/vg minimizer -t 60 -p -g ../euka_dir/euka_db.gbwt -d ../euka_dir/euka_db.dist -o test.min ../euka_dir/euka
-_db.og
+./vg_corrected/bin/vg minimizer -t 60 -p -g ../euka_dir/euka_db.gbwt -d ../euka_dir/euka_db.dist -o test.min ../euka_dir/euka_db.og
 
-./vg_corrected/bin/vg rymer -t 60 -p -g ../euka_dir/euka_db.gbwt -d ../euka_dir/euka_db.dist -o test.ry ../euka_dir/euka
-_db.og
+./vg_corrected/bin/vg rymer -t 60 -p -g ../euka_dir/euka_db.gbwt -d ../euka_dir/euka_db.dist -o test.ry ../euka_dir/euka_db.og
 
 And on the test graph:
 
