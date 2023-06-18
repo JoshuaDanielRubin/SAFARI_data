@@ -19,6 +19,7 @@ And on the test graph:
 
 ./vg_corrected/bin/vg rymer -t 60 -p -g test_graph/test.gbwt -d test_graph/test.dist -o test.ry test_graph/test.xg -k 3 -w 5
 
+////////////////////////////////////////////////
 
 To run giraffe:
 
@@ -26,6 +27,12 @@ To run giraffe:
 -m test.min -q test.ry -d ../euka_dir/euka_db.dist -Z ../euka_dir/euka_db.giraffe.gbz > test.gam
 
 Use vg filter -q 1 to get only the mapped alignments
+
+And on test graph:
+
+./vg_corrected/bin/vg giraffe -f test_graph/test.fq -t 60 -m test_graph/test.min -d test_graph/test.dist -Z test_graph/test.giraffe.gbz > test.gam
+
+/////////////////////////////////////////////////
 
 BEAR DATA NO CORRECTION
 
