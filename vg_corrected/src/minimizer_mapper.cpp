@@ -23,8 +23,8 @@
 // Turn on debugging prints
 //#define debug
 // Turn on printing of minimizer fact tables
-//#define print_minimizer_table
-//#define print_minimizer_table_rymer
+#define print_minimizer_table
+#define print_minimizer_table_rymer
 // Dump local graphs that we align against
 //#define debug_dump_graph
 // Dump fragment length distribution information
@@ -38,11 +38,9 @@ using namespace std;
 
 MinimizerMapper::MinimizerMapper(const gbwtgraph::GBWTGraph& graph,
     const gbwtgraph::DefaultMinimizerIndex& minimizer_index,
-    const gbwtgraph::DefaultMinimizerIndex& rymer_index,
     SnarlDistanceIndex* distance_index, 
     const PathPositionHandleGraph* path_graph) :
     path_graph(path_graph), minimizer_index(minimizer_index),
-    rymer_index(rymer_index),
     distance_index(distance_index),  
     clusterer(distance_index, &graph),
     gbwt_graph(graph),
@@ -557,22 +555,10 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
         return aln.sequence();
     });
 
-    //std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel);
-
     // Get the original sequence and the fully converted sequence
     std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel);
-    std::vector<Minimizer> minimizers_rymer = this->find_rymers(gbwtgraph::convertToRymerSpace(aln.sequence()), funnel_rymer);
-
-
-    for (size_t i = 0; i < minimizers.size(); ++i) {
-        cerr << "Minimizer number of hits: " << minimizers[i].hits << endl;
-    }
-
-    for (size_t i = 0; i < minimizers_rymer.size(); ++i) {
-        cerr << "Rymer number of hits: " << minimizers_rymer[i].hits << endl;
-    }
-
-    cerr << endl << endl;
+    std::vector<Minimizer> minimizers_rymer = minimizers;
+    //std::vector<Minimizer> minimizers_rymer = this->find_rymers(gbwtgraph::convertToRymerSpace(aln.sequence()), funnel_rymer);
 
     //Since there can be two different versions of a distance index, find seeds and clusters differently
 
@@ -584,7 +570,7 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
     vector<Seed> seeds = this->find_seeds<Seed>(minimizers, aln, funnel);
 
     // Find the seeds and mark the rymers that were located.
-    vector<Seed> seeds_rymer = this->find_seeds<Seed>(minimizers_rymer, aln, funnel_rymer);
+    //vector<Seed> seeds_rymer = this->find_seeds<Seed>(minimizers_rymer, aln, funnel_rymer);
 
     // Cluster the seeds. Get sets of input seed indexes that go together.
     if (track_provenance) {
@@ -593,19 +579,19 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
     }
 
     clusters = clusterer.cluster_seeds(seeds, get_distance_limit(aln.sequence().size()));
-    clusters_rymer = clusterer.cluster_seeds(seeds_rymer, get_distance_limit(aln.sequence().size()));
+    //clusters_rymer = clusterer.cluster_seeds(seeds_rymer, get_distance_limit(aln.sequence().size()));
 
 #ifdef debug_validate_clusters
     vector<vector<Cluster>> all_clusters;
-    vector<vector<Cluster>> all_clusters_rymer;
+    //vector<vector<Cluster>> all_clusters_rymer;
     all_clusters.emplace_back(clusters);
-    all_clusters_rymer.emplace_back(clusters_rymer);
+    //all_clusters_rymer.emplace_back(clusters_rymer);
     vector<vector<Seed>> all_seeds;
-    vector<vector<Seed>> all_seeds_rymer;
+    //vector<vector<Seed>> all_seeds_rymer;
     all_seeds.emplace_back(seeds);
-    all_seeds_rymer.emplace_back(seeds_rymer);
+    //all_seeds_rymer.emplace_back(seeds_rymer);
     validate_clusters(all_clusters, all_seeds, get_distance_limit(aln.sequence().size()), 0);
-    validate_clusters(all_clusters_rymer, all_seeds_rymer, get_distance_limit(aln.sequence().size()), 0);
+    //validate_clusters(all_clusters_rymer, all_seeds_rymer, get_distance_limit(aln.sequence().size()), 0);
 #endif
 
     // Determine the scores and read coverages for each cluster.
@@ -625,7 +611,7 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
             second_best_cluster_score = cluster.score;
         }
     }
-
+/*
     double best_cluster_score_rymer = 0.0, second_best_cluster_score_rymer = 0.0;
     for (size_t i = 0; i < clusters_rymer.size(); i++) {
         Cluster& cluster_rymer = clusters_rymer[i];
@@ -637,6 +623,7 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
             second_best_cluster_score_rymer = cluster_rymer.score;
         }
     }
+*/
 
     if (show_work) {
         #pragma omp critical (cerr)
@@ -651,15 +638,15 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
     // otherwise be. This ensures that we won't throw away all but one cluster
     // based on score alone, unless it is really bad.
     double cluster_score_cutoff = best_cluster_score - cluster_score_threshold;
-    double cluster_score_cutoff_rymer = best_cluster_score_rymer - cluster_score_threshold_rymer;
+    //double cluster_score_cutoff_rymer = best_cluster_score_rymer - cluster_score_threshold_rymer;
 
     if (cluster_score_cutoff - pad_cluster_score_threshold < second_best_cluster_score) {
         cluster_score_cutoff = std::min(cluster_score_cutoff, second_best_cluster_score);
     }
 
-    if (cluster_score_cutoff_rymer - pad_cluster_score_threshold_rymer < second_best_cluster_score_rymer) {
-        cluster_score_cutoff_rymer = std::min(cluster_score_cutoff_rymer, second_best_cluster_score_rymer);
-    }
+    //if (cluster_score_cutoff_rymer - pad_cluster_score_threshold_rymer < second_best_cluster_score_rymer) {
+    //    cluster_score_cutoff_rymer = std::min(cluster_score_cutoff_rymer, second_best_cluster_score_rymer);
+   // }
 
     if (track_provenance) {
         if (align_from_chains) {
@@ -1280,7 +1267,8 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
     }
 
 #ifdef print_minimizer_table
-    cerr << "KMER: " << aln.sequence() << "\t" << std::endl;
+    cerr << endl << endl;
+    cerr << "Kmer: " << aln.sequence() << "\t" << std::endl;
     //for (char c : aln.quality()) {
     //    cerr << (char)(c+33);
    // }
@@ -1313,7 +1301,7 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
 
 #ifdef print_minimizer_table_rymer
     cerr << endl << endl;
-    cerr << "kmer in read: " << '\t' << aln.sequence() << endl;
+    cerr << "kmer: " << aln.sequence() << endl;
     //for (char c : aln.quality()) {
     //    cerr << (char)(c+33);
    // }
@@ -3334,6 +3322,7 @@ void MinimizerMapper::wfa_alignment_to_alignment(const WFAAlignment& wfa_alignme
 
 //-----------------------------------------------------------------------------
 
+/*
 std::vector<MinimizerMapper::Minimizer> MinimizerMapper::find_rymers(const std::string& sequence, Funnel& funnel) const {
 
     if (this->track_provenance) {
@@ -3387,6 +3376,7 @@ std::vector<MinimizerMapper::Minimizer> MinimizerMapper::find_rymers(const std::
 
     return result;
 }
+*/
 
 //-----------------------------------------------------------------------------
 

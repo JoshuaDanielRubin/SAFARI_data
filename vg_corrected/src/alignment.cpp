@@ -1331,7 +1331,6 @@ Alignment reverse_complement_alignment(const Alignment& aln,
     
 void reverse_complement_alignment_in_place(Alignment* aln,
                                            const function<int64_t(id_t)>& node_length) {
-
     reverse_complement_in_place(*aln->mutable_sequence());
     string* quality = aln->mutable_quality();
     std::reverse(quality->begin(), quality->end());

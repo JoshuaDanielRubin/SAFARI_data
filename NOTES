@@ -1,4 +1,6 @@
-\Modified files: 
+Note the vg_corrected version is modified from v1.44
+
+Modified files: 
 - src/minimizer_mapper.cpp
 - src/subcommand/minimizer_main.cpp
 - src/subcommand/giraffe_main.cpp
@@ -7,17 +9,13 @@
 - depts/gbwtgraph/src/utils.cpp
 - include/gbwtgraph/utils.h
 
-To create the indexes on the euka graph
+To create the index on the euka graph
 
 ./vg_corrected/bin/vg minimizer -t 60 -p -g ../euka_dir/euka_db.gbwt -d ../euka_dir/euka_db.dist -o test_graph/test.min ../euka_dir/euka_db.og
-
-./vg_corrected/bin/vg rymer -t 60 -p -g ../euka_dir/euka_db.gbwt -d ../euka_dir/euka_db.dist -o test_graph/test.ry ../euka_dir/euka_db.og
 
 And on the test graph:
 
 ./vg_corrected/bin/vg minimizer -t 60 -p -g test_graph/test.gbwt -d test_graph/test.dist -o test_graph/test.min test_graph/test.xg -k 4 -w 5
-
-./vg_corrected/bin/vg rymer -t 60 -p -g test_graph/test.gbwt -d test_graph/test.dist -o test_graph/test.ry test_graph/test.xg -k 4 -w 5
 
 ////////////////////////////////////////////////
 
@@ -30,7 +28,7 @@ Use vg filter -q 1 to get only the mapped alignments
 
 And on test graph:
 
-./vg_corrected/bin/vg giraffe -f test_graph/test.fq -t 60 -m test_graph/test.min -q test_graph/test.ry -d test_graph/test.dist -Z test_graph/test.giraffe.gbz > test.gam
+./vg_corrected/bin/vg giraffe -f test_graph/test.fq -t 60 -m test_graph/test.min -d test_graph/test.dist -Z test_graph/test.giraffe.gbz > test.gam
 
 /////////////////////////////////////////////////
 
