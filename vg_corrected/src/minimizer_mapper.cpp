@@ -561,21 +561,18 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
 
     // Get the original sequence and the fully converted sequence
     std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel);
-    std::vector<Minimizer> minimizers_rymer = this->find_minimizers(gbwtgraph::convertToRymerSpace(aln.sequence()), funnel_rymer);
+    std::vector<Minimizer> minimizers_rymer = this->find_rymers(gbwtgraph::convertToRymerSpace(aln.sequence()), funnel_rymer);
 
-/*
+
     for (size_t i = 0; i < minimizers.size(); ++i) {
         cerr << "Minimizer number of hits: " << minimizers[i].hits << endl;
-        cerr << "Minimizer candidates in a window: " << minimizers[i].candidates_per_window << endl;
     }
 
     for (size_t i = 0; i < minimizers_rymer.size(); ++i) {
         cerr << "Rymer number of hits: " << minimizers_rymer[i].hits << endl;
-        cerr << "Rymer candidates in a window: " << minimizers_rymer[i].candidates_per_window << endl;
     }
 
     cerr << endl << endl;
-*/
 
     //Since there can be two different versions of a distance index, find seeds and clusters differently
 
@@ -632,7 +629,7 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
     double best_cluster_score_rymer = 0.0, second_best_cluster_score_rymer = 0.0;
     for (size_t i = 0; i < clusters_rymer.size(); i++) {
         Cluster& cluster_rymer = clusters_rymer[i];
-        this->score_cluster(cluster_rymer, i, minimizers_rymer, seeds_rymer, aln.sequence().length(), funnel);
+        this->score_cluster(cluster_rymer, i, minimizers_rymer, seeds_rymer, aln.sequence().length(), funnel_rymer);
         if (cluster_rymer.score > best_cluster_score_rymer) {
             second_best_cluster_score_rymer = best_cluster_score_rymer;
             best_cluster_score_rymer = cluster_rymer.score;
@@ -3350,6 +3347,7 @@ std::vector<MinimizerMapper::Minimizer> MinimizerMapper::find_rymers(const std::
     // Starts and lengths are all 0 if we are using syncmers.
     vector<tuple<gbwtgraph::DefaultMinimizerIndex::minimizer_type, size_t, size_t>> minimizers =
         this->rymer_index.minimizer_regions(sequence);
+
     for (auto& m : minimizers) {
         double score = 0.0;
         auto hits = this->rymer_index.count_and_find(get<0>(m));
