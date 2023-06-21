@@ -12,8 +12,8 @@ def generate_dna(length):
 
 def print_stats(params, stats):
     labels = ['N', 'L', 'delta', 'k', 'W', 'Total minimizer seeds', 'Total rymer seeds',
-              'Minimizer precision', 'Rymer precision', 'Rymer spuriousness',
-              'Rymer recovery rate', 'Uniqueness', 'Minimizer sketch']
+              'Minimizer precision', 'Rymer precision', 'Incorrect Rescue Rate',
+              'Correct Rescue Rate', 'Uniqueness', 'Minimizer sketch']
     for label, value in zip(labels, params + stats):
         print(f'{label}: {value}')
 
@@ -27,8 +27,8 @@ def calculate_uniqueness(rymer_minimizer_map):
 
 def write_header(filename):
     header = ['N', 'L', 'delta', 'k', 'W', 'Total minimizer seeds', 'Total rymer seeds',
-              'Minimizer precision', 'Rymer precision', 'Rymer spuriousness',
-              'Rymer recovery rate', 'Uniqueness', 'Minimizer sketch']
+              'Minimizer precision', 'Rymer precision', 'Incorrect Rescue Rate',
+              'Correct Rescue Rate', 'Uniqueness', 'Minimizer sketch']
 
     if not os.path.exists(filename) or os.path.getsize(filename) == 0:
         with open(filename, 'w', newline='') as tsvfile:
