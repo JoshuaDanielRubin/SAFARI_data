@@ -10,8 +10,7 @@ class StatsCalculator:
         total_rymer = len(self.rymer_seeds)
         minimizer_prec = self.compute_precision(self.minimizer_seeds)
         rymer_prec = self.compute_precision(self.rymer_seeds)
-        incorrect_rescue_rate = self.compute_incorrect_rescue_rate()
-        correct_rescue_rate = self.compute_correct_rescue_rate()
+        incorrect_rescue_rate, correct_rescue_rate = self.calculate_rescue_rates()
 
         return total_minimizer, total_rymer, minimizer_prec, rymer_prec, incorrect_rescue_rate, correct_rescue_rate
 
@@ -20,11 +19,17 @@ class StatsCalculator:
         false_positive = sum(1 for seed in seeds if seed[1] is None)
         return true_positive / (true_positive + false_positive) if true_positive + false_positive != 0 else 0
 
-    def compute_incorrect_rescue_rate(self):
-        false_positive = sum(1 for seed in self.rymer_seeds if seed[1] is None)
-        return false_positive / len(self.rymer_seeds) if len(self.rymer_seeds) != 0 else 0
-
-    def compute_correct_rescue_rate(self):
-        true_positive = sum(1 for seed in self.rymer_seeds if seed[1] is not None)
-        return true_positive / len(self.deaminated_bases) if len(self.deaminated_bases) != 0 else 0
+    def calculate_rescue_rates(self):
+        rymer_incorrect_rescue_count = 0
+        rymer_correct_rescue_count = 0
+        for seed in self.rymer_seeds:
+            pos, correct = seed
+            if pos in self.deaminated_bases:  # If the seed maps to a deaminated base
+                if not correct:  # If the seed does not map correctly
+                    rymer_incorrect_rescue_count += 1
+            if correct:  # If the seed maps correctly
+                rymer_correct_rescue_count += 1
+        rymer_incorrect_rescue_rate = rymer_incorrect_rescue_count / len(self.rymer_seeds) if len(self.rymer_seeds) > 0 else 0
+        rymer_correct_rescue_rate = rymer_correct_rescue_count / len(self.rymer_seeds) if len(self.rymer_seeds) > 0 else 0
+        return rymer_incorrect_rescue_rate, rymer_correct_rescue_rate
 
