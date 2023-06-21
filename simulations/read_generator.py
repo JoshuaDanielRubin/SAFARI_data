@@ -4,6 +4,7 @@ class ReadGenerator:
     def __init__(self, S, delta):
         self.S = S
         self.delta = delta
+        self.deaminated_bases = set()  # Move deaminated_bases to class scope
 
     def generate_reads(self, N, L):
         reads = []
@@ -18,6 +19,8 @@ class ReadGenerator:
                     elif read[i] == 'G':
                         read[i] = 'A'
                     deaminated_bases.add((start + i) % len(self.S))  # store the absolute position
+            self.deaminated_bases.update(deaminated_bases)  # Update the class variable
             reads.append((''.join(read), start, deaminated_bases))
         return reads
+
 

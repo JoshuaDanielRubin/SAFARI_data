@@ -41,6 +41,7 @@ def append_row(filename, params, stats):
         writer = csv.writer(tsvfile, delimiter='\t')
         writer.writerow(row)
 
+
 def main(N, L, delta, k, W, unique_minimizer_sketch, stdout):
     S = generate_dna(20000)
     
@@ -53,6 +54,7 @@ def main(N, L, delta, k, W, unique_minimizer_sketch, stdout):
     
     read_generator = ReadGenerator(S, delta)
     reads = read_generator.generate_reads(N, L)
+    deaminated_bases = read_generator.deaminated_bases  # Collect deaminated_bases
 
     total_minimizer_seeds = len(sketch.minimizer_index)
     total_rymer_seeds = len(sketch.rymer_index)
@@ -61,12 +63,12 @@ def main(N, L, delta, k, W, unique_minimizer_sketch, stdout):
     rymer_spuriousness_sum = 0
     rymer_recovery_sum = 0
 
-    for read, origin, deaminated_bases in reads:
+    for read, origin, _ in reads:
         minimizer_seeds = sketch.find_seeds(sketch.minimizer_index, read, origin)
         rymer_read = ''.join(['R' if base in 'GA' else 'Y' for base in read])
         rymer_seeds = sketch.find_seeds(sketch.rymer_index, rymer_read, origin)
 
-        stats_calculator = StatsCalculator(minimizer_seeds, rymer_seeds, deaminated_bases, k)
+        stats_calculator = StatsCalculator(minimizer_seeds, rymer_seeds, deaminated_bases, k)  # Pass deaminated_bases
         _, _, minimizer_prec, rymer_prec, rymer_spuriousness, rymer_recovery = stats_calculator.compute_stats()
 
         minimizer_precision += minimizer_prec
@@ -94,6 +96,7 @@ def main(N, L, delta, k, W, unique_minimizer_sketch, stdout):
         filename = 'results.tsv'
         write_header(filename)
         append_row(filename, params, stats)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
