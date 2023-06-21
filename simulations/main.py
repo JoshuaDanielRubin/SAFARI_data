@@ -60,8 +60,8 @@ def main(N, L, delta, k, W, unique_minimizer_sketch, stdout):
     total_rymer_seeds = len(sketch.rymer_index)
     minimizer_precision = 0
     rymer_precision = 0
-    rymer_spuriousness_sum = 0
-    rymer_recovery_sum = 0
+    rymer_incorrect_rescue_sum = 0
+    rymer_correct_rescue_sum = 0
 
     for read, origin, _ in reads:
         minimizer_seeds = sketch.find_seeds(sketch.minimizer_index, read, origin)
@@ -69,12 +69,12 @@ def main(N, L, delta, k, W, unique_minimizer_sketch, stdout):
         rymer_seeds = sketch.find_seeds(sketch.rymer_index, rymer_read, origin)
 
         stats_calculator = StatsCalculator(minimizer_seeds, rymer_seeds, deaminated_bases, k)  # Pass deaminated_bases
-        _, _, minimizer_prec, rymer_prec, rymer_spuriousness, rymer_recovery = stats_calculator.compute_stats()
+        _, _, minimizer_prec, rymer_prec, rymer_incorrect_rescue, rymer_correct_rescue = stats_calculator.compute_stats()
 
         minimizer_precision += minimizer_prec
         rymer_precision += rymer_prec
-        rymer_spuriousness_sum += rymer_spuriousness
-        rymer_recovery_sum += rymer_recovery
+        rymer_incorrect_rescue_sum += rymer_incorrect_rescue
+        rymer_correct_rescue_sum += rymer_correct_rescue
 
     uniqueness = calculate_uniqueness(sketch.rymer_minimizer_map)
 
@@ -84,8 +84,8 @@ def main(N, L, delta, k, W, unique_minimizer_sketch, stdout):
         total_rymer_seeds,
         "{:.3f}".format(minimizer_precision / len(reads)) if len(reads) > 0 else 0,
         "{:.3f}".format(rymer_precision / len(reads)) if len(reads) > 0 else 0,
-        "{:.3f}".format(rymer_spuriousness_sum / len(reads)) if len(reads) > 0 else 0,
-        "{:.3f}".format(rymer_recovery_sum / len(reads)) if len(reads) > 0 else 0,
+        "{:.3f}".format(rymer_incorrect_rescue_sum / len(reads)) if len(reads) > 0 else 0,
+        "{:.3f}".format(rymer_correct_rescue_sum / len(reads)) if len(reads) > 0 else 0,
         "{:.3f}".format(uniqueness),
         sketch_type
     ]
