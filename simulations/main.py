@@ -13,22 +13,22 @@ def generate_dna(length):
 def print_stats(params, stats):
     labels = ['N', 'L', 'delta', 'k', 'W', 'Total minimizer seeds', 'Total rymer seeds',
               'Minimizer precision', 'Rymer precision', 'Rymer spuriousness',
-              'Rymer recovery rate', 'Injectivity', 'Minimizer sketch']
+              'Rymer recovery rate', 'Uniqueness', 'Minimizer sketch']
     for label, value in zip(labels, params + stats):
         print(f'{label}: {value}')
 
-def calculate_injectivity(rymer_minimizer_map):
+def calculate_uniqueness(rymer_minimizer_map):
     unique_minimizers = set()
     total_rymers = len(rymer_minimizer_map)
     for minimizers in rymer_minimizer_map.values():
         unique_minimizers.update(minimizers)
-    injectivity = total_rymers / len(unique_minimizers)
-    return injectivity
+    uniqueness = total_rymers / len(unique_minimizers)
+    return uniqueness
 
 def write_header(filename):
     header = ['N', 'L', 'delta', 'k', 'W', 'Total minimizer seeds', 'Total rymer seeds',
               'Minimizer precision', 'Rymer precision', 'Rymer spuriousness',
-              'Rymer recovery rate', 'Injectivity', 'Minimizer sketch']
+              'Rymer recovery rate', 'Uniqueness', 'Minimizer sketch']
 
     if not os.path.exists(filename) or os.path.getsize(filename) == 0:
         with open(filename, 'w', newline='') as tsvfile:
@@ -76,7 +76,7 @@ def main(N, L, delta, k, W, unique_minimizer_sketch, stdout):
         rymer_spuriousness_sum += rymer_spuriousness
         rymer_recovery_sum += rymer_recovery
 
-    injectivity = calculate_injectivity(sketch.rymer_minimizer_map)
+    uniqueness = calculate_uniqueness(sketch.rymer_minimizer_map)
 
     params = [N, L, delta, k, W]
     stats = [
@@ -86,7 +86,7 @@ def main(N, L, delta, k, W, unique_minimizer_sketch, stdout):
         "{:.3f}".format(rymer_precision / len(reads)) if len(reads) > 0 else 0,
         "{:.3f}".format(rymer_spuriousness_sum / len(reads)) if len(reads) > 0 else 0,
         "{:.3f}".format(rymer_recovery_sum / len(reads)) if len(reads) > 0 else 0,
-        "{:.3f}".format(injectivity),
+        "{:.3f}".format(uniqueness),
         sketch_type
     ]
 

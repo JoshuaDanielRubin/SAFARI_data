@@ -315,6 +315,7 @@ void help_giraffe(char** argv) {
     << "basic options:" << endl
     << "  -Z, --gbz-name FILE           use this GBZ file (GBWT index + GBWTGraph)" << endl
     << "  -m, --minimizer-name FILE     use this minimizer index" << endl
+    << "  -q, --rymer-name FILE     use this rymer index" << endl
     << "  -d, --dist-name FILE          cluster using this distance index" << endl
     << "  -p, --progress                show progress" << endl
     << "input options:" << endl
@@ -529,6 +530,7 @@ int main_giraffe(int argc, char** argv) {
             {"graph-name", required_argument, 0, 'g'},
             {"gbwt-name", required_argument, 0, 'H'},
             {"minimizer-name", required_argument, 0, 'm'},
+            {"rymer-name", required_argument, 0, 'q'},
             {"dist-name", required_argument, 0, 'd'},
             {"progress", no_argument, 0, 'p'},
             {"gam-in", required_argument, 0, 'G'},
@@ -577,7 +579,7 @@ int main_giraffe(int argc, char** argv) {
         };
 
         int option_index = 0;
-        c = getopt_long (argc, argv, "hZ:x:g:H:m:s:d:pG:f:iM:N:R:o:Pnb:c:C:D:F:e:a:S:u:U:v:w:Ot:r:A:L:",
+        c = getopt_long (argc, argv, "hZ:x:g:H:m:q:s:d:pG:f:iM:N:R:o:Pnb:c:C:D:F:e:a:S:u:U:v:w:Ot:r:A:L:",
                          long_options, &option_index);
 
 
@@ -660,6 +662,18 @@ int main_giraffe(int argc, char** argv) {
                     exit(1); 
                 }
                 registry.provide("Minimizers", optarg);
+                break;
+
+            case 'q':
+                if (!optarg || !*optarg) {
+                    cerr << "error:[vg giraffe] Must provide rymer file with -m." << endl;
+                    exit(1);
+                }
+                if (!std::ifstream(optarg).is_open()) {
+                    cerr << "error:[vg giraffe] Couldn't open rymer file " << optarg << endl;
+                    exit(1);
+                }
+                registry.provide("Rymers", optarg);
                 break;
                 
             case 'd':
@@ -1163,6 +1177,9 @@ int main_giraffe(int argc, char** argv) {
     // Grab the minimizer index
     auto minimizer_index = vg::io::VPKG::load_one<gbwtgraph::DefaultMinimizerIndex>(registry.require("Minimizers").at(0));
 
+    // Grab rymer index
+    auto rymer_index = vg::io::VPKG::load_one<gbwtgraph::DefaultMinimizerIndex>(registry.require("Rymers").at(0));
+
     // Grab the GBZ
     auto gbz = vg::io::VPKG::load_one<gbwtgraph::GBZ>(registry.require("Giraffe GBZ").at(0));
 
@@ -1197,7 +1214,7 @@ int main_giraffe(int argc, char** argv) {
     if (show_progress) {
         cerr << "Initializing MinimizerMapper" << endl;
     }
-    MinimizerMapper minimizer_mapper(gbz->graph, *minimizer_index, &*distance_index, path_position_graph);
+    MinimizerMapper minimizer_mapper(gbz->graph, *minimizer_index, *rymer_index, &*distance_index, path_position_graph);
     if (forced_mean && forced_stdev) {
         minimizer_mapper.force_fragment_length_distr(fragment_mean, fragment_stdev);
     }
