@@ -54,8 +54,8 @@ def main(N, L, delta, k, W, unique_minimizer_sketch, stdout):
     read_generator = ReadGenerator(S, delta)
     reads = read_generator.generate_reads(N, L)
 
-    total_minimizer_seeds = 0
-    total_rymer_seeds = 0
+    total_minimizer_seeds = len(sketch.minimizer_index)
+    total_rymer_seeds = len(sketch.rymer_index)
     minimizer_precision = 0
     rymer_precision = 0
     rymer_spuriousness_sum = 0
@@ -67,10 +67,8 @@ def main(N, L, delta, k, W, unique_minimizer_sketch, stdout):
         rymer_seeds = sketch.find_seeds(sketch.rymer_index, rymer_read, origin)
 
         stats_calculator = StatsCalculator(minimizer_seeds, rymer_seeds, deaminated_bases, k)
-        total_minimizer, total_rymer, minimizer_prec, rymer_prec, rymer_spuriousness, rymer_recovery = stats_calculator.compute_stats()
+        _, _, minimizer_prec, rymer_prec, rymer_spuriousness, rymer_recovery = stats_calculator.compute_stats()
 
-        total_minimizer_seeds += total_minimizer
-        total_rymer_seeds += total_rymer
         minimizer_precision += minimizer_prec
         rymer_precision += rymer_prec
         rymer_spuriousness_sum += rymer_spuriousness
@@ -115,4 +113,3 @@ if __name__ == "__main__":
     assert args.W >= args.k, "Length of window must be greater than or equal to length of k-mer"
 
     main(args.N, args.L, args.delta, args.k, args.W, args.unique, args.stdout)
-
