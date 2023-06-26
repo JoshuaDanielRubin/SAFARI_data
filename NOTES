@@ -11,22 +11,22 @@ Modified files:
 
 To create the indexes on the euka graph
 
-./vg_corrected/bin/vg minimizer -t 60 -p -g ../euka_dir/euka_db.gbwt -d ../euka_dir/euka_db.dist -o test_graph/test.min ../euka_dir/euka_db.og
+./vg_corrected/bin/vg minimizer -t 60 -p -g ../euka_dir/euka_db.gbwt -d ../euka_dir/euka_db.dist -o euka_db.min ../euka_dir/euka_db.og
 
-./vg_corrected/bin/vg rymer -t 60 -p -g ../euka_dir/euka_db.gbwt -d ../euka_dir/euka_db.dist -o test_graph/test.ry ../euka_dir/euka_db.og
+./vg_corrected/bin/vg rymer -t 60 -p -g ../euka_dir/euka_db.gbwt -d ../euka_dir/euka_db.dist -o euka_db.ry ../euka_dir/euka_db.og
 
 And on the test graph:
 
-./vg_corrected/bin/vg minimizer -t 60 -p -g test_graph/test.gbwt -d test_graph/test.dist -o test_graph/test.min test_graph/test.xg -k 4 -w 5
+./vg_corrected/bin/vg minimizer -t 60 -p -g test_graph/test.gbwt -d test_graph/test.dist -o test_graph/test.min test_graph/test.xg -k 5 -w 6
 
-./vg_corrected/bin/vg rymer -t 60 -p -g test_graph/test.gbwt -d test_graph/test.dist -o test_graph/test.ry test_graph/test.xg -k 4 -w 5
+./vg_corrected/bin/vg rymer -t 60 -p -g test_graph/test.gbwt -d test_graph/test.dist -o test_graph/test.ry test_graph/test.xg -k 5 -w 6
 
 ////////////////////////////////////////////////
 
 To run giraffe:
 
 ./vg_corrected/bin/vg giraffe -f test_data/BearCreak/BearCreakCombo.pp.rmdup.fq.gz -t 60 \
--m test.min -q test.ry -d ../euka_dir/euka_db.dist -Z ../euka_dir/euka_db.giraffe.gbz > test.gam
+-m euka_db.min -q euka_db.ry -d ../euka_dir/euka_db.dist -Z ../euka_dir/euka_db.giraffe.gbz > test.gam
 
 Use vg filter -q 1 to get only the mapped alignments
 
@@ -35,6 +35,18 @@ And on test graph:
 ./vg_corrected/bin/vg giraffe -f test_graph/test.fq -t 60 -m test_graph/test.min -q test_graph/test.ry -d test_graph/test.dist -Z test_graph/test.giraffe.gbz > test.gam
 
 /////////////////////////////////////////////////
+
+
+To run Euka:
+
+nohup ./vgan/bin/vgan euka -t 60 -fq1 test_data/three_dhigh_100.fq.gz --euka_db ../euka_dir/ --outFrag > log.out &
+
+And on the test data:
+
+./vgan/bin/vgan euka -t 60 -fq1 test_data/test.fq --euka_db ../euka_dir/
+
+
+////////////////////////////////////////////////
 
 BEAR DATA NO CORRECTION
 
