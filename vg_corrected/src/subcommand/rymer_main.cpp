@@ -260,17 +260,11 @@ int main_rymer(int argc, char** argv) {
     }
     if (distance_name.empty()) {
 
-        //gbwtgraph::index_haplotypes(gbz->graph, *index, [](const pos_t&) -> gbwtgraph::payload_type {
-         //   return MIPayload::NO_CODE;
-        //});
-
         gbwtgraph::index_haplotypes_rymer(gbz->graph, *index, [](const pos_t&) -> gbwtgraph::payload_type {
             return MIPayload::NO_CODE;
         });
+
     } else {
-        //gbwtgraph::index_haplotypes(gbz->graph, *index, [&](const pos_t& pos) -> gbwtgraph::payload_type {
-        //    return MIPayload::encode(get_minimizer_distances(*distance_index,pos));
-        //});
 
         gbwtgraph::index_haplotypes_rymer(gbz->graph, *index, [&](const pos_t& pos) -> gbwtgraph::payload_type {
             return MIPayload::encode(get_minimizer_distances(*distance_index,pos));
@@ -284,6 +278,7 @@ int main_rymer(int argc, char** argv) {
         std::cerr << "Load factor: " << index->load_factor() << std::endl;
         double seconds = gbwt::readTimer() - start;
         std::cerr << "Construction so far: " << seconds << " seconds" << std::endl;
+        //std::cerr << "Hash table size: " << index->hash_table_size() << std::endl;
     }
 
     // Serialize the index.

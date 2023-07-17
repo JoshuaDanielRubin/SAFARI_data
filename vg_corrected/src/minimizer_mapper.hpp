@@ -37,6 +37,7 @@ public:
 
     MinimizerMapper(const gbwtgraph::GBWTGraph& graph,
          const gbwtgraph::DefaultMinimizerIndex& minimizer_index,
+         const gbwtgraph::DefaultMinimizerIndex& rymer_index,
          SnarlDistanceIndex* distance_index,
          const PathPositionHandleGraph* path_graph = nullptr);
 
@@ -85,10 +86,10 @@ public:
 
     /// Use all minimizers with at most hit_cap hits
     size_t hit_cap = 10;
-    size_t hit_cap_rymer = 10;
 
     /// Ignore all minimizers with more than hard_hit_cap hits
     size_t hard_hit_cap = 500;
+
     size_t hard_hit_cap_rymer = 500;
 
     /// Take minimizers between hit_cap and hard_hit_cap hits until this fraction
@@ -304,6 +305,7 @@ protected:
     // These are our indexes
     const PathPositionHandleGraph* path_graph; // Can be nullptr; only needed for correctness tracking.
     const gbwtgraph::DefaultMinimizerIndex& minimizer_index;
+    const gbwtgraph::DefaultMinimizerIndex& rymer_index;
     SnarlDistanceIndex* distance_index;
     /// This is our primary graph.
     const gbwtgraph::GBWTGraph& gbwt_graph;
@@ -336,8 +338,13 @@ protected:
     /**
      * Find seeds for all minimizers passing the filters.
      */
+
     template<typename SeedType>
     std::vector<SeedType> find_seeds(const std::vector<Minimizer>& minimizers, const Alignment& aln, Funnel& funnel) const;
+
+    template<typename SeedType>
+    std::vector<SeedType> find_seeds(const std::vector<Minimizer>& minimizers, std::vector<Minimizer>& rymers, const Alignment& aln, Funnel& funnel) const;
+
 
     /**
      * Determine cluster score, read coverage, and a vector of flags for the
@@ -790,7 +797,6 @@ protected:
     
     /// Count at which we cut over to summary logging.
     const static size_t MANY_LIMIT = 30;
-
 
     friend class TestMinimizerMapper;
 };

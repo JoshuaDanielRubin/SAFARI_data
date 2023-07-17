@@ -27,61 +27,6 @@ constexpr code_type Position::OFF_MASK;
 
 //------------------------------------------------------------------------------
 
-// Shared conversion tables.
-
-const std::vector<unsigned char> CHAR_TO_PACK =
-{
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-
-  4, 0, 4, 1,  4, 4, 4, 2,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  3, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 0, 4, 1,  4, 4, 4, 2,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  3, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4
-};
-
-const std::vector<char> PACK_TO_CHAR = { 'A', 'C', 'G', 'T' };
-
-//------------------------------------------------------------------------------
-
-const std::vector<unsigned char> CHAR_TO_PACK_RYMER =
-{
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-
-  4, 0, 4, 1,  4, 4, 4, 0,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  1, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 0, 4, 1,  4, 4, 4, 0,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  1, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4
-};
-
-const std::vector<char> PACK_TO_CHAR_RYMER = { 'A', 'C', 'A', 'C' };
-
-//------------------------------------------------------------------------------
 // Key64: Numerical class constants.
 
 constexpr std::size_t Key64::KEY_BITS;
@@ -99,6 +44,55 @@ constexpr size_t Key64::PACK_WIDTH;
 constexpr Key64::key_type Key64::PACK_MASK;
 
 // Key64: Other class variables.
+
+const std::vector<unsigned char> Key64::CHAR_TO_PACK =
+{
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+
+  4, 0, 4, 1,  4, 4, 4, 2,  4, 4, 4, 4,  4, 4, 4, 4,
+  4, 4, 4, 4,  3, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+  4, 0, 4, 1,  4, 4, 4, 2,  4, 4, 4, 4,  4, 4, 4, 4,
+  4, 4, 4, 4,  3, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4
+};
+
+const std::vector<unsigned char> Key64::CHAR_TO_PACK_RYMER =
+{
+  0, 4, 0, 1,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+
+  4, 0, 4, 1,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+  4, 4, 4, 4,  3, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+  4, 0, 4, 1,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+  4, 4, 4, 4,  3, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4
+};
+
+const std::vector<char> Key64::PACK_TO_CHAR = { 'A', 'C', 'G', 'T' };
+const std::vector<char> Key64::PACK_TO_CHAR_RYMER = { 'A', 'C', 'A', 'C' };
 
 const std::vector<Key64::key_type> Key64::KMER_MASK =
 {
@@ -158,6 +152,10 @@ constexpr size_t Key128::PACK_OVERFLOW;
 constexpr Key128::key_type Key128::PACK_MASK;
 
 // Key128: Other class variables.
+
+const std::vector<unsigned char> Key128::CHAR_TO_PACK = Key64::CHAR_TO_PACK;
+
+const std::vector<char> Key128::PACK_TO_CHAR = Key64::PACK_TO_CHAR;
 
 const std::vector<Key128::key_type> Key128::HIGH_MASK =
 {
@@ -428,7 +426,7 @@ Key64::encode(const std::string& sequence)
   key_type packed = 0;
   for(auto c : sequence)
   {
-    auto packed_char = CHAR_TO_PACK[static_cast<std::uint8_t>(c)];
+    auto packed_char = CHAR_TO_PACK[c];
     if(packed_char > PACK_MASK)
     {
       throw std::runtime_error("Key64::encode(): Cannot encode character '" + std::to_string(c) + "'");
@@ -436,6 +434,21 @@ Key64::encode(const std::string& sequence)
     packed = (packed << PACK_WIDTH) | packed_char;
   }
   return Key64(packed);
+}
+
+Key64 Key64::encode_rymer(const std::string& sequence)
+{
+    code_type packed = 0;
+    for(auto c : sequence)
+    {
+        auto packed_char = CHAR_TO_PACK_RYMER[static_cast<std::uint8_t>(c)];
+        if(packed_char > PACK_MASK)
+        {
+            throw std::runtime_error("Key64::encode_rymer(): Cannot encode character '" + std::to_string(c) + "'");
+        }
+        packed = (packed << PACK_WIDTH) | packed_char;
+    }
+    return Key64(packed);
 }
 
 std::string
@@ -460,26 +473,6 @@ Key64::decode_rymer(size_t k) const
   return result.str();
 }
 
-Key64
-Key64::encode_rymer(const std::string& sequence)
-{
-  key_type packed = 0;
-  for(auto c : sequence)
-  {
-    // Convert G to A, T to C
-    if(c == 'G') c = 'A';
-    if(c == 'T') c = 'C';
-
-    auto packed_char = CHAR_TO_PACK_RYMER[static_cast<std::uint8_t>(c)];
-    if(packed_char > PACK_MASK)
-    {
-      throw std::runtime_error("Key64::encode_rymer(): Cannot encode character '" + std::to_string(c) + "'");
-    }
-    packed = (packed << PACK_WIDTH) | packed_char;
-  }
-  return Key64(packed);
-}
-
 std::ostream&
 operator<<(std::ostream& out, Key64 value)
 {
@@ -498,7 +491,7 @@ Key128::encode(const std::string& sequence)
   for(size_t i = 0; i < sequence.size(); i++)
   {
     auto c = sequence[i];
-    auto packed_char = CHAR_TO_PACK[static_cast<std::uint8_t>(c)];
+    auto packed_char = CHAR_TO_PACK[c];
     if(packed_char > PACK_MASK)
     {
       throw std::runtime_error("Key128::encode(): Cannot encode character '" + std::to_string(c) + "'");
@@ -582,6 +575,7 @@ void
 hits_in_subgraph(size_t hit_count, const hit_type* hits, const std::vector<nid_t>& subgraph,
                  const std::function<void(pos_t, payload_type)>& report_hit)
 {
+
   size_t hit_offset = 0, subgraph_offset = 0;
   while(hit_offset < hit_count && subgraph_offset < subgraph.size())
   {

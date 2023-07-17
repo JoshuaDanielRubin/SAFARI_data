@@ -60,9 +60,14 @@ index_haplotypes(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
     auto iter = traversal.begin();
     size_t node_start = 0;
     int thread_id = omp_get_thread_num();
+
     for(minimizer_type& minimizer : minimizers)
     {
-      if(minimizer.empty()) { continue; }
+      //if(minimizer.empty()) { continue; }
+       continue;
+
+       std::string minimizer_sequence = minimizer.key.decode(5); // TO CORRECT
+       //cerr << "MINIMIZER SEQUENCE (IN MINIMIZER INDEXING)  " << minimizer_sequence << endl;
 
       // Find the node covering minimizer starting position.
       size_t node_length = graph.get_length(*iter);
@@ -99,6 +104,15 @@ index_haplotypes(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
   for(int thread_id = 0; thread_id < threads; thread_id++) { flush_cache(thread_id); }
 }
 
+
+//-------------------------------------------------------------------------------
+
+/*
+  Index the haplotypes in the graph. Insert the minimizers into the provided index.
+  Function argument get_payload is used to generate the payload for each position
+  stored in the index.
+  The number of threads can be set through OMP.
+*/
 template<class KeyType>
 void
 index_haplotypes_rymer(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
@@ -131,18 +145,20 @@ index_haplotypes_rymer(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
   // Minimizer finding.
   auto find_minimizers = [&](const std::vector<handle_t>& traversal, const std::string& seq)
   {
-
-    const string rymer_seq = convertToRymerSpace(seq);
-    //cerr << "RYMER SEQ: " << rymer_seq << endl;
-
-    std::vector<minimizer_type> minimizers = index.minimizers(rymer_seq); // Calls syncmers() when appropriate.
-
+    std::vector<minimizer_type> minimizers = index.minimizers(seq); // Calls syncmers() when appropriate.
     auto iter = traversal.begin();
     size_t node_start = 0;
     int thread_id = omp_get_thread_num();
     for(minimizer_type& minimizer : minimizers)
     {
       if(minimizer.empty()) { continue; }
+
+      std::string minimizer_sequence = minimizer.key.decode(5); // TO CORRECT
+
+      minimizer_sequence = gbwtgraph::convertToRymerSpace(minimizer_sequence);
+      //cerr << "RYMER SEQUENCE (IN RYMER INDEXING)  " << minimizer_sequence << endl;
+
+      minimizer.key = Key64::encode(minimizer_sequence);
 
       // Find the node covering minimizer starting position.
       size_t node_length = graph.get_length(*iter);
@@ -164,6 +180,7 @@ index_haplotypes_rymer(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
       }
       cache[thread_id].emplace_back(minimizer, pos);
     }
+
     if(cache[thread_id].size() >= MINIMIZER_CACHE_SIZE) { flush_cache(thread_id); }
   };
 
@@ -174,11 +191,9 @@ index_haplotypes_rymer(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
     we may skip windows that cross from a reverse node to a forward node (from a forward node to a
     reverse node).
   */
-  for_each_haplotype_window(graph, index.window_bp(), find_minimizers, (threads > 1), true);
+  for_each_haplotype_window(graph, index.window_bp(), find_minimizers, (threads > 1), false);
   for(int thread_id = 0; thread_id < threads; thread_id++) { flush_cache(thread_id); }
 }
-  
-//------------------------------------------------------------------------------
 
 } // namespace gbwtgraph
 

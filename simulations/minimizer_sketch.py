@@ -12,6 +12,16 @@ class UniqueMinimizerSketch:
         rymer_index = defaultdict(list)
         rymer_minimizer_map = defaultdict(set)
 
+        # First pass: construct the full minimizer index.
+        for i in range(len(self.S) - self.W + 1):
+            window = self.S[i:i + self.W]
+            for j in range(len(window) - self.k + 1):
+                kmer = window[j:j + self.k]
+                minimizer = min(kmer, self.reverse_complement(kmer))
+                minimizer_index[minimizer].append(i + j)
+
+        # Second pass: select the most unique minimizer for each window.
+        unique_minimizer_index = defaultdict(list)
         for i in range(len(self.S) - self.W + 1):
             window = self.S[i:i + self.W]
             minimizers = []
@@ -20,19 +30,17 @@ class UniqueMinimizerSketch:
                 minimizer = min(kmer, self.reverse_complement(kmer))
                 minimizers.append((minimizer, i + j))
 
-            # select the most unique minimizer in the window
+            # Select the most unique minimizer in the window.
             unique_minimizer = min(minimizers, key=lambda x: (len(minimizer_index[x[0]]), x[0]))
-
-            # update the minimizer index with the selected minimizer
             minimizer, pos = unique_minimizer
-            minimizer_index[minimizer].append(pos)
+            unique_minimizer_index[minimizer].append(pos)
 
-            # create rymer and update rymer index and rymer minimizer map
+            # Create rymer and update rymer index and rymer minimizer map.
             rymer = ''.join(['R' if base in 'GA' else 'Y' for base in minimizer])
             rymer_index[rymer].append(pos)
             rymer_minimizer_map[rymer].add(minimizer)
 
-        return minimizer_index, rymer_index, rymer_minimizer_map
+        return unique_minimizer_index, rymer_index, rymer_minimizer_map
 
     @staticmethod
     def reverse_complement(kmer):

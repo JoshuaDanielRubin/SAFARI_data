@@ -150,12 +150,6 @@ struct Position
   whether the corresponding value in the hash table is a position or a pointer.
 */
 
-// Conversion from characters to packed characters.
-extern const std::vector<unsigned char> CHAR_TO_PACK;
-
-// Conversion from packed characters to upper-case characters.
-extern const std::vector<char> PACK_TO_CHAR;
-
 struct Key128;
 
 struct Key64
@@ -219,14 +213,10 @@ public:
 
   /// Encode a string of size k to a key.
   static Key64 encode(const std::string& sequence);
-
-  /// Decode the key back to a string, given the kmer size used.
-  std::string decode(size_t k) const;
-
-  /// Encode a string of size k to a key.
   static Key64 encode_rymer(const std::string& sequence);
 
   /// Decode the key back to a string, given the kmer size used.
+  std::string decode(size_t k) const;
   std::string decode_rymer(size_t k) const;
 
   // Required numeric constants.
@@ -234,7 +224,7 @@ public:
   constexpr static std::size_t KMER_LENGTH = 21;
   constexpr static std::size_t WINDOW_LENGTH = 11;
   constexpr static std::size_t SMER_LENGTH = KMER_LENGTH - WINDOW_LENGTH;
-  constexpr static std::size_t KMER_MAX_LENGTH = 64;
+  constexpr static std::size_t KMER_MAX_LENGTH = 31;
 
 private:
   // Specific key values. Note that the highest bit is not a part of the key.
@@ -248,6 +238,10 @@ private:
   constexpr static key_type PACK_MASK  = 0x3;
 
   // Arrays for the encoding between std::string and the key.
+  const static std::vector<unsigned char> CHAR_TO_PACK;
+  const static std::vector<unsigned char> CHAR_TO_PACK_RYMER;
+  const static std::vector<char>          PACK_TO_CHAR;
+  const static std::vector<char>          PACK_TO_CHAR_RYMER;
   const static std::vector<key_type>      KMER_MASK;
 
   friend Key128;
@@ -352,7 +346,7 @@ public:
   constexpr static std::size_t KMER_LENGTH = 39;
   constexpr static std::size_t WINDOW_LENGTH = 15;
   constexpr static std::size_t SMER_LENGTH = KMER_LENGTH - WINDOW_LENGTH;
-  constexpr static std::size_t KMER_MAX_LENGTH = 64;
+  constexpr static std::size_t KMER_MAX_LENGTH = 63;
 
 private:
   // Specific key values. Note that the highest bit is not a part of the key.
@@ -368,6 +362,8 @@ private:
   constexpr static key_type PACK_MASK     = 0x3;
 
   // Arrays for the encoding between std::string and the key.
+  const static std::vector<unsigned char> CHAR_TO_PACK;
+  const static std::vector<char>          PACK_TO_CHAR;
   const static std::vector<key_type>      HIGH_MASK, LOW_MASK;
 };
 
@@ -644,7 +640,6 @@ public:
   */
   struct CircularBuffer
   {
-
     std::vector<minimizer_type> buffer;
     size_t head, tail;
     size_t w;
@@ -686,7 +681,6 @@ public:
     {
       if(!(this->empty()) && this->front().offset + this->w <= pos) { this->head++; }
     }
-
   };
 
   /*
@@ -799,7 +793,6 @@ public:
     {
       // Get the forward and reverse strand minimizer candidates
       forward_key.forward(this->k(), *iter, valid_chars);
-      //reverse_key.reverse(this->k(), *iter);
       reverse_key.reverse(this->k(), *iter);
       // If they don't have any Ns or anything in them, throw them into the sliding window tracked by buffer.
       // Otherwise just slide it along.
@@ -1233,7 +1226,7 @@ private:
     const cell_type& cell = this->hash_table[offset];
     if(cell.first.is_pointer())
     {
-      std::vector<hit_type>* occs = cell.second.pointer;
+      const std::vector<hit_type>* occs = cell.second.pointer;
       return std::binary_search(occs->begin(), occs->end(), hit);
     }
     else

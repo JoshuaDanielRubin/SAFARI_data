@@ -2153,7 +2153,7 @@ for_each_haplotype_window(const GBWTGraph& graph, size_t window_size,
       // Report the full window.
       if(window.length >= target_length)
       {
-        if(rymer){std::cerr << "WINDOW SEQUENCE: " << convertToRymerSpace(window.get_sequence(graph)) << std::endl;}
+        //if(rymer){std::cerr << "WINDOW SEQUENCE: " << convertToRymerSpace(window.get_sequence(graph)) << std::endl;}
         if (rymer){
             lambda(window.traversal, convertToRymerSpace(window.get_sequence(graph)));
                   }
