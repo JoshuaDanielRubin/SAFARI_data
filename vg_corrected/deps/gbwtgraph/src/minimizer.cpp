@@ -76,21 +76,19 @@ const std::vector<unsigned char> Key64::CHAR_TO_PACK_RYMER =
   4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
   4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
 
-  // Here is the meaningful part. A and C get mapped to 0, G and T get mapped to 1
-4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-4, 4, 0, 4,  4, 4, 4, 4,  4, 4, 0, 4,  4, 4, 4, 4,
-4, 4, 4, 4,  1, 4, 4, 4,  4, 4, 4, 4,  4, 1, 4, 4,
+   // Here is the meaningful part. A and C get mapped to 0, G and T get mapped to 1
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  // through ASCII 47
+  4, 4, 0, 4,  4, 4, 4, 1,  4, 4, 4, 4,  4, 4, 4, 4,  // ASCII 48 through 63, 'A' (65) maps to 0, 'C' (67) maps to 0, 'G' (71) maps to 1
 
-// Add the lowercase mappings here
-4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-4, 4, 0, 4,  4, 4, 4, 4,  4, 4, 0, 4,  4, 4, 4, 4,
-4, 4, 4, 4,  1, 4, 4, 4,  4, 4, 4, 4,  4, 1, 4, 4,
+  // add similar mappings for lowercase 'a', 'c', 'g', 't' here
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  // through ASCII 79
+  4, 4, 0, 4,  4, 4, 4, 1,  4, 4, 4, 4,  4, 4, 4, 4,  // ASCII 80 through 95, 'a' (97) maps to 0, 'c' (99) maps to 0, 'g' (103) maps to 1
 
   // Fill the rest of the table with an error value
   4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
   4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
   4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4
 };
 
 const std::vector<char> Key64::PACK_TO_CHAR = { 'A', 'C', 'G', 'T' };
