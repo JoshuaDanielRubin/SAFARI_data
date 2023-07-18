@@ -76,17 +76,15 @@ const std::vector<unsigned char> Key64::CHAR_TO_PACK_RYMER =
   4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
   4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
 
-  // Here is the meaningful part. A and G get mapped to 0, C and T to 1
-  4, 0, 4, 1,  4, 4, 4, 0,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  1, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 0, 4, 1,  4, 4, 4, 0,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  1, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+  // Here is the meaningful part. A and C get mapped to 0, G and T get mapped to 1
+4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+4, 4, 0, 4,  4, 4, 4, 4,  4, 4, 0, 4,  4, 4, 4, 4,
+4, 4, 4, 4,  1, 4, 4, 4,  4, 4, 4, 4,  4, 1, 4, 4,
 
-  // Add the lowercase mappings here
-  4, 0, 4, 1,  4, 4, 4, 0,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  1, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+// Add the lowercase mappings here
+4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+4, 4, 0, 4,  4, 4, 4, 4,  4, 4, 0, 4,  4, 4, 4, 4,
+4, 4, 4, 4,  1, 4, 4, 4,  4, 4, 4, 4,  4, 1, 4, 4,
 
   // Fill the rest of the table with an error value
   4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
@@ -454,16 +452,17 @@ Key64::decode(size_t k) const
 Key64
 Key64::encode_rymer(const std::string& sequence)
 {
-
   std::cerr << "SEQUENCE TO RYMER ENCODE: " << sequence << std::endl;
 
   key_type packed = 0;
   for(auto c : sequence)
   {
     auto packed_char = CHAR_TO_PACK_RYMER[c];
+    std::cerr << "Character to encode: " << c << ", encoded value: " << (int)packed_char << std::endl;
     if(packed_char > PACK_MASK)
     {
-      throw std::runtime_error("[ENCODE_RYMER] Key64::encode(): Cannot encode character '" + std::to_string(c) + "'");
+      std::cerr << "Failed to encode character '" << c << "' (ASCII " << (int)c << ")" << std::endl;
+      throw std::runtime_error("[ENCODE_RYMER] Key64::encode(): Cannot encode character '" + std::string(1, c) + "'");
     }
     packed = (packed << PACK_WIDTH) | packed_char;
   }
