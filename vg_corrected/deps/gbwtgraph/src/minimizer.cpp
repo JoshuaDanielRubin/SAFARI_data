@@ -436,21 +436,6 @@ Key64::encode(const std::string& sequence)
   return Key64(packed);
 }
 
-Key64 Key64::encode_rymer(const std::string& sequence)
-{
-    code_type packed = 0;
-    for(auto c : sequence)
-    {
-        auto packed_char = CHAR_TO_PACK_RYMER[static_cast<std::uint8_t>(c)];
-        if(packed_char > PACK_MASK)
-        {
-            throw std::runtime_error("Key64::encode_rymer(): Cannot encode character '" + std::to_string(c) + "'");
-        }
-        packed = (packed << PACK_WIDTH) | packed_char;
-    }
-    return Key64(packed);
-}
-
 std::string
 Key64::decode(size_t k) const
 {
@@ -460,6 +445,22 @@ Key64::decode(size_t k) const
     result << PACK_TO_CHAR[(this->key >> ((k - i - 1) * PACK_WIDTH)) & PACK_MASK];
   }
   return result.str();
+}
+
+Key64
+Key64::encode_rymer(const std::string& sequence)
+{
+  key_type packed = 0;
+  for(auto c : sequence)
+  {
+    auto packed_char = CHAR_TO_PACK_RYMER[c];
+    if(packed_char > PACK_MASK)
+    {
+      throw std::runtime_error("Key64::encode(): Cannot encode character '" + std::to_string(c) + "'");
+    }
+    packed = (packed << PACK_WIDTH) | packed_char;
+  }
+  return Key64(packed);
 }
 
 std::string
@@ -533,6 +534,7 @@ operator<<(std::ostream& out, Key128 value)
 void
 hits_in_subgraph(size_t hit_count, const hit_type* hits, const std::unordered_set<nid_t>& subgraph,
                  const std::function<void(pos_t, payload_type)>& report_hit)
+
 {
   for(const hit_type* ptr = hits; ptr < hits + hit_count; ++ptr)
   {
@@ -576,6 +578,7 @@ hits_in_subgraph(size_t hit_count, const hit_type* hits, const std::vector<nid_t
                  const std::function<void(pos_t, payload_type)>& report_hit)
 {
 
+  throw std::runtime_error("I WILL FIND YOU");
   size_t hit_offset = 0, subgraph_offset = 0;
   while(hit_offset < hit_count && subgraph_offset < subgraph.size())
   {

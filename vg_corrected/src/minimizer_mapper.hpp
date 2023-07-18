@@ -304,8 +304,10 @@ protected:
 
     // These are our indexes
     const PathPositionHandleGraph* path_graph; // Can be nullptr; only needed for correctness tracking.
+
     const gbwtgraph::DefaultMinimizerIndex& minimizer_index;
     const gbwtgraph::DefaultMinimizerIndex& rymer_index;
+
     SnarlDistanceIndex* distance_index;
     /// This is our primary graph.
     const gbwtgraph::GBWTGraph& gbwt_graph;

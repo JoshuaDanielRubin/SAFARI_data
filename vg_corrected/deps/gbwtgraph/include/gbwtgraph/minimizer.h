@@ -794,6 +794,7 @@ public:
       // Get the forward and reverse strand minimizer candidates
       forward_key.forward(this->k(), *iter, valid_chars);
       reverse_key.reverse(this->k(), *iter);
+
       // If they don't have any Ns or anything in them, throw them into the sliding window tracked by buffer.
       // Otherwise just slide it along.
       if(valid_chars >= this->k()) { buffer.advance(start_pos, forward_key, reverse_key); }
@@ -888,6 +889,12 @@ public:
   std::vector<std::tuple<minimizer_type, size_t, size_t>> minimizer_regions(const std::string& str) const
   {
     return this->minimizer_regions(str.begin(), str.end());
+  }
+
+   std::vector<std::tuple<minimizer_type, size_t, size_t>> rymer_regions(const std::string& str) const
+  {
+    const std::string rymer = str;//gbwtgraph::convertToRymerSpace(str);
+    return this->minimizer_regions(rymer.begin(), rymer.end());
   }
 
 //------------------------------------------------------------------------------
@@ -1065,10 +1072,14 @@ public:
     If the minimizer is in reverse orientation, use reverse_base_pos() to reverse
     the reported occurrences.
   */
+
   std::pair<size_t, const hit_type*> count_and_find(const minimizer_type& minimizer) const
   {
+
     std::pair<size_t, const hit_type*> result(0, nullptr);
-    if(minimizer.empty()) { return result; }
+    if(minimizer.empty()) {
+         return result;
+                          }
 
     size_t offset = this->find_offset(minimizer.key, minimizer.hash);
     if(this->hash_table[offset].first == minimizer.key)
