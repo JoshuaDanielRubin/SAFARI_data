@@ -68,23 +68,24 @@ const std::vector<unsigned char> Key64::CHAR_TO_PACK =
   4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4
 };
 
+// Initialize CHAR_TO_PACK_RYMER
 const std::vector<unsigned char> Key64::CHAR_TO_PACK_RYMER =
 {
-  // Fill all entries with a value that indicates an error, for example 4
   4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
   4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
   4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
   4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
 
-   // Here is the meaningful part. A and C get mapped to 0, G and T get mapped to 1
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  // through ASCII 47
-  4, 4, 0, 4,  4, 4, 4, 1,  4, 4, 4, 4,  4, 4, 4, 4,  // ASCII 48 through 63, 'A' (65) maps to 0, 'C' (67) maps to 0, 'G' (71) maps to 1
+  4, 0, 4, 0,  4, 4, 4, 1,  4, 4, 4, 4,  4, 4, 4, 4,
+  4, 4, 4, 4,  1, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+  4, 0, 4, 0,  4, 4, 4, 1,  4, 4, 4, 4,  4, 4, 4, 4,
+  4, 4, 4, 4,  1, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
 
-  // add similar mappings for lowercase 'a', 'c', 'g', 't' here
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  // through ASCII 79
-  4, 4, 0, 4,  4, 4, 4, 1,  4, 4, 4, 4,  4, 4, 4, 4,  // ASCII 80 through 95, 'a' (97) maps to 0, 'c' (99) maps to 0, 'g' (103) maps to 1
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
 
-  // Fill the rest of the table with an error value
   4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
   4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
   4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
@@ -92,7 +93,7 @@ const std::vector<unsigned char> Key64::CHAR_TO_PACK_RYMER =
 };
 
 const std::vector<char> Key64::PACK_TO_CHAR = { 'A', 'C', 'G', 'T' };
-const std::vector<char> Key64::PACK_TO_CHAR_RYMER = { 'A', 'C' };
+const std::vector<char> Key64::PACK_TO_CHAR_RYMER = {'A', 'C', 'A', 'C'};
 
 const std::vector<Key64::key_type> Key64::KMER_MASK =
 {
@@ -450,13 +451,16 @@ Key64::decode(size_t k) const
 Key64
 Key64::encode_rymer(const std::string& sequence)
 {
-  std::cerr << "SEQUENCE TO RYMER ENCODE: " << sequence << std::endl;
+  //std::cerr << "SEQUENCE TO RYMER ENCODE: " << sequence << std::endl;
 
   key_type packed = 0;
   for(auto c : sequence)
   {
+    if(c != 'A' && c != 'C') {
+      throw std::runtime_error("[ENCODE_RYMER] Key64::encode_rymer(): Unexpected character in input sequence: " + std::string(1, c));
+    }
     auto packed_char = CHAR_TO_PACK_RYMER[c];
-    std::cerr << "Character to encode: " << c << ", encoded value: " << (int)packed_char << std::endl;
+    //std::cerr << "Character to encode: " << c << ", encoded value: " << (int)packed_char << std::endl;
     if(packed_char > PACK_MASK)
     {
       std::cerr << "Failed to encode character '" << c << "' (ASCII " << (int)c << ")" << std::endl;
@@ -473,7 +477,11 @@ Key64::decode_rymer(size_t k) const
   std::stringstream result;
   for(size_t i = 0; i < k; i++)
   {
-    result << PACK_TO_CHAR_RYMER[(this->key >> ((k - i - 1) * PACK_WIDTH)) & PACK_MASK];
+    char decoded_char = PACK_TO_CHAR_RYMER[(this->key >> ((k - i - 1) * PACK_WIDTH)) & PACK_MASK];
+    if(decoded_char != 'A' && decoded_char != 'C') {
+      throw std::runtime_error("[DECODE_RYMER] Key64::decode_rymer(): Unexpected character in decoded sequence: " + std::string(1, decoded_char));
+    }
+    result << decoded_char;
   }
   return result.str();
 }
