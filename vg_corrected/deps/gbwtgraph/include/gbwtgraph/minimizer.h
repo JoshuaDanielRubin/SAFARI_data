@@ -211,31 +211,38 @@ public:
     }
   }
 
-  // Move the kmer forward, with c as the next character. Update the key, assuming that
-  // it encodes the kmer in forward orientation.
-  void forward_rymer(size_t k, unsigned char c, size_t& valid_chars)
-  {
-    key_type packed = CHAR_TO_PACK_RYMER[c];
-    if(packed > PACK_MASK) { this->key = EMPTY_KEY; valid_chars = 0; }
-    else
-    {
-      this->key = ((this->key << PACK_WIDTH) | packed) & KMER_MASK[k];
-      valid_chars++;
-    }
-  }
+// Move the rymer forward, with c as the next character. Update the key, assuming that
+// it encodes the rymer in forward orientation.
+void forward_rymer(size_t k, unsigned char c, size_t& valid_chars)
+{
+  key_type packed = CHAR_TO_PACK_RYMER[c];
+  //std::cerr << "Input char: " << c << ", Packed: " << packed << std::endl;
 
-  // Move the kmer forward, with c as the next character. Update the key, assuming that
-  // it encodes the kmer in reverse orientation.
-  void reverse_rymer(size_t k, unsigned char c)
-  {
-    key_type packed = CHAR_TO_PACK_RYMER[c];
-    if(packed > PACK_MASK) { this->key = EMPTY_KEY; }
-    else
-    {
-      packed ^= PACK_MASK; // The complement of the base.
-      this->key = (packed << ((k - 1) * PACK_WIDTH)) | (this->key >> PACK_WIDTH);
-    }
+  if(packed > PACK_MASK_RYMER) { 
+    this->key = EMPTY_KEY; 
+    valid_chars = 0; 
+    //std::cerr << "Invalid char encountered. Key reset to EMPTY_KEY." << std::endl;
   }
+  else
+  {
+    this->key = ((this->key << PACK_WIDTH_RYMER) | packed) & RYMER_MASK[k];
+    valid_chars++;
+    //std::cerr << "Valid char encountered. Key updated to: " << this->key << std::endl;
+  }
+}
+
+// Move the rymer forward, with c as the next character. Update the key, assuming that
+// it encodes the rymer in reverse orientation.
+void reverse_rymer(size_t k, unsigned char c)
+{
+  key_type packed = CHAR_TO_PACK_RYMER[c];
+  if(packed > PACK_MASK_RYMER) { this->key = EMPTY_KEY; }
+  else
+  {
+    packed ^= PACK_MASK_RYMER; // The complement of the base.
+    this->key = (packed << ((k - 1) * PACK_WIDTH_RYMER)) | (this->key >> PACK_WIDTH_RYMER);
+  }
+}
 
   /// Encode a string of size k to a key.
   static Key64 encode(const std::string& sequence);
@@ -262,6 +269,8 @@ private:
   // Constants for the encoding between std::string and the key.
   constexpr static size_t   PACK_WIDTH = 2;
   constexpr static key_type PACK_MASK  = 0x3;
+  constexpr static size_t  PACK_WIDTH_RYMER = 1;
+  constexpr static key_type PACK_MASK_RYMER  = 0x1;
 
   // Arrays for the encoding between std::string and the key.
   const static std::vector<unsigned char> CHAR_TO_PACK;
@@ -269,6 +278,7 @@ private:
   const static std::vector<char>          PACK_TO_CHAR;
   const static std::vector<char>          PACK_TO_CHAR_RYMER;
   const static std::vector<key_type>      KMER_MASK;
+  const static std::vector<key_type>      RYMER_MASK;
 
   friend Key128;
 };
@@ -383,6 +393,7 @@ private:
 
   // Constants for the encoding between std::string and the key.
   constexpr static size_t   PACK_WIDTH    = 2;
+  constexpr static size_t   PACK_WIDTH_RYMER    = 1;
   constexpr static size_t   PACK_OVERFLOW = FIELD_BITS - PACK_WIDTH;
   constexpr static size_t   FIELD_CHARS   = FIELD_BITS / PACK_WIDTH;
   constexpr static key_type PACK_MASK     = 0x3;
@@ -730,7 +741,7 @@ public:
     if(total_length < window_length) { return result; }
 
     // Find the minimizers.
-    CircularBuffer buffer(this->index, this->w());
+    CircularBuffer buffer(this->w());
     size_t valid_chars = 0, start_pos = 0;
     size_t next_read_offset = 0;  // The first read offset that may contain a new minimizer.
     key_type forward_key, reverse_key;
@@ -849,6 +860,17 @@ public:
     return this->minimizers(str.begin(), str.end());
   }
 
+  /*
+    Returns all minimizers in the string. The return value is a vector of
+    minimizers sorted by their offsets.
+
+    Calls syncmers() if the index uses closed syncmers.
+  */
+  std::vector<minimizer_type> rymers(const std::string& str) const
+  {
+    return this->rymers(str.begin(), str.end());
+  }
+
   
   /*
     Returns all minimizers in the string specified by the iterators, together
@@ -885,9 +907,16 @@ public:
     std::string::const_iterator iter = begin;
     while(iter != end)
     {
+
+      //std::cerr << "MINIMIZER FORWARD KEY BEFORE: " << forward_key << std::endl;
+      //std::cerr << "MINIMIZER REVERSE KEY BEFORE: " << reverse_key << std::endl;
+
       // Get the forward and reverse strand minimizer candidates
       forward_key.forward(this->k(), *iter, valid_chars);
       reverse_key.reverse(this->k(), *iter);
+
+      //std::cerr << "MINIMIZER FORWARD KEY AFTER: " << forward_key << std::endl;
+      //std::cerr << "MINIMIZER REVERSE KEY AFTER: " << reverse_key << std::endl;
 
       // If they don't have any Ns or anything in them, throw them into the sliding window tracked by buffer.
       // Otherwise just slide it along.
@@ -972,7 +1001,137 @@ public:
 
     return result;
   }
-  
+
+   /*
+    Returns all minimizers in the string specified by the iterators, together
+    with the start and length of the run of windows they arise from. The return
+    value is a vector of tuples of minimizers, starts, and lengths, sorted by
+    minimizer offset.
+
+    Calls syncmers() if the index uses closed syncmers but leaves the start
+    and length fields empty.
+  */
+  std::vector<std::tuple<minimizer_type, size_t, size_t>> rymer_regions(std::string::const_iterator begin, std::string::const_iterator end) const
+  {
+    std::vector<std::tuple<minimizer_type, size_t, size_t>> result;
+    if(this->uses_syncmers())
+    {
+      std::vector<minimizer_type> res = this->syncmers(begin, end);
+      result.reserve(res.size());
+      for(const minimizer_type& m : res) { result.emplace_back(m, 0, 0); }
+      return result;
+    }
+    size_t window_length = this->window_bp(), total_length = end - begin;
+    if(total_length < window_length) { return result; }
+    
+    // Find the minimizers.
+    CircularBuffer buffer(this->w());
+    // Note that start_pos isn't meaningfully the start of the window we are
+    // looking at.
+    size_t valid_chars = 0, start_pos = 0;
+    size_t next_read_offset = 0;  // The first read offset that may contain a new minimizer.
+    // All results before this are finished and have their lengths filled in.
+    // All results after are current winning minimizers of the current window.
+    size_t finished_through = 0; 
+    key_type forward_key, reverse_key;
+    std::string::const_iterator iter = begin;
+    while(iter != end)
+    {
+
+      //std::cerr << "RYMER FORWARD KEY BEFORE: " << forward_key << std::endl;
+      //std::cerr << "RYMER REVERSE KEY BEFORE: " << reverse_key << std::endl;
+
+      // Get the forward and reverse strand minimizer candidates
+      forward_key.forward_rymer(this->k(), *iter, valid_chars);
+      reverse_key.reverse_rymer(this->k(), *iter);
+
+      //std::cerr << "RYMER FORWARD KEY AFTER: " << forward_key << std::endl;
+      //std::cerr << "RYMER REVERSE KEY AFTER: " << reverse_key << std::endl;
+
+      // If they don't have any Ns or anything in them, throw them into the sliding window tracked by buffer.
+      // Otherwise just slide it along.
+      if(valid_chars >= this->k()) { buffer.advance(start_pos, forward_key, reverse_key); }
+      else                         { buffer.advance(start_pos); }
+      ++iter;
+      if(static_cast<size_t>(iter - begin) >= this->k()) { start_pos++; }
+      
+      // We have a full window.
+      if(static_cast<size_t>(iter - begin) >= window_length)
+      {
+        // Work out where the window we are minimizing in began
+        size_t window_start = static_cast<size_t>(iter - begin) - window_length;
+        
+        // Work out the past-the-end index of the window we have just finished (not the current window)
+        size_t prev_past_end_pos = window_start + window_length - 1;
+      
+        // Finish off end positions for results that weren't replaced but are going out of range
+        while(finished_through < result.size() &&
+          std::get<0>(result[finished_through]).offset < window_start)
+        {
+          // Compute region length based on it stopping at the previous step
+          std::get<2>(result[finished_through]) = prev_past_end_pos - std::get<1>(result[finished_through]);
+          finished_through++;
+        }
+      
+        // Our full window has a minimizer in it
+        if (!buffer.empty())
+        {
+        
+          // Insert the candidates if:
+          // 1) this is the first minimizer we encounter;
+          // 2) the last reported minimizer had the same hash (we may have new occurrences); or
+          // 3) the first candidate is located after the last reported minimizer.
+          if(result.empty() ||
+            std::get<0>(result.back()).hash == buffer.front().hash ||
+            std::get<0>(result.back()).offset < buffer.front().offset)
+          {
+            // Insert all new occurrences of the minimizer in the window.
+            for(size_t i = buffer.begin(); i < buffer.end() && buffer.at(i).hash == buffer.front().hash; i++)
+            {
+              if(buffer.at(i).offset >= next_read_offset)
+              {
+                // Insert the minimizer instance, with its region starting
+                // where the window covered by the buffer starts.
+                result.emplace_back(buffer.at(i), window_start, 0);
+                // There can only ever really be one minimizer at a given start
+                // position. So look for the next one 1 base to the right.
+                next_read_offset = buffer.at(i).offset + 1;
+              }
+            }
+            
+            // If new minimizers beat out old ones, finish off the old ones.
+            while(!result.empty() &&
+              finished_through < result.size() &&
+              std::get<0>(result.back()).hash != std::get<0>(result[finished_through]).hash)
+            {
+              // The window before the one we are looking at was the last one for this minimizer.
+              std::get<2>(result[finished_through]) = prev_past_end_pos - std::get<1>(result[finished_through]);
+              finished_through++;
+            }
+          }
+        }
+      }
+    }
+
+    // Now close off the minimizers left active when we hit the end of the string.
+    while(finished_through < result.size())
+    {
+      // The region length is from the region start to the string end
+      std::get<2>(result[finished_through]) = total_length - std::get<1>(result[finished_through]);
+      finished_through++;
+    }
+
+    // It was more convenient to use the first offset of the kmer, regardless of the orientation.
+    // If the minimizer is a reverse complement, we must return the last offset instead.
+    for(auto& record : result)
+    {
+      if(std::get<0>(record).is_reverse) { std::get<0>(record).offset += this->k() - 1; }
+    }
+    std::sort(result.begin(), result.end());
+
+    return result;
+  }
+
   /*
     Returns all minimizers in the string. The return value is a vector of
     minimizers, region starts, and region lengths sorted by their offsets.
