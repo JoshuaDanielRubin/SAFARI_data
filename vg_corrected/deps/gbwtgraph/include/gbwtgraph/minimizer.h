@@ -1146,7 +1146,7 @@ public:
 
    std::vector<std::tuple<minimizer_type, size_t, size_t>> rymer_regions(const std::string& str) const
   {
-    const std::string rymer = str; //gbwtgraph::convertToRymerSpace(str);
+    const std::string rymer = gbwtgraph::convertToRymerSpace(str);
     return this->rymer_regions(rymer.begin(), rymer.end());
   }
 

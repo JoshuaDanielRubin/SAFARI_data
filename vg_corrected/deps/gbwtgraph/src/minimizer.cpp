@@ -42,6 +42,8 @@ constexpr Key64::key_type Key64::IS_POINTER;
 
 constexpr size_t Key64::PACK_WIDTH;
 constexpr Key64::key_type Key64::PACK_MASK;
+constexpr size_t Key64::PACK_WIDTH_RYMER;
+constexpr Key64::key_type Key64::PACK_MASK_RYMER;
 
 // Key64: Other class variables.
 
@@ -68,32 +70,28 @@ const std::vector<unsigned char> Key64::CHAR_TO_PACK =
   4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4
 };
 
-// Initialize CHAR_TO_PACK_RYMER
 const std::vector<unsigned char> Key64::CHAR_TO_PACK_RYMER =
 {
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-
-  4, 0, 4, 0,  4, 4, 4, 1,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  1, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 0, 4, 0,  4, 4, 4, 1,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  1, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,
-  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  // 0 - 15
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  // 16 - 31
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  // 32 - 47 (includes space, punctuation)
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  // 48 - 63 (includes digits)
+  4, 0, 4, 1,  4, 4, 4, 0,  4, 4, 4, 4,  4, 4, 4, 4,  // 64 - 79 (includes A, C, G -> A)
+  4, 4, 4, 4,  1, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  // 80 - 95 (includes T -> C)
+  4, 0, 4, 1,  4, 4, 4, 0,  4, 4, 4, 4,  4, 4, 4, 4,  // 96 - 111 (includes a, c, g -> a)
+  4, 4, 4, 4,  1, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  // 112 - 127 (includes t -> c)
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  // 128 - 143
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  // 144 - 159
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  // 160 - 175
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  // 176 - 191
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  // 192 - 207
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  // 208 - 223
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  // 224 - 239
+  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4   // 240 - 255
 };
 
 const std::vector<char> Key64::PACK_TO_CHAR = { 'A', 'C', 'G', 'T' };
-const std::vector<char> Key64::PACK_TO_CHAR_RYMER = {'A', 'C', 'A', 'C'};
+const std::vector<char> Key64::PACK_TO_CHAR_RYMER = {'A', 'G', 'A', 'G'};
 
 const std::vector<Key64::key_type> Key64::KMER_MASK =
 {
@@ -129,6 +127,42 @@ const std::vector<Key64::key_type> Key64::KMER_MASK =
   0x03FFFFFFFFFFFFFFull,
   0x0FFFFFFFFFFFFFFFull,
   0x3FFFFFFFFFFFFFFFull
+};
+
+const std::vector<Key64::key_type> Key64::RYMER_MASK =
+{
+  0x0000000000000000ull,
+  0x0000000000000001ull,
+  0x0000000000000003ull,
+  0x0000000000000007ull,
+  0x000000000000000Full,
+  0x000000000000001Full,
+  0x000000000000003Full,
+  0x000000000000007Full,
+  0x00000000000000FFull,
+  0x00000000000001FFull,
+  0x00000000000003FFull,
+  0x00000000000007FFull,
+  0x0000000000000FFFull,
+  0x0000000000001FFFull,
+  0x0000000000003FFFull,
+  0x0000000000007FFFull,
+  0x000000000000FFFFull,
+  0x000000000001FFFFull,
+  0x000000000003FFFFull,
+  0x000000000007FFFFull,
+  0x00000000000FFFFFull,
+  0x00000000001FFFFFull,
+  0x00000000003FFFFFull,
+  0x00000000007FFFFFull,
+  0x0000000000FFFFFFull,
+  0x0000000001FFFFFFull,
+  0x0000000003FFFFFFull,
+  0x0000000007FFFFFFull,
+  0x000000000FFFFFFFull,
+  0x000000001FFFFFFFull,
+  0x000000003FFFFFFFull,
+  0x000000007FFFFFFFull
 };
 
 //------------------------------------------------------------------------------
@@ -456,17 +490,17 @@ Key64::encode_rymer(const std::string& sequence)
   key_type packed = 0;
   for(auto c : sequence)
   {
-    if(c != 'A' && c != 'C') {
-      throw std::runtime_error("[ENCODE_RYMER] Key64::encode_rymer(): Unexpected character in input sequence: " + std::string(1, c));
-    }
+    if(c != 'A' && c != 'C' && c != 'G' && c != 'T') {
+  throw std::runtime_error("[ENCODE_RYMER] Key64::encode_rymer(): Unexpected character in input sequence: " + std::string(1, c));
+                                                     }
     auto packed_char = CHAR_TO_PACK_RYMER[c];
     //std::cerr << "Character to encode: " << c << ", encoded value: " << (int)packed_char << std::endl;
-    if(packed_char > PACK_MASK)
+    if(packed_char > PACK_MASK_RYMER)
     {
       std::cerr << "Failed to encode character '" << c << "' (ASCII " << (int)c << ")" << std::endl;
       throw std::runtime_error("[ENCODE_RYMER] Key64::encode(): Cannot encode character '" + std::string(1, c) + "'");
     }
-    packed = (packed << PACK_WIDTH) | packed_char;
+    packed = (packed << PACK_WIDTH_RYMER) | packed_char;
   }
   return Key64(packed);
 }
@@ -477,8 +511,8 @@ Key64::decode_rymer(size_t k) const
   std::stringstream result;
   for(size_t i = 0; i < k; i++)
   {
-    char decoded_char = PACK_TO_CHAR_RYMER[(this->key >> ((k - i - 1) * PACK_WIDTH)) & PACK_MASK];
-    if(decoded_char != 'A' && decoded_char != 'C') {
+    char decoded_char = PACK_TO_CHAR_RYMER[(this->key >> ((k - i - 1) * PACK_WIDTH_RYMER)) & PACK_MASK_RYMER];
+    if(decoded_char != 'A' && decoded_char != 'G') {
       throw std::runtime_error("[DECODE_RYMER] Key64::decode_rymer(): Unexpected character in decoded sequence: " + std::string(1, decoded_char));
     }
     result << decoded_char;

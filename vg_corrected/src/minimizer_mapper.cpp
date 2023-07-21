@@ -562,7 +562,7 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
     //std::vector<Minimizer> minimizers_rymer = minimizers;
 
     std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel);
-    std::vector<Minimizer> minimizers_rymer = this->find_rymers(aln.sequence(), funnel_rymer);//this->find_rymers(gbwtgraph::convertToRymerSpace(aln.sequence()), funnel_rymer);
+    std::vector<Minimizer> minimizers_rymer = this->find_rymers(gbwtgraph::convertToRymerSpace(aln.sequence()), funnel_rymer);
 
     //std::cerr << "NUMBER OF MINIMIZERS FOUND: " << minimizers.size() << std::endl;
     //std::cerr << "NUMBER OF RYMERS FOUND: " << minimizers_rymer.size() << std::endl;
