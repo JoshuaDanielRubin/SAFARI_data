@@ -90,7 +90,7 @@ public:
     /// Ignore all minimizers with more than hard_hit_cap hits
     size_t hard_hit_cap = 500;
 
-    size_t hard_hit_cap_rymer = 500;
+    size_t hard_hit_cap_rymer = 500000;
 
     /// Take minimizers between hit_cap and hard_hit_cap hits until this fraction
     /// of total score
@@ -120,7 +120,7 @@ public:
     //If a cluster's score is smaller than the best score of any cluster by more than
     //this much, then don't extend it
     double cluster_score_threshold = 50;
-    double cluster_score_threshold_rymer = 50;
+    double cluster_score_threshold_rymer = 50000;
 
     //If the second best cluster's score is no more than this many points below
     //the cutoff set by cluster_score_threshold, snap that cutoff down to the

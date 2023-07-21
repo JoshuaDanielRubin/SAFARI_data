@@ -593,8 +593,8 @@ for (const auto& rymer : minimizers_rymer) {
     // Find the seeds and mark the rymers that were located.
     vector<Seed> seeds_rymer = this->find_seeds<Seed>(minimizers_rymer, aln, funnel_rymer);
 
-    cerr << "NUMBER OF MINIMIZER SEEDS: " << seeds.size() << endl;
-    cerr << "NUMBER OF RYMER SEEDS: " << seeds_rymer.size() << endl;
+    //cerr << "NUMBER OF MINIMIZER SEEDS: " << seeds.size() << endl;
+    //cerr << "NUMBER OF RYMER SEEDS: " << seeds_rymer.size() << endl;
 
     // Cluster the seeds. Get sets of input seed indexes that go together.
     if (track_provenance) {
@@ -605,8 +605,8 @@ for (const auto& rymer : minimizers_rymer) {
     clusters = clusterer.cluster_seeds(seeds, get_distance_limit(aln.sequence().size()));
     clusters_rymer = clusterer.cluster_seeds(seeds_rymer, get_distance_limit(aln.sequence().size()));
 
-   cerr << "NUMBER OF RYMER CLUSTERS: " << clusters_rymer.size() << endl;
-   cerr << "NUMBER OF MINIMIZER CLUSTERS: " << minimizers_rymer.size() << endl;
+   //cerr << "NUMBER OF RYMER CLUSTERS: " << clusters_rymer.size() << endl;
+   //cerr << "NUMBER OF MINIMIZER CLUSTERS: " << minimizers_rymer.size() << endl;
 
 #ifdef debug_validate_clusters
     vector<vector<Cluster>> all_clusters;
@@ -808,7 +808,7 @@ for (const auto& rymer : minimizers_rymer) {
                 
                 // Remember which sorted seeds go with which chains, so we can interpret the chains.
                 processed_cluster_sorted_seeds.emplace_back(std::move(cluster_seeds_sorted));
-                
+
                 if (track_provenance) {
                     // Record with the funnel that the previous group became a single item.
                     // TODO: Change to a group when we can do multiple chains.
@@ -1233,6 +1233,14 @@ for (const auto& rymer : minimizers_rymer) {
             explored_minimizers.push_back(i);
         }
     }
+
+    vector<size_t> explored_rymers;
+    for (size_t i = 0; i < minimizers_rymer.size(); i++) {
+        if (minimizer_explored_rymer.contains(i)) {
+            explored_rymers.push_back(i);
+        }
+    }
+
     // Compute caps on MAPQ. TODO: avoid needing to pass as much stuff along.
     double escape_bonus = mapq < std::numeric_limits<int32_t>::max() ? 1.0 : 2.0;
     double mapq_explored_cap = escape_bonus * faster_cap(minimizers, explored_minimizers, aln.sequence(), aln.quality());
