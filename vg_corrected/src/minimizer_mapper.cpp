@@ -23,7 +23,7 @@
 // Turn on debugging prints
 //#define debug
 // Turn on printing of minimizer fact tables
-#define print_minimizer_table
+//#define print_minimizer_table
 #define print_minimizer_table_rymer
 // Dump local graphs that we align against
 //#define debug_dump_graph
@@ -595,7 +595,7 @@ for (const auto& rymer : minimizers_rymer) {
     vector<Seed> seeds_rymer = this->find_seeds<Seed>(minimizers_rymer, aln, funnel_rymer);
 
     //cerr << "NUMBER OF MINIMIZER SEEDS: " << seeds.size() << endl;
-    //cerr << "NUMBER OF RYMER SEEDS: " << seeds_rymer.size() << endl;
+    cerr << "NUMBER OF RYMER SEEDS: " << seeds_rymer.size() << endl;
 
     // Cluster the seeds. Get sets of input seed indexes that go together.
     if (track_provenance) {
@@ -606,7 +606,7 @@ for (const auto& rymer : minimizers_rymer) {
     clusters = clusterer.cluster_seeds(seeds, get_distance_limit(aln.sequence().size()));
     clusters_rymer = clusterer.cluster_seeds(seeds_rymer, get_distance_limit(aln.sequence().size()));
 
-   //cerr << "NUMBER OF RYMER CLUSTERS: " << clusters_rymer.size() << endl;
+   cerr << "NUMBER OF RYMER CLUSTERS: " << clusters_rymer.size() << endl;
    //cerr << "NUMBER OF MINIMIZER CLUSTERS: " << minimizers_rymer.size() << endl;
 
 #ifdef debug_validate_clusters
