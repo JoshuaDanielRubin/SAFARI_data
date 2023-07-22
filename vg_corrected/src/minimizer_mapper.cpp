@@ -767,6 +767,8 @@ for (const auto& rymer : minimizers_rymer) {
             }
             
             if (align_from_chains) {
+
+                throw runtime_error("WE DONT ALIGN FROM CHAINS");
                 // We want to align from chains, not extensions
                 
                 if (track_provenance) {
@@ -821,6 +823,8 @@ for (const auto& rymer : minimizers_rymer) {
             } else {
                 // We want to align from extensions, so we actually need extensions
                 // Extend seed hits in the cluster into one or more gapless extensions
+
+                cerr << "ALIGNING FROM EXTENSIONS..." << endl;
                 cluster_extensions.emplace_back(this->extend_cluster(
                     cluster,
                     cluster_num,
