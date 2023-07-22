@@ -830,6 +830,16 @@ for (const auto& rymer : minimizers_rymer) {
                     minimizer_kept_cluster_count,
                     kept_cluster_count,
                     funnel));
+
+                cluster_extensions_rymer.emplace_back(this->extend_cluster(
+                    cluster,
+                    cluster_num,
+                    minimizers_rymer,
+                    seeds_rymer,
+                    gbwtgraph::convertToRymerSpace(aln.sequence()),
+                    minimizer_kept_cluster_count_rymer,
+                    kept_cluster_count_rymer,
+                    funnel_rymer));
             }
             
             return true;
@@ -4434,7 +4444,9 @@ void MinimizerMapper::find_optimal_tail_alignments(const Alignment& aln, const v
 
 pair<Path, size_t> MinimizerMapper::get_best_alignment_against_any_tree(const vector<TreeSubgraph>& trees,
     const string& sequence, const Position& default_position, bool pin_left, size_t longest_detectable_gap, LazyRNG& rng) const {
-   
+
+    throw runtime_error("THIS FUNCTION NEVER CALLED");
+
     // We want the best alignment, to the base graph, done against any target path
     Path best_path;
     // And its score
@@ -4696,6 +4708,8 @@ Path MinimizerMapper::to_path(const ImmutablePath& path) {
 
 void MinimizerMapper::dfs_gbwt(const Position& from, size_t walk_distance,
     const function<void(const handle_t&)>& enter_handle, const function<void(void)> exit_handle) const {
+
+    throw runtime_error("DOING DFS");
    
     // Get a handle to the node the from position is on, in the position's forward orientation
     handle_t start_handle = gbwt_graph.get_handle(from.node_id(), from.is_reverse());
@@ -4717,7 +4731,9 @@ void MinimizerMapper::dfs_gbwt(handle_t from_handle, size_t from_offset, size_t 
     
 void MinimizerMapper::dfs_gbwt(const gbwt::SearchState& start_state, size_t from_offset, size_t walk_distance,
     const function<void(const handle_t&)>& enter_handle, const function<void(void)> exit_handle) const {
-    
+
+    throw runtime_error("DOING DFS");
+
     if (start_state.empty()) {
         // No haplotypes even visit the first node. Stop.
         return;
