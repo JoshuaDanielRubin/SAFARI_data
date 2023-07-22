@@ -898,6 +898,7 @@ for (const auto& rymer : minimizers_rymer) {
     } else {
         // Just score the extension groups, with a slightly simpler algorithm; don't chain them
         cluster_alignment_score_estimates = this->score_extensions(cluster_extensions, aln, funnel);
+        cluster_alignment_score_estimates_rymer = this->score_extensions(cluster_extensions_rymer, aln, funnel_rymer);
     }
     
     if (track_provenance) {
