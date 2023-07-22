@@ -31,6 +31,7 @@
 //#define debug_fragment_distr
 //Do a brute force check that clusters are correct
 #define debug_validate_clusters
+#define dump_debug_rymers
 
 namespace vg {
 
@@ -3512,6 +3513,11 @@ std::vector<SeedType> MinimizerMapper::find_seeds(const std::vector<Minimizer>& 
         }
     }
 
+    #ifdef dump_debug_rymers
+        std::cerr << log_name() << "All rymers:" << std::endl;
+        dump_debug_minimizers(minimizers, gbwtgraph::convertToRymerSpace(aln.sequence()));
+    #endif
+
     // bit vector length of read to check for overlaps
     size_t num_minimizers = 0;
     size_t read_len = aln.sequence().size();
@@ -3573,7 +3579,7 @@ std::vector<SeedType> MinimizerMapper::find_seeds(const std::vector<Minimizer>& 
               (num_minimizers < ( max(this->max_unique_min, num_min_by_read_len) )) &&
               (overlapping == false)
             ) {
-            
+
             // set minimizer overlap as a reads
             num_minimizers += 1;    // tracking number of minimizers selected
             if (this->exclude_overlapping_min) {
