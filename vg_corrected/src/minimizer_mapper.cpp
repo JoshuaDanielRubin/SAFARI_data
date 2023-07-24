@@ -19,19 +19,20 @@
 #include <algorithm>
 #include <cmath>
 #include <cfloat>
+#include <map>
 
 // Turn on debugging prints
 //#define debug
 // Turn on printing of minimizer fact tables
 //#define print_minimizer_table
-#define print_minimizer_table_rymer
+//#define print_minimizer_table_rymer
 // Dump local graphs that we align against
 //#define debug_dump_graph
 // Dump fragment length distribution information
 //#define debug_fragment_distr
 //Do a brute force check that clusters are correct
-#define debug_validate_clusters
-#define dump_debug_rymers
+//#define debug_validate_clusters
+//#define dump_debug_rymers
 
 namespace vg {
 
@@ -562,25 +563,18 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
     //std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel);
     //std::vector<Minimizer> minimizers_rymer = minimizers;
 
-    std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel);
-    std::vector<Minimizer> minimizers_rymer = this->find_rymers(gbwtgraph::convertToRymerSpace(aln.sequence()), funnel_rymer);
 
-    //std::cerr << "NUMBER OF MINIMIZERS FOUND: " << minimizers.size() << std::endl;
-    //std::cerr << "NUMBER OF RYMERS FOUND: " << minimizers_rymer.size() << std::endl;
+// Get minimizers
+std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel);
 
-/*
-    std::cerr << "MINIMIZERS:" << std::endl;
-for (const auto& minimizer : minimizers) {
-    std::cerr << minimizer.forward_sequence() << std::endl;
-}
+// Get rymers
+std::vector<Minimizer> minimizers_rymer = this->find_rymers(gbwtgraph::convertToRymerSpace(aln.sequence()), funnel_rymer);
 
-std::cerr << "RYMERS:" << std::endl;
-for (const auto& rymer : minimizers_rymer) {
-    std::cerr << rymer.forward_sequence() << std::endl;
-}
-*/
+// Insert the rymers to the end of the minimizers
+minimizers.insert(minimizers.end(), minimizers_rymer.begin(), minimizers_rymer.end());
 
-    //throw std::runtime_error("TEST");
+    std::cerr << "NUMBER OF MINIMIZERS FOUND: " << minimizers.size() << std::endl;
+    std::cerr << "NUMBER OF RYMERS FOUND: " << minimizers_rymer.size() << std::endl;
 
     //Since there can be two different versions of a distance index, find seeds and clusters differently
 
@@ -588,14 +582,38 @@ for (const auto& rymer : minimizers_rymer) {
     std::vector<Cluster> clusters;
     std::vector<Cluster> clusters_rymer;
 
-    // Find the seeds and mark the minimizers that were located.
-    vector<Seed> seeds = this->find_seeds<Seed>(minimizers, aln, funnel);
+vector<Seed> seeds = this->find_seeds<Seed>(minimizers, aln, funnel);
+vector<Seed> seeds_rymer = this->find_seeds<Seed>(minimizers_rymer, aln, funnel_rymer);
 
-    // Find the seeds and mark the rymers that were located.
-    vector<Seed> seeds_rymer = this->find_seeds<Seed>(minimizers_rymer, aln, funnel_rymer);
+cerr << "NUMBER OF MINIMIZER SEEDS: " << seeds.size() << endl;
+cerr << "NUMBER OF RYMER SEEDS: " << seeds_rymer.size() << endl;
 
-    //cerr << "NUMBER OF MINIMIZER SEEDS: " << seeds.size() << endl;
-    cerr << "NUMBER OF RYMER SEEDS: " << seeds_rymer.size() << endl;
+int total_minimizers = 0;
+double avg_minimizers_for_a_single_rymer = 0.0;
+
+std::map<int, std::set<int>> rymer_to_minimizer;
+
+for (const auto & sr : seeds_rymer) {
+    for (const auto & sm : seeds) {
+        if (sm.source == sr.source) {
+            rymer_to_minimizer[sr.source].insert(sm.source);
+        }
+    }
+}
+
+for (const auto& rymer : rymer_to_minimizer) {
+    int minimizer_count = rymer.second.size();
+    total_minimizers += minimizer_count;
+}
+
+if (!rymer_to_minimizer.empty()) {
+    avg_minimizers_for_a_single_rymer = static_cast<double>(total_minimizers) / rymer_to_minimizer.size();
+}
+
+cerr << "TOTAL NUMBER OF MINIMIZERS: " << total_minimizers << endl;
+cerr << "AVERAGE NUMBER OF MINIMIZERS PER RYMER: " << avg_minimizers_for_a_single_rymer << endl;
+
+throw runtime_error("TESTING");
 
     // Cluster the seeds. Get sets of input seed indexes that go together.
     if (track_provenance) {
@@ -606,7 +624,7 @@ for (const auto& rymer : minimizers_rymer) {
     clusters = clusterer.cluster_seeds(seeds, get_distance_limit(aln.sequence().size()));
     clusters_rymer = clusterer.cluster_seeds(seeds_rymer, get_distance_limit(aln.sequence().size()));
 
-   cerr << "NUMBER OF RYMER CLUSTERS: " << clusters_rymer.size() << endl;
+   //cerr << "NUMBER OF RYMER CLUSTERS: " << clusters_rymer.size() << endl;
    //cerr << "NUMBER OF MINIMIZER CLUSTERS: " << minimizers_rymer.size() << endl;
 
 #ifdef debug_validate_clusters
@@ -768,7 +786,6 @@ for (const auto& rymer : minimizers_rymer) {
             
             if (align_from_chains) {
 
-                throw runtime_error("WE DONT ALIGN FROM CHAINS");
                 // We want to align from chains, not extensions
                 
                 if (track_provenance) {
@@ -824,7 +841,6 @@ for (const auto& rymer : minimizers_rymer) {
                 // We want to align from extensions, so we actually need extensions
                 // Extend seed hits in the cluster into one or more gapless extensions
 
-                cerr << "ALIGNING FROM EXTENSIONS..." << endl;
                 cluster_extensions.emplace_back(this->extend_cluster(
                     cluster,
                     cluster_num,
@@ -834,7 +850,7 @@ for (const auto& rymer : minimizers_rymer) {
                     minimizer_kept_cluster_count,
                     kept_cluster_count,
                     funnel));
-
+/*
                 cluster_extensions_rymer.emplace_back(this->extend_cluster(
                     cluster,
                     cluster_num,
@@ -844,8 +860,9 @@ for (const auto& rymer : minimizers_rymer) {
                     minimizer_kept_cluster_count_rymer,
                     kept_cluster_count_rymer,
                     funnel_rymer));
+*/
             }
-            
+          
             return true;
             
         }, [&](size_t cluster_num) -> void {
@@ -4148,8 +4165,6 @@ static int32_t flank_penalty(size_t length, const std::vector<pareto_point>& fro
 
 void MinimizerMapper::find_optimal_tail_alignments(const Alignment& aln, const vector<GaplessExtension>& extended_seeds, LazyRNG& rng, Alignment& best, Alignment& second_best) const {
 
-    throw runtime_error("IN FIND TAIL ALIGNMENTS");
-
     // This assumes that full-length extensions have the highest scores.
     // We want to align at least two extensions and at least one
     // partial extension. However, we do not want to align more than one
@@ -4450,8 +4465,6 @@ void MinimizerMapper::find_optimal_tail_alignments(const Alignment& aln, const v
 pair<Path, size_t> MinimizerMapper::get_best_alignment_against_any_tree(const vector<TreeSubgraph>& trees,
     const string& sequence, const Position& default_position, bool pin_left, size_t longest_detectable_gap, LazyRNG& rng) const {
 
-    throw runtime_error("THIS FUNCTION NEVER CALLED");
-
     // We want the best alignment, to the base graph, done against any target path
     Path best_path;
     // And its score
@@ -4714,7 +4727,6 @@ Path MinimizerMapper::to_path(const ImmutablePath& path) {
 void MinimizerMapper::dfs_gbwt(const Position& from, size_t walk_distance,
     const function<void(const handle_t&)>& enter_handle, const function<void(void)> exit_handle) const {
 
-    throw runtime_error("DOING DFS");
    
     // Get a handle to the node the from position is on, in the position's forward orientation
     handle_t start_handle = gbwt_graph.get_handle(from.node_id(), from.is_reverse());
@@ -4736,8 +4748,6 @@ void MinimizerMapper::dfs_gbwt(handle_t from_handle, size_t from_offset, size_t 
     
 void MinimizerMapper::dfs_gbwt(const gbwt::SearchState& start_state, size_t from_offset, size_t walk_distance,
     const function<void(const handle_t&)>& enter_handle, const function<void(void)> exit_handle) const {
-
-    throw runtime_error("DOING DFS");
 
     if (start_state.empty()) {
         // No haplotypes even visit the first node. Stop.
