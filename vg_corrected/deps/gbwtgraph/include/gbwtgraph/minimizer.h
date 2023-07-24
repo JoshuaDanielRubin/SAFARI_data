@@ -750,6 +750,7 @@ public:
     {
       forward_key.forward_rymer(this->k(), *iter, valid_chars);
       reverse_key.reverse_rymer(this->k(), *iter);
+
       if(valid_chars >= this->k()) { buffer.advance(start_pos, forward_key, reverse_key); }
       else                         { buffer.advance(start_pos); }
       ++iter;
@@ -871,7 +872,6 @@ public:
     return this->rymers(str.begin(), str.end());
   }
 
-  
   /*
     Returns all minimizers in the string specified by the iterators, together
     with the start and length of the run of windows they arise from. The return
