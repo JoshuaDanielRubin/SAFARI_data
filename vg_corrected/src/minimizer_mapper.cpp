@@ -542,7 +542,11 @@ void MinimizerMapper::map(Alignment& aln, AlignmentEmitter& alignment_emitter, s
 }
 
 vector<Alignment> MinimizerMapper::map(Alignment& aln, std::unordered_map<std::string, int> kmer_freq_map) {
-    
+
+    if (kmer_freq_map.empty()) {
+        throw std::runtime_error("[VG Giraffe] Error: kmer_freq_map is empty!");
+    }
+
     if (show_work) {
         #pragma omp critical (cerr)
         dump_debug_query(aln);
