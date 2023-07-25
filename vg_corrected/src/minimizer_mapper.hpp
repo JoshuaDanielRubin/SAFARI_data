@@ -51,7 +51,7 @@ public:
     /**
      * Map the given read. Return a vector of alignments that it maps to, winner first.
      */
-    vector<Alignment> map(Alignment& aln);
+    vector<Alignment> map(Alignment& aln, std::unordered_map<std::string, int> kmer_freq_map = std::unordered_map<std::string, int>());
     
     // The idea here is that the subcommand feeds all the reads to the version
     // of map_paired that takes a buffer, and then empties the buffer by

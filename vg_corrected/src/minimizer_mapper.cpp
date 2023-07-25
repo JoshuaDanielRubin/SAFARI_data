@@ -538,10 +538,10 @@ void MinimizerMapper::dump_debug_query(const Alignment& aln1, const Alignment& a
 void MinimizerMapper::map(Alignment& aln, AlignmentEmitter& alignment_emitter, std::unordered_map<std::string, int> kmer_freq_map) {
 
     // Ship out all the aligned alignments
-    alignment_emitter.emit_mapped_single(map(aln));
+    alignment_emitter.emit_mapped_single(map(aln, kmer_freq_map));
 }
 
-vector<Alignment> MinimizerMapper::map(Alignment& aln) {
+vector<Alignment> MinimizerMapper::map(Alignment& aln, std::unordered_map<std::string, int> kmer_freq_map) {
     
     if (show_work) {
         #pragma omp critical (cerr)
