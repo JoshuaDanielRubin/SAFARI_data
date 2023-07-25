@@ -589,7 +589,6 @@ cerr << "NUMBER OF MINIMIZER SEEDS: " << seeds.size() << endl;
 cerr << "NUMBER OF RYMER SEEDS: " << seeds_rymer.size() << endl;
 
 int total_minimizers = 0;
-double avg_minimizers_for_a_single_rymer = 0.0;
 
 //std::map<int, std::set<int>> rymer_to_minimizer;
 
@@ -609,12 +608,7 @@ for (const auto& rymer : seeds_rymer) {
     total_minimizers += minimizer_count;
 }
 
-if (!rymer_to_minimizer.empty()) {
-    avg_minimizers_for_a_single_rymer = static_cast<double>(total_minimizers) / rymer_to_minimizer.size();
-}
-
 cerr << "TOTAL NUMBER OF MINIMIZERS: " << total_minimizers << endl;
-cerr << "AVERAGE NUMBER OF MINIMIZERS PER RYMER: " << avg_minimizers_for_a_single_rymer << endl;
 
     // Cluster the seeds. Get sets of input seed indexes that go together.
     if (track_provenance) {
@@ -645,6 +639,8 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer, const std::multim
 
 // Use the lambda function
 seeds_rymer = apply_rymer_filter(seeds_rymer, rymer_to_minimizer);
+
+
 
 #ifdef debug_validate_clusters
     vector<vector<Cluster>> all_clusters;
