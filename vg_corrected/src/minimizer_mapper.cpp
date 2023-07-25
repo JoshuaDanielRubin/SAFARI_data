@@ -591,18 +591,21 @@ cerr << "NUMBER OF RYMER SEEDS: " << seeds_rymer.size() << endl;
 int total_minimizers = 0;
 double avg_minimizers_for_a_single_rymer = 0.0;
 
-std::map<int, std::set<int>> rymer_to_minimizer;
+//std::map<int, std::set<int>> rymer_to_minimizer;
+
+std::multimap<std::pair<size_t, pos_t>, Seed> rymer_to_minimizer;
 
 for (const auto & sr : seeds_rymer) {
     for (const auto & sm : seeds) {
         if (sm.source == sr.source) {
-            rymer_to_minimizer[sr.source].insert(sm.source);
+            rymer_to_minimizer.emplace(std::make_pair(sr.source, sr.pos), sm);
         }
     }
 }
 
-for (const auto& rymer : rymer_to_minimizer) {
-    int minimizer_count = rymer.second.size();
+for (const auto& rymer : seeds_rymer) {
+    auto range = rymer_to_minimizer.equal_range(std::make_pair(rymer.source, rymer.pos));
+    int minimizer_count = std::distance(range.first, range.second);
     total_minimizers += minimizer_count;
 }
 
@@ -625,22 +628,16 @@ cerr << "AVERAGE NUMBER OF MINIMIZERS PER RYMER: " << avg_minimizers_for_a_singl
    cerr << "NUMBER OF RYMER CLUSTERS: " << clusters_rymer.size() << endl;
    cerr << "NUMBER OF MINIMIZER CLUSTERS: " << minimizers_rymer.size() << endl;
 
-auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer, const std::map<int, set<int>>& rymer_to_minimizer) {
+auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer, const std::multimap<std::pair<size_t, pos_t>, Seed>& rymer_to_minimizer) {
     vector<Seed> filtered_seeds;
 
     for (const auto& seed : seeds_rymer) {
-        auto it = rymer_to_minimizer.find(seed.source);
-        if (it != rymer_to_minimizer.end() && !it->second.empty()) {
-            // If the rymer seed has a corresponding minimizer seed, add it to the filtered seeds.
+        auto it = rymer_to_minimizer.equal_range(std::make_pair(seed.source, seed.pos));
+        if (it.first != it.second) {  // If there is at least one corresponding Minimizer seed
             filtered_seeds.push_back(seed);
-        } else {
-            // If the rymer seed does not have a corresponding minimizer seed,
-            // apply your custom gatekeeping logic.
-            if (true) {  // Replace someCondition with your custom gatekeeping logic
-                // If the gatekeeping function returns true, add the rymer seed to the filtered seeds.
-                filtered_seeds.push_back(seed);
-            }
         }
+        // No else clause needed. If the Rymer seed does not have corresponding Minimizers,
+        // it will be automatically discarded.
     }
 
     return filtered_seeds;
