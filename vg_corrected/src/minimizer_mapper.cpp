@@ -585,8 +585,8 @@ minimizers.insert(minimizers.end(), minimizers_rymer.begin(), minimizers_rymer.e
 vector<Seed> seeds = this->find_seeds<Seed>(minimizers, aln, funnel);
 vector<Seed> seeds_rymer = this->find_seeds<Seed>(minimizers_rymer, aln, funnel_rymer);
 
-cerr << "NUMBER OF MINIMIZER SEEDS: " << seeds.size() << endl;
-cerr << "NUMBER OF RYMER SEEDS: " << seeds_rymer.size() << endl;
+//cerr << "NUMBER OF MINIMIZER SEEDS: " << seeds.size() << endl;
+//cerr << "NUMBER OF RYMER SEEDS: " << seeds_rymer.size() << endl;
 
 int total_minimizers = 0;
 
@@ -619,20 +619,31 @@ cerr << "TOTAL NUMBER OF MINIMIZERS: " << total_minimizers << endl;
     clusters = clusterer.cluster_seeds(seeds, get_distance_limit(aln.sequence().size()));
     clusters_rymer = clusterer.cluster_seeds(seeds_rymer, get_distance_limit(aln.sequence().size()));
 
-   cerr << "NUMBER OF RYMER CLUSTERS: " << clusters_rymer.size() << endl;
-   cerr << "NUMBER OF MINIMIZER CLUSTERS: " << minimizers_rymer.size() << endl;
+   //cerr << "NUMBER OF RYMER CLUSTERS: " << clusters_rymer.size() << endl;
+   //cerr << "NUMBER OF MINIMIZER CLUSTERS: " << minimizers_rymer.size() << endl;
 
 auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer, const std::multimap<std::pair<size_t, pos_t>, Seed>& rymer_to_minimizer) {
     vector<Seed> filtered_seeds;
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<> dis(0.0, 1.0);
+
+    size_t initial_rymers = seeds_rymer.size();
 
     for (const auto& seed : seeds_rymer) {
         auto it = rymer_to_minimizer.equal_range(std::make_pair(seed.source, seed.pos));
         if (it.first != it.second) {  // If there is at least one corresponding Minimizer seed
             filtered_seeds.push_back(seed);
+        } else {
+            // If there is no corresponding Minimizer seed, allow it through with a 50% probability
+            //if (dis(gen) < 0.5) {
+            //    filtered_seeds.push_back(seed);
+           // }
         }
-        // No else clause needed. If the Rymer seed does not have corresponding Minimizers,
-        // it will be automatically discarded.
     }
+
+    size_t filtered_rymers = initial_rymers - filtered_seeds.size();
+    std::cerr << "Number of filtered Rymers: " << filtered_rymers << std::endl;
 
     return filtered_seeds;
 };
