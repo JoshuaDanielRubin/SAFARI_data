@@ -643,7 +643,6 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
         for (auto it = its.first; it != its.second; ++it) {
             const string minimizer_seq = "GTCGA"; // Placeholder
             int raw_count = kmer_freq_map[minimizer_seq];
-            std::cerr << "RAW COUNT 1: " << raw_count << std::endl;
             total_minimizer_freq += static_cast<double>(raw_count) / total_minimizers;
         }
         
@@ -665,7 +664,7 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
     std::cerr << "Number of filtered Rymers: " << filtered_rymers << std::endl;
 
     return filtered_seeds;
-}
+};
 
 
 // Use the lambda function
