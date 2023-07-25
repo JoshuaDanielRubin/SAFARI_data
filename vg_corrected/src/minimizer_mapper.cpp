@@ -645,7 +645,7 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer, const std::multim
             }
 
             // Calculate frequency of the k-mer among all possible k-mers
-            size_t kmer_length = 5;//seed.value.size();
+            size_t kmer_length = kmer_freq_map.begin()->first.length();
             double total_possible_kmers = pow(4, kmer_length);
             double all_kmer_freq = static_cast<double>(kmer_freq_map["GATTA"]) / total_possible_kmers; //static_cast<double>(kmer_freq_map[seed.value]) / total_possible_kmers;
 
