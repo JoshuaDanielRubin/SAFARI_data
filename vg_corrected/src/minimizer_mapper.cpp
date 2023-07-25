@@ -603,7 +603,6 @@ for (const auto & sr : seeds_rymer) {
         }
     }
 }
-;
 
     // Cluster the seeds. Get sets of input seed indexes that go together.
     if (track_provenance) {
