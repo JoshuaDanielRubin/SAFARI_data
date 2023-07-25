@@ -592,8 +592,6 @@ vector<Seed> seeds_rymer = this->find_seeds<Seed>(minimizers_rymer, aln, funnel_
 //cerr << "NUMBER OF MINIMIZER SEEDS: " << seeds.size() << endl;
 //cerr << "NUMBER OF RYMER SEEDS: " << seeds_rymer.size() << endl;
 
-int total_minimizers = 0;
-
 //std::map<int, std::set<int>> rymer_to_minimizer;
 
 std::multimap<std::pair<size_t, pos_t>, Seed> rymer_to_minimizer;
@@ -605,14 +603,7 @@ for (const auto & sr : seeds_rymer) {
         }
     }
 }
-
-for (const auto& rymer : seeds_rymer) {
-    auto range = rymer_to_minimizer.equal_range(std::make_pair(rymer.source, rymer.pos));
-    int minimizer_count = std::distance(range.first, range.second);
-    total_minimizers += minimizer_count;
-}
-
-cerr << "TOTAL NUMBER OF MINIMIZERS: " << total_minimizers << endl;
+;
 
     // Cluster the seeds. Get sets of input seed indexes that go together.
     if (track_provenance) {
@@ -626,25 +617,41 @@ cerr << "TOTAL NUMBER OF MINIMIZERS: " << total_minimizers << endl;
    //cerr << "NUMBER OF RYMER CLUSTERS: " << clusters_rymer.size() << endl;
    //cerr << "NUMBER OF MINIMIZER CLUSTERS: " << minimizers_rymer.size() << endl;
 
+// Compute total count of all minimizers outside of the lambda
+int total_minimizers = 0;
+for (const auto& kv : kmer_freq_map) {
+    total_minimizers += kv.second;
+}
+
 auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer, const std::multimap<std::pair<size_t, pos_t>, Seed>& rymer_to_minimizer, \
-                              std::unordered_map<std::string, int> kmer_freq_map) {
+                              std::unordered_map<std::string, int> kmer_freq_map, int total_minimizers) {
 
     vector<Seed> filtered_seeds;
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<> dis(0.0, 1.0);
 
     size_t initial_rymers = seeds_rymer.size();
 
     for (const auto& seed : seeds_rymer) {
-        auto it = rymer_to_minimizer.equal_range(std::make_pair(seed.source, seed.pos));
-        if (it.first != it.second) {  // If there is at least one corresponding Minimizer seed
+        auto its = rymer_to_minimizer.equal_range(std::make_pair(seed.source, seed.pos));
+        if (its.first != its.second) {  // If there is at least one corresponding Minimizer seed
             filtered_seeds.push_back(seed);
         } else {
-            // If there is no corresponding Minimizer seed, allow it through with a 50% probability
-            //if (dis(gen) < 0.5) {
-            //    filtered_seeds.push_back(seed);
-           // }
+
+            // Calculate total frequency of all k-mers corresponding to the current rymer among minimizers
+            double total_minimizer_freq = 0;
+            for (auto it = its.first; it != its.second; ++it) {
+                const string minimizer_seq = "GATTA"; // FOR NOW
+                int raw_count = kmer_freq_map[minimizer_seq]; //kmer_freq_map[it->second.value];
+                total_minimizer_freq += static_cast<double>(raw_count) / total_minimizers;
+            }
+
+            // Calculate frequency of the k-mer among all possible k-mers
+            size_t kmer_length = 5;//seed.value.size();
+            double total_possible_kmers = pow(4, kmer_length);
+            double all_kmer_freq = static_cast<double>(kmer_freq_map["GATTA"]) / total_possible_kmers; //static_cast<double>(kmer_freq_map[seed.value]) / total_possible_kmers;
+
+            if (total_minimizer_freq / all_kmer_freq > 0.01) {
+                filtered_seeds.push_back(seed);
+            }
         }
     }
 
@@ -655,9 +662,7 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer, const std::multim
 };
 
 // Use the lambda function
-seeds_rymer = apply_rymer_filter(seeds_rymer, rymer_to_minimizer, kmer_freq_map);
-
-
+seeds_rymer = apply_rymer_filter(seeds_rymer, rymer_to_minimizer, kmer_freq_map, total_minimizers);
 
 #ifdef debug_validate_clusters
     vector<vector<Cluster>> all_clusters;
