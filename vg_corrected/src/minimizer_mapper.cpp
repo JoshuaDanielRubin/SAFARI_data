@@ -613,8 +613,6 @@ if (!rymer_to_minimizer.empty()) {
 cerr << "TOTAL NUMBER OF MINIMIZERS: " << total_minimizers << endl;
 cerr << "AVERAGE NUMBER OF MINIMIZERS PER RYMER: " << avg_minimizers_for_a_single_rymer << endl;
 
-throw runtime_error("TESTING");
-
     // Cluster the seeds. Get sets of input seed indexes that go together.
     if (track_provenance) {
         funnel.stage("cluster");
@@ -624,8 +622,32 @@ throw runtime_error("TESTING");
     clusters = clusterer.cluster_seeds(seeds, get_distance_limit(aln.sequence().size()));
     clusters_rymer = clusterer.cluster_seeds(seeds_rymer, get_distance_limit(aln.sequence().size()));
 
-   //cerr << "NUMBER OF RYMER CLUSTERS: " << clusters_rymer.size() << endl;
-   //cerr << "NUMBER OF MINIMIZER CLUSTERS: " << minimizers_rymer.size() << endl;
+   cerr << "NUMBER OF RYMER CLUSTERS: " << clusters_rymer.size() << endl;
+   cerr << "NUMBER OF MINIMIZER CLUSTERS: " << minimizers_rymer.size() << endl;
+
+auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer, const std::map<int, set<int>>& rymer_to_minimizer) {
+    vector<Seed> filtered_seeds;
+
+    for (const auto& seed : seeds_rymer) {
+        auto it = rymer_to_minimizer.find(seed.source);
+        if (it != rymer_to_minimizer.end() && !it->second.empty()) {
+            // If the rymer seed has a corresponding minimizer seed, add it to the filtered seeds.
+            filtered_seeds.push_back(seed);
+        } else {
+            // If the rymer seed does not have a corresponding minimizer seed,
+            // apply your custom gatekeeping logic.
+            if (true) {  // Replace someCondition with your custom gatekeeping logic
+                // If the gatekeeping function returns true, add the rymer seed to the filtered seeds.
+                filtered_seeds.push_back(seed);
+            }
+        }
+    }
+
+    return filtered_seeds;
+};
+
+// Use the lambda function
+seeds_rymer = apply_rymer_filter(seeds_rymer, rymer_to_minimizer);
 
 #ifdef debug_validate_clusters
     vector<vector<Cluster>> all_clusters;
