@@ -1685,7 +1685,7 @@ kmer_freq_file.close();
                     toUppercaseInPlace(*aln.mutable_sequence());
                 
                     // Map the read with the MinimizerMapper.
-                    minimizer_mapper.map(aln, *alignment_emitter);
+                    minimizer_mapper.map(aln, *alignment_emitter, kmer_freq_map);
                     // Record that we mapped a read.
                     reads_mapped_by_thread.at(omp_get_thread_num())++;
                 };

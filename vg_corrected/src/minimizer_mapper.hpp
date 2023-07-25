@@ -45,7 +45,8 @@ public:
      * Map the given read, and send output to the given AlignmentEmitter. May be run from any thread.
      * TODO: Can't be const because the clusterer's cluster_seeds isn't const.
      */
-    void map(Alignment& aln, AlignmentEmitter& alignment_emitter);
+    
+    void map(Alignment& aln, AlignmentEmitter& alignment_emitter, std::unordered_map<std::string, int> kmer_freq_map = std::unordered_map<std::string, int>());
     
     /**
      * Map the given read. Return a vector of alignments that it maps to, winner first.

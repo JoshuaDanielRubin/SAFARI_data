@@ -535,7 +535,7 @@ void MinimizerMapper::dump_debug_query(const Alignment& aln1, const Alignment& a
 
 //-----------------------------------------------------------------------------
 
-void MinimizerMapper::map(Alignment& aln, AlignmentEmitter& alignment_emitter) {
+void MinimizerMapper::map(Alignment& aln, AlignmentEmitter& alignment_emitter, std::unordered_map<std::string, int> kmer_freq_map) {
 
     // Ship out all the aligned alignments
     alignment_emitter.emit_mapped_single(map(aln));
