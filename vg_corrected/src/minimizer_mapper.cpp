@@ -623,35 +623,42 @@ for (const auto& kv : kmer_freq_map) {
     total_minimizers += kv.second;
 }
 
-auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer, const std::multimap<std::pair<size_t, pos_t>, Seed>& rymer_to_minimizer, \
-                              std::unordered_map<std::string, int> kmer_freq_map, int total_minimizers) {
+auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer, 
+                               const std::multimap<std::pair<size_t, pos_t>, Seed>& rymer_to_minimizer, 
+                               std::unordered_map<std::string, int> kmer_freq_map, 
+                               int total_minimizers) {
 
     vector<Seed> filtered_seeds;
-
     size_t initial_rymers = seeds_rymer.size();
 
     for (const auto& seed : seeds_rymer) {
         auto its = rymer_to_minimizer.equal_range(std::make_pair(seed.source, seed.pos));
-        if (its.first != its.second) {  // If there is at least one corresponding Minimizer seed
+        
+        // If there is no corresponding Minimizer seed
+        if (its.first == its.second) {
+            continue; // Move to next iteration of the loop
+        }
+
+        // Calculate total frequency of all k-mers corresponding to the current rymer among minimizers
+        double total_minimizer_freq = 0;
+        for (auto it = its.first; it != its.second; ++it) {
+            const string minimizer_seq = "GTCGA"; // Placeholder
+            int raw_count = kmer_freq_map[minimizer_seq];
+            std::cerr << "RAW COUNT 1: " << raw_count << std::endl;
+            total_minimizer_freq += static_cast<double>(raw_count) / total_minimizers;
+        }
+        
+        // Calculate frequency of the k-mer among all possible k-mers
+        size_t kmer_length = kmer_freq_map.begin()->first.length();
+        double total_possible_kmers = 1000; // Placeholder
+        double all_kmer_freq = static_cast<double>(kmer_freq_map["GTCGA"]) / total_possible_kmers;
+
+        std::cerr << "TOTAL MINIMIZER FREQ: " << total_minimizer_freq << std::endl;
+        std::cerr << "ALL KMER FREQ: " << all_kmer_freq << std::endl;
+        std::cerr << "DEAMINATION PROBABILITY: " << total_minimizer_freq / all_kmer_freq << std::endl;
+
+        if (total_minimizer_freq / all_kmer_freq > 0.01) {
             filtered_seeds.push_back(seed);
-        } else {
-
-            // Calculate total frequency of all k-mers corresponding to the current rymer among minimizers
-            double total_minimizer_freq = 0;
-            for (auto it = its.first; it != its.second; ++it) {
-                const string minimizer_seq = "GATTA"; // FOR NOW
-                int raw_count = kmer_freq_map[minimizer_seq]; //kmer_freq_map[it->second.value];
-                total_minimizer_freq += static_cast<double>(raw_count) / total_minimizers;
-            }
-
-            // Calculate frequency of the k-mer among all possible k-mers
-            size_t kmer_length = kmer_freq_map.begin()->first.length();
-            double total_possible_kmers = pow(4, kmer_length);
-            double all_kmer_freq = static_cast<double>(kmer_freq_map["GATTA"]) / total_possible_kmers; //static_cast<double>(kmer_freq_map[seed.value]) / total_possible_kmers;
-
-            if (total_minimizer_freq / all_kmer_freq > 0.01) {
-                filtered_seeds.push_back(seed);
-            }
         }
     }
 
@@ -659,7 +666,8 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer, const std::multim
     std::cerr << "Number of filtered Rymers: " << filtered_rymers << std::endl;
 
     return filtered_seeds;
-};
+}
+
 
 // Use the lambda function
 seeds_rymer = apply_rymer_filter(seeds_rymer, rymer_to_minimizer, kmer_freq_map, total_minimizers);
