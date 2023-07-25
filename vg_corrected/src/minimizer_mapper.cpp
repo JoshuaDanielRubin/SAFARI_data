@@ -626,7 +626,9 @@ cerr << "TOTAL NUMBER OF MINIMIZERS: " << total_minimizers << endl;
    //cerr << "NUMBER OF RYMER CLUSTERS: " << clusters_rymer.size() << endl;
    //cerr << "NUMBER OF MINIMIZER CLUSTERS: " << minimizers_rymer.size() << endl;
 
-auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer, const std::multimap<std::pair<size_t, pos_t>, Seed>& rymer_to_minimizer) {
+auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer, const std::multimap<std::pair<size_t, pos_t>, Seed>& rymer_to_minimizer, \
+                              std::unordered_map<std::string, int> kmer_freq_map) {
+
     vector<Seed> filtered_seeds;
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -653,7 +655,7 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer, const std::multim
 };
 
 // Use the lambda function
-seeds_rymer = apply_rymer_filter(seeds_rymer, rymer_to_minimizer);
+seeds_rymer = apply_rymer_filter(seeds_rymer, rymer_to_minimizer, kmer_freq_map);
 
 
 
