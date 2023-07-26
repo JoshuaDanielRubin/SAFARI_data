@@ -624,9 +624,9 @@ for (const auto& kv : kmer_freq_map) {
 
 cerr << "TOTAL MINIMIZERS: " << total_minimizers << endl;
 
-auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer, 
-                               const std::multimap<std::pair<size_t, pos_t>, Seed>& rymer_to_minimizer, 
-                               std::unordered_map<std::string, int> kmer_freq_map, 
+auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
+                               const std::multimap<std::pair<size_t, pos_t>, Seed>& rymer_to_minimizer,
+                               std::unordered_map<std::string, int> kmer_freq_map,
                                int total_minimizers) {
 
     vector<Seed> filtered_seeds;
@@ -641,17 +641,14 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
         }
 
         double total_minimizer_freq = 0;
-for (auto it = its.first; it != its.second; ++it) {
-    const string minimizer_seq = "GTCGA"; // Placeholder
-    int raw_count = kmer_freq_map[minimizer_seq];
-    double minimizer_freq = static_cast<double>(raw_count) / total_minimizers;
-    total_minimizer_freq += minimizer_freq;
-}
+        for (auto it = its.first; it != its.second; ++it) {
+            const string minimizer_seq = "GTACG"; //it->second.kmer; // Assuming Seed structure has a member 'kmer'
+            int raw_count = kmer_freq_map[minimizer_seq];
+            double minimizer_freq = static_cast<double>(raw_count) / total_minimizers;
+            total_minimizer_freq += minimizer_freq;
+        }
 
-        // Calculate frequency of the k-mer among all possible k-mers
-        size_t kmer_length = kmer_freq_map.begin()->first.length();
-        double total_possible_kmers = static_cast<size_t>(std::pow(4, kmer_length));
-        double all_minimizer_freq = static_cast<double>(kmer_freq_map["GTCGA"]) / total_possible_kmers;
+        double all_minimizer_freq = static_cast<double>(kmer_freq_map["GTCGA"]) / total_minimizers;
 
         std::cerr << "TOTAL MINIMIZER FREQ: " << total_minimizer_freq << std::endl;
         std::cerr << "ALL MINIMIZER FREQ: " << all_minimizer_freq << std::endl;
@@ -667,8 +664,6 @@ for (auto it = its.first; it != its.second; ++it) {
 
     return filtered_seeds;
 };
-
-
 
 // Use the lambda function
 seeds_rymer = apply_rymer_filter(seeds_rymer, rymer_to_minimizer, kmer_freq_map, total_minimizers);
