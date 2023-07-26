@@ -642,13 +642,15 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
 
         double total_minimizer_freq = 0;
         for (auto it = its.first; it != its.second; ++it) {
-            const string minimizer_seq = "GTACG"; //it->second.kmer; // Assuming Seed structure has a member 'kmer'
+            const string minimizer_seq = "GTCGA"; //it->second.kmer; // Assuming Seed structure has a member 'kmer'
             int raw_count = kmer_freq_map[minimizer_seq];
-            double minimizer_freq = static_cast<double>(raw_count) / total_minimizers;
+            double minimizer_freq = 0.00001; //static_cast<double>(raw_count) / total_minimizers;
             total_minimizer_freq += minimizer_freq;
         }
 
-        double all_minimizer_freq = static_cast<double>(kmer_freq_map["GTCGA"]) / total_minimizers;
+        size_t kmer_length = kmer_freq_map.begin()->first.length();
+        double total_possible_kmers = static_cast<size_t>(std::pow(4, kmer_length));
+        double all_minimizer_freq = static_cast<double>(kmer_freq_map["GTCGA"]) / total_possible_kmers;
 
         std::cerr << "TOTAL MINIMIZER FREQ: " << total_minimizer_freq << std::endl;
         std::cerr << "ALL MINIMIZER FREQ: " << all_minimizer_freq << std::endl;
