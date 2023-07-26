@@ -634,30 +634,30 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
 
     for (const auto& seed : seeds_rymer) {
         auto its = rymer_to_minimizer.equal_range(std::make_pair(seed.source, seed.pos));
-        
+
         // If there is no corresponding Minimizer seed
         if (its.first == its.second) {
             continue; // Move to next iteration of the loop
         }
 
-        // Calculate total frequency of all k-mers corresponding to the current rymer among minimizers
         double total_minimizer_freq = 0;
-        for (auto it = its.first; it != its.second; ++it) {
-            const string minimizer_seq = "GTCGA"; // Placeholder
-            int raw_count = kmer_freq_map[minimizer_seq];
-            total_minimizer_freq += static_cast<double>(raw_count) / total_minimizers;
-        }
+for (auto it = its.first; it != its.second; ++it) {
+    const string minimizer_seq = "GTCGA"; // Placeholder
+    int raw_count = kmer_freq_map[minimizer_seq];
+    double minimizer_freq = static_cast<double>(raw_count) / total_minimizers;
+    total_minimizer_freq += minimizer_freq;
+}
 
         // Calculate frequency of the k-mer among all possible k-mers
         size_t kmer_length = kmer_freq_map.begin()->first.length();
-        double total_possible_kmers = 100000; // Placeholder
-        double all_kmer_freq = static_cast<double>(kmer_freq_map["GTCGA"]) / total_possible_kmers;
+        double total_possible_kmers = static_cast<size_t>(std::pow(4, kmer_length));
+        double all_minimizer_freq = static_cast<double>(kmer_freq_map["GTCGA"]) / total_possible_kmers;
 
         std::cerr << "TOTAL MINIMIZER FREQ: " << total_minimizer_freq << std::endl;
-        std::cerr << "ALL KMER FREQ: " << all_kmer_freq << std::endl;
-        std::cerr << "DEAMINATION PROBABILITY: " << total_minimizer_freq / all_kmer_freq << std::endl;
+        std::cerr << "ALL MINIMIZER FREQ: " << all_minimizer_freq << std::endl;
+        std::cerr << "DEAMINATION PROBABILITY: " << total_minimizer_freq / all_minimizer_freq << std::endl;
 
-        if (total_minimizer_freq / all_kmer_freq > 0.01) {
+        if (total_minimizer_freq / all_minimizer_freq > 0.01) {
             filtered_seeds.push_back(seed);
         }
     }
@@ -667,6 +667,7 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
 
     return filtered_seeds;
 };
+
 
 
 // Use the lambda function
