@@ -622,6 +622,8 @@ for (const auto& kv : kmer_freq_map) {
     total_minimizers += kv.second;
 }
 
+cerr << "TOTAL MINIMIZERS: " << total_minimizers << endl;
+
 auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer, 
                                const std::multimap<std::pair<size_t, pos_t>, Seed>& rymer_to_minimizer, 
                                std::unordered_map<std::string, int> kmer_freq_map, 
@@ -645,10 +647,10 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
             int raw_count = kmer_freq_map[minimizer_seq];
             total_minimizer_freq += static_cast<double>(raw_count) / total_minimizers;
         }
-        
+
         // Calculate frequency of the k-mer among all possible k-mers
         size_t kmer_length = kmer_freq_map.begin()->first.length();
-        double total_possible_kmers = 1000; // Placeholder
+        double total_possible_kmers = 100000; // Placeholder
         double all_kmer_freq = static_cast<double>(kmer_freq_map["GTCGA"]) / total_possible_kmers;
 
         std::cerr << "TOTAL MINIMIZER FREQ: " << total_minimizer_freq << std::endl;
