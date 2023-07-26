@@ -80,8 +80,17 @@ struct seed_traits {
 template<>
 struct seed_traits<SnarlDistanceIndexClusterer::Seed> {
     /// Get SeedType to use later, because it makes more sense to use that in
-    /// the function signatures than the type we're specialized on.
-    using SeedType = SnarlDistanceIndexClusterer::Seed;
+    /// the function signatures than the type we're specialized on
+
+       struct SeedTypeAugmented {
+             SnarlDistanceIndexClusterer::Seed seed;
+            //pos_t  pos;
+            //size_t source; // Source minimizer.
+            //gbwtgraph::payload_type minimizer_cache = MIPayload::NO_CODE; //minimizer payload
+        };
+
+    //using SeedType = SnarlDistanceIndexClusterer::Seed;
+    using SeedType = SeedTypeAugmented;
     
     /// What minimizer index payload type should we use for decoding minimizer index payloads?
     using MIPayload = vg::MIPayload;
@@ -95,7 +104,7 @@ struct seed_traits<SnarlDistanceIndexClusterer::Seed> {
     
     /// How do we convert chain info to an actual seed of the type we are using?
     /// Also needs to know the hit position, and the minimizer number.
-    inline static SeedType chain_info_to_seed(const pos_t& hit, size_t minimizer, const chain_info_t& chain_info) {
+    inline static SnarlDistanceIndexClusterer::Seed chain_info_to_seed(const pos_t& hit, size_t minimizer, const chain_info_t& chain_info) {
         return {hit, minimizer, chain_info};
     }
 };
@@ -669,6 +678,8 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
 
 // Use the lambda function
 seeds_rymer = apply_rymer_filter(seeds_rymer, rymer_to_minimizer, kmer_freq_map, total_minimizers);
+
+if (seeds_rymer.empty()){throw runtime_error("[VG Giraffe] No RYmers passed filtering");}
 
 #ifdef debug_validate_clusters
     vector<vector<Cluster>> all_clusters;
