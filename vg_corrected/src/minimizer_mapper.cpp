@@ -57,6 +57,25 @@ MinimizerMapper::MinimizerMapper(const gbwtgraph::GBWTGraph& graph,
 
 //-----------------------------------------------------------------------------
 
+/*
+ struct SeedTypeAugmented {
+             //SnarlDistanceIndexClusterer::Seed seed;
+            pos_t  pos;
+            size_t source; // Source minimizer.
+            gbwtgraph::payload_type minimizer_cache = MIPayload::NO_CODE; //minimizer payload
+        };
+*/
+
+/*
+SnarlDistanceIndexClusterer::Seed(const SeedTypeAugmented& a) {
+    SnarlDistanceIndexClusterer::Seed b;
+    b.pos = a.pos;
+    b.source = a.source;
+    b.minimizer_cache = a.minimizer_cache;
+    return b;
+}
+*/
+
 /// Accessors for attributes of a type when used as a seed.
 /// We use these to make templated code generic over the old and new seeds, so
 /// we don't need to write the same algorithm twice to satisfy the type system,
@@ -82,21 +101,13 @@ struct seed_traits<SnarlDistanceIndexClusterer::Seed> {
     /// Get SeedType to use later, because it makes more sense to use that in
     /// the function signatures than the type we're specialized on
 
-       struct SeedTypeAugmented {
-             SnarlDistanceIndexClusterer::Seed seed;
-            //pos_t  pos;
-            //size_t source; // Source minimizer.
-            //gbwtgraph::payload_type minimizer_cache = MIPayload::NO_CODE; //minimizer payload
-        };
+    using SeedType = SnarlDistanceIndexClusterer::Seed;
 
-    //using SeedType = SnarlDistanceIndexClusterer::Seed;
-    using SeedType = SeedTypeAugmented;
-    
     /// What minimizer index payload type should we use for decoding minimizer index payloads?
     using MIPayload = vg::MIPayload;
     /// What chain info should we keep around during clustering?
     using chain_info_t = gbwtgraph::payload_type;
-    
+
     /// How should we initialize chain info when it's not stored in the minimizer index?
     inline static chain_info_t no_chain_info() {
         return MIPayload::NO_CODE;
@@ -551,6 +562,7 @@ void MinimizerMapper::map(Alignment& aln, AlignmentEmitter& alignment_emitter, s
 }
 
 vector<Alignment> MinimizerMapper::map(Alignment& aln, std::unordered_map<std::string, int> kmer_freq_map) {
+
 
     if (kmer_freq_map.empty()) {
         throw std::runtime_error("[VG Giraffe] Error: kmer_freq_map is empty!");
@@ -3693,7 +3705,8 @@ std::vector<SeedType> MinimizerMapper::find_seeds(const std::vector<Minimizer>& 
                 if (minimizer.occs[j].payload != ST::MIPayload::NO_CODE) {
                     chain_info = minimizer.occs[j].payload;
                 }
-                seeds.push_back(ST::chain_info_to_seed(hit, i, chain_info));
+                auto chain_info_to_push_back = ST::chain_info_to_seed(hit, i, chain_info);
+                seeds.push_back(chain_info_to_push_back);
             }
 
             // Remember that we took this minimizer
