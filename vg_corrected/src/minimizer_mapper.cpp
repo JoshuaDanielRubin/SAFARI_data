@@ -57,25 +57,6 @@ MinimizerMapper::MinimizerMapper(const gbwtgraph::GBWTGraph& graph,
 
 //-----------------------------------------------------------------------------
 
-/*
- struct SeedTypeAugmented {
-             //SnarlDistanceIndexClusterer::Seed seed;
-            pos_t  pos;
-            size_t source; // Source minimizer.
-            gbwtgraph::payload_type minimizer_cache = MIPayload::NO_CODE; //minimizer payload
-        };
-*/
-
-/*
-SnarlDistanceIndexClusterer::Seed(const SeedTypeAugmented& a) {
-    SnarlDistanceIndexClusterer::Seed b;
-    b.pos = a.pos;
-    b.source = a.source;
-    b.minimizer_cache = a.minimizer_cache;
-    return b;
-}
-*/
-
 /// Accessors for attributes of a type when used as a seed.
 /// We use these to make templated code generic over the old and new seeds, so
 /// we don't need to write the same algorithm twice to satisfy the type system,
@@ -101,7 +82,7 @@ struct seed_traits<SnarlDistanceIndexClusterer::Seed> {
     /// Get SeedType to use later, because it makes more sense to use that in
     /// the function signatures than the type we're specialized on
 
-    using SeedType = SnarlDistanceIndexClusterer::Seed;
+    using SeedType = SnarlDistanceIndexClusterer::SeedTypeAugmented; //SnarlDistanceIndexClusterer::Seed;
 
     /// What minimizer index payload type should we use for decoding minimizer index payloads?
     using MIPayload = vg::MIPayload;
