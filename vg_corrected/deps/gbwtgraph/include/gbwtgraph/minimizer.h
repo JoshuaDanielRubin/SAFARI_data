@@ -77,6 +77,7 @@ typedef std::uint64_t code_type;
 
 struct payload_type
 {
+
   std::uint64_t first, second;
 
   // This is not a constructor in order to have default constructors and operators in

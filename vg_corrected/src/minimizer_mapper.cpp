@@ -98,8 +98,8 @@ struct seed_traits<SnarlDistanceIndexClusterer::Seed> {
     
     /// How do we convert chain info to an actual seed of the type we are using?
     /// Also needs to know the hit position, and the minimizer number.
-    inline static SnarlDistanceIndexClusterer::Seed chain_info_to_seed(const pos_t& hit, size_t minimizer, const chain_info_t& chain_info) {
-        return {hit, minimizer, chain_info};
+    inline static SnarlDistanceIndexClusterer::Seed chain_info_to_seed(const pos_t& hit, size_t minimizer, const chain_info_t& chain_info, const string seq="") {
+        return {hit, minimizer, chain_info, seq};
     }
 };
 
@@ -579,7 +579,7 @@ std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel
 std::vector<Minimizer> minimizers_rymer = this->find_rymers(gbwtgraph::convertToRymerSpace(aln.sequence()), funnel_rymer);
 
 // Insert the rymers to the end of the minimizers
-minimizers.insert(minimizers.end(), minimizers_rymer.begin(), minimizers_rymer.end());
+//minimizers.insert(minimizers.end(), minimizers_rymer.begin(), minimizers_rymer.end());
 
     std::cerr << "NUMBER OF MINIMIZERS FOUND: " << minimizers.size() << std::endl;
     std::cerr << "NUMBER OF RYMERS FOUND: " << minimizers_rymer.size() << std::endl;
@@ -639,37 +639,40 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
     for (const auto& seed : seeds_rymer) {
         auto its = rymer_to_minimizer.equal_range(std::make_pair(seed.source, seed.pos));
 
-        // If there is no corresponding Minimizer seed
         if (its.first == its.second) {
-            continue; // Move to next iteration of the loop
+            continue; 
         }
 
         double total_minimizer_freq = 0;
         for (auto it = its.first; it != its.second; ++it) {
-            const string minimizer_seq = "GTCGA"; //it->second.kmer; // Assuming Seed structure has a member 'kmer'
+            const string minimizer_seq = it->second.seq;
             int raw_count = kmer_freq_map[minimizer_seq];
-            double minimizer_freq = 0.00001; //static_cast<double>(raw_count) / total_minimizers;
+            double minimizer_freq = static_cast<double>(raw_count) / total_minimizers;
             total_minimizer_freq += minimizer_freq;
         }
 
         size_t kmer_length = kmer_freq_map.begin()->first.length();
         double total_possible_kmers = static_cast<size_t>(std::pow(4, kmer_length));
-        double all_minimizer_freq = static_cast<double>(kmer_freq_map["GTCGA"]) / total_possible_kmers;
+        double all_minimizer_freq = 0;
+        auto it = kmer_freq_map.find(seed.seq);
+        if(it != kmer_freq_map.end()) { 
+            all_minimizer_freq = static_cast<double>(it->second) / static_cast<double>(total_possible_kmers);
+        } else { // If k-mer does not exist in the map, throw a runtime error
+            throw std::runtime_error("Seed sequence not found in k-mer frequency map!");
+        }
 
-        std::cerr << "TOTAL MINIMIZER FREQ: " << total_minimizer_freq << std::endl;
-        std::cerr << "ALL MINIMIZER FREQ: " << all_minimizer_freq << std::endl;
-        std::cerr << "DEAMINATION PROBABILITY: " << total_minimizer_freq / all_minimizer_freq << std::endl;
+        if (all_minimizer_freq == 0.0) {
+            continue;
+        }
 
         if (total_minimizer_freq / all_minimizer_freq > 0.01) {
             filtered_seeds.push_back(seed);
         }
     }
 
-    size_t filtered_rymers = initial_rymers - filtered_seeds.size();
-    std::cerr << "Number of filtered Rymers: " << filtered_rymers << std::endl;
-
     return filtered_seeds;
 };
+
 
 // Use the lambda function
 seeds_rymer = apply_rymer_filter(seeds_rymer, rymer_to_minimizer, kmer_freq_map, total_minimizers);
@@ -3687,7 +3690,10 @@ std::vector<SeedType> MinimizerMapper::find_seeds(const std::vector<Minimizer>& 
                 if (minimizer.occs[j].payload != ST::MIPayload::NO_CODE) {
                     chain_info = minimizer.occs[j].payload;
                 }
-                auto chain_info_to_push_back = ST::chain_info_to_seed(hit, i, chain_info);
+
+                const string forward_sequence = minimizer.forward_sequence();
+
+                auto chain_info_to_push_back = ST::chain_info_to_seed(hit, i, chain_info, forward_sequence);
                 seeds.push_back(chain_info_to_push_back);
             }
 
