@@ -644,21 +644,23 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
         }
 
         double total_minimizer_freq = 0;
+        double all_minimizer_freq = 0;
+        size_t kmer_length = kmer_freq_map.begin()->first.length();
+        double total_possible_kmers = static_cast<size_t>(std::pow(4, kmer_length));
+
         for (auto it = its.first; it != its.second; ++it) {
             const string minimizer_seq = it->second.seq;
             int raw_count = kmer_freq_map[minimizer_seq];
             double minimizer_freq = static_cast<double>(raw_count) / total_minimizers;
             total_minimizer_freq += minimizer_freq;
-        }
 
-        size_t kmer_length = kmer_freq_map.begin()->first.length();
-        double total_possible_kmers = static_cast<size_t>(std::pow(4, kmer_length));
-        double all_minimizer_freq = 0;
-        auto it = kmer_freq_map.find(seed.seq);
-        if(it != kmer_freq_map.end()) { 
-            all_minimizer_freq = static_cast<double>(it->second) / static_cast<double>(total_possible_kmers);
-        } else { // If k-mer does not exist in the map, throw a runtime error
-            throw std::runtime_error("Seed sequence " + seed.seq + " not found in k-mer frequency map!");
+            // Calculate all_minimizer_freq based on each corresponding minimizer
+            auto it_freq = kmer_freq_map.find(minimizer_seq);
+            if(it_freq != kmer_freq_map.end()) { 
+                all_minimizer_freq += static_cast<double>(it_freq->second) / static_cast<double>(total_possible_kmers);
+            } else { 
+                throw std::runtime_error("Minimizer sequence " + minimizer_seq + " not found in k-mer frequency map!");
+            }
         }
 
         if (all_minimizer_freq == 0.0) {
@@ -672,7 +674,6 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
 
     return filtered_seeds;
 };
-
 
 // Use the lambda function
 seeds_rymer = apply_rymer_filter(seeds_rymer, rymer_to_minimizer, kmer_freq_map, total_minimizers);
@@ -3501,6 +3502,7 @@ std::vector<MinimizerMapper::Minimizer> MinimizerMapper::find_rymers(const std::
         funnel.introduce(result.size());
     }
 
+    //throw runtime_error("TEST FIND_RYMERS");
     return result;
 }
 
