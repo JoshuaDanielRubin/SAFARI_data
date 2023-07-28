@@ -38,6 +38,8 @@ namespace vg {
 
 using namespace std;
 
+using Seed = SnarlDistanceIndexClusterer::Seed;
+
 MinimizerMapper::MinimizerMapper(const gbwtgraph::GBWTGraph& graph,
     const gbwtgraph::DefaultMinimizerIndex& minimizer_index,
     const gbwtgraph::DefaultMinimizerIndex& rymer_index,
@@ -82,7 +84,7 @@ struct seed_traits<SnarlDistanceIndexClusterer::Seed> {
     /// Get SeedType to use later, because it makes more sense to use that in
     /// the function signatures than the type we're specialized on
 
-    using SeedType = SnarlDistanceIndexClusterer::SeedTypeAugmented; //SnarlDistanceIndexClusterer::Seed;
+    using SeedType = Seed; //SnarlDistanceIndexClusterer::Seed;
 
     /// What minimizer index payload type should we use for decoding minimizer index payloads?
     using MIPayload = vg::MIPayload;
@@ -870,8 +872,7 @@ if (seeds_rymer.empty()){throw runtime_error("[VG Giraffe] No RYmers passed filt
                 });
                     
                 // Compute the best chain
-                cluster_chains.emplace_back(algorithms::find_best_chain<Seed>({seeds, cluster_seeds_sorted}, space));
-                
+                cluster_chains.emplace_back(algorithms::find_best_chain<Seed>({seeds, cluster_seeds_sorted}, space));               
                 
                 // Remember which sorted seeds go with which chains, so we can interpret the chains.
                 processed_cluster_sorted_seeds.emplace_back(std::move(cluster_seeds_sorted));

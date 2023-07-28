@@ -5,7 +5,6 @@
 #include "snarl_distance_index.hpp"
 #include "hash_map.hpp"
 #include "small_bitset.hpp"
-//#include "minimizer_mapper.hpp"
 #include <structures/union_find.hpp>
 
 
@@ -48,34 +47,19 @@ namespace vg{
  * 
  *
  */
-
 class SnarlDistanceIndexClusterer {
+
+
 
     public:
 
+        /// Seed information used in Giraffe.
         struct Seed {
-        pos_t  pos;
-        size_t source; // Source minimizer.
-        gbwtgraph::payload_type minimizer_cache = MIPayload::NO_CODE; //minimizer payload
-
-        // Constructor that takes a SeedTypeAugmented and converts it to Seed
-        //Seed();
-    };
-
-        struct SeedTypeAugmented {
-        pos_t  pos;
-        size_t source; // Source minimizer.
-        gbwtgraph::payload_type minimizer_cache = MIPayload::NO_CODE; //minimizer payload
-
-        //Conversion operator.
-        operator Seed() const {
-            Seed seed;
-            seed.pos = pos;
-            seed.source = source;
-            seed.minimizer_cache = minimizer_cache;
-            return seed;
-       }
-                                 };
+            pos_t  pos;
+            size_t source; // Source minimizer.
+            gbwtgraph::payload_type minimizer_cache = MIPayload::NO_CODE; //minimizer payload
+            string seq;
+        };
 
         /// Seed information used for clustering
         // Corresponds to one seed and stores the minimizer payload and distance information 
