@@ -656,7 +656,9 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
 
             // Calculate all_minimizer_freq based on each corresponding minimizer
             auto it_freq = kmer_freq_map.find(minimizer_seq);
-            if(it_freq != kmer_freq_map.end()) { 
+
+            if(it_freq != kmer_freq_map.end()) {
+                //cerr << "MINIMIZER FREQ: " << static_cast<double>(it_freq->second) / static_cast<double>(total_possible_kmers) << endl;
                 all_minimizer_freq += static_cast<double>(it_freq->second) / static_cast<double>(total_possible_kmers);
             } else { 
                 throw std::runtime_error("Minimizer sequence " + minimizer_seq + " not found in k-mer frequency map!");
@@ -664,7 +666,7 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
         }
 
         if (all_minimizer_freq == 0.0) {
-            continue;
+            throw runtime_error("MINIMIZER FREQUENCY IS ZERO, SOMETHING IS WRONG");
         }
 
         if (total_minimizer_freq / all_minimizer_freq > 0.01) {
