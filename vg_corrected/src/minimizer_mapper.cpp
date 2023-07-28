@@ -658,7 +658,7 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
         if(it != kmer_freq_map.end()) { 
             all_minimizer_freq = static_cast<double>(it->second) / static_cast<double>(total_possible_kmers);
         } else { // If k-mer does not exist in the map, throw a runtime error
-            throw std::runtime_error("Seed sequence not found in k-mer frequency map!");
+            throw std::runtime_error("Seed sequence " + seed.seq + " not found in k-mer frequency map!");
         }
 
         if (all_minimizer_freq == 0.0) {
