@@ -637,6 +637,8 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
     size_t initial_rymers = seeds_rymer.size();
 
     for (const auto& seed : seeds_rymer) {
+        cerr << "Processing Rymer sequence: " << seed.seq << endl;
+
         auto its = rymer_to_minimizer.equal_range(std::make_pair(seed.source, seed.pos));
 
         if (its.first == its.second) {
@@ -648,8 +650,15 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
         size_t kmer_length = kmer_freq_map.begin()->first.length();
         double total_possible_kmers = static_cast<size_t>(std::pow(4, kmer_length));
 
+        std::unordered_set<string> unique_minimizers;
         for (auto it = its.first; it != its.second; ++it) {
-            const string minimizer_seq = it->second.seq;
+            unique_minimizers.insert(it->second.seq);
+        }
+
+        cerr << "Unique minimizer sequences for Rymer sequence " << seed.seq << ":\n";
+        for (const auto& minimizer_seq : unique_minimizers) {
+            cerr << "\t" << minimizer_seq << "\n";
+
             int raw_count = kmer_freq_map[minimizer_seq];
             double minimizer_freq = static_cast<double>(raw_count) / total_minimizers;
             total_minimizer_freq += minimizer_freq;
