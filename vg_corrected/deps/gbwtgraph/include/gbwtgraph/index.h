@@ -27,7 +27,7 @@ namespace gbwtgraph
 template<class KeyType>
 void
 index_haplotypes(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
-                 const std::function<payload_type(const pos_t&)>& get_payload)
+                 const std::function<payload_type(const pos_t&)>& get_payload, unsigned int k=21)
 {
   typedef typename MinimizerIndex<KeyType>::minimizer_type minimizer_type;
 
@@ -72,7 +72,7 @@ index_haplotypes(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
        if(minimizer.empty()) { continue; }
        //continue;
 
-       std::string minimizer_sequence = minimizer.key.decode(5); // TO CORRECT
+       std::string minimizer_sequence = minimizer.key.decode(k); // TO CORRECT
        //cerr << "MINIMIZER SEQUENCE (IN MINIMIZER INDEXING)  " << minimizer_sequence << endl;
 
       // Find the node covering minimizer starting position.
@@ -122,7 +122,7 @@ index_haplotypes(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
 template<class KeyType>
 void
 index_haplotypes_rymer(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
-                 const std::function<payload_type(const pos_t&)>& get_payload)
+                 const std::function<payload_type(const pos_t&)>& get_payload, unsigned int k=21)
 {
   typedef typename MinimizerIndex<KeyType>::minimizer_type minimizer_type;
 
@@ -166,7 +166,7 @@ index_haplotypes_rymer(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
       if(minimizer.empty()) { continue; }
       //continue;
 
-      std::string minimizer_sequence = minimizer.key.decode_rymer(5); // TO CORRECT
+      std::string minimizer_sequence = minimizer.key.decode_rymer(k); // TO CORRECT
       //minimizer.key = Key64::encode_rymer(minimizer_sequence);
 
       // Find the node covering minimizer starting position.

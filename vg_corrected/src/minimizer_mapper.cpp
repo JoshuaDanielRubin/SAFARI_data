@@ -578,11 +578,17 @@ std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel
 // Get rymers
 std::vector<Minimizer> minimizers_rymer = this->find_rymers(gbwtgraph::convertToRymerSpace(aln.sequence()), funnel_rymer);
 
+for (const auto & mr : minimizers_rymer){
+    cerr << "RYMER SEQUENCE: " << mr.forward_sequence() << endl;
+}
+
+throw runtime_error("PRINTING RYMERS");
+
 // Insert the rymers to the end of the minimizers
 //minimizers.insert(minimizers.end(), minimizers_rymer.begin(), minimizers_rymer.end());
 
-    std::cerr << "NUMBER OF MINIMIZERS FOUND: " << minimizers.size() << std::endl;
-    std::cerr << "NUMBER OF RYMERS FOUND: " << minimizers_rymer.size() << std::endl;
+    //std::cerr << "NUMBER OF MINIMIZERS FOUND: " << minimizers.size() << std::endl;
+    //std::cerr << "NUMBER OF RYMERS FOUND: " << minimizers_rymer.size() << std::endl;
 
     //Since there can be two different versions of a distance index, find seeds and clusters differently
 
@@ -626,7 +632,7 @@ for (const auto& kv : kmer_freq_map) {
     total_minimizers += kv.second;
 }
 
-cerr << "TOTAL MINIMIZERS: " << total_minimizers << endl;
+//cerr << "TOTAL MINIMIZERS: " << total_minimizers << endl;
 
 auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
                                const std::multimap<std::pair<size_t, pos_t>, Seed>& rymer_to_minimizer,
@@ -637,12 +643,12 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
     size_t initial_rymers = seeds_rymer.size();
 
     for (const auto& seed : seeds_rymer) {
-        cerr << "Processing Rymer sequence: " << seed.seq << endl;
+        //cerr << "Processing Rymer sequence: " << seed.seq << endl;
 
         auto its = rymer_to_minimizer.equal_range(std::make_pair(seed.source, seed.pos));
 
         if (its.first == its.second) {
-            continue; 
+            continue;
         }
 
         double total_minimizer_freq = 0;
@@ -655,9 +661,9 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
             unique_minimizers.insert(it->second.seq);
         }
 
-        cerr << "Unique minimizer sequences for Rymer sequence " << seed.seq << ":\n";
+        //cerr << "Unique minimizer sequences for Rymer sequence " << seed.seq << ":\n";
         for (const auto& minimizer_seq : unique_minimizers) {
-            cerr << "\t" << minimizer_seq << "\n";
+          //  cerr << "\t" << minimizer_seq << "\n";
 
             int raw_count = kmer_freq_map[minimizer_seq];
             double minimizer_freq = static_cast<double>(raw_count) / total_minimizers;
@@ -669,13 +675,13 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
             if(it_freq != kmer_freq_map.end()) {
                 //cerr << "MINIMIZER FREQ: " << static_cast<double>(it_freq->second) / static_cast<double>(total_possible_kmers) << endl;
                 all_minimizer_freq += static_cast<double>(it_freq->second) / static_cast<double>(total_possible_kmers);
-            } else { 
+            } else {
                 throw std::runtime_error("Minimizer sequence " + minimizer_seq + " not found in k-mer frequency map!");
             }
         }
 
         if (all_minimizer_freq == 0.0) {
-            throw runtime_error("MINIMIZER FREQUENCY IS ZERO, SOMETHING IS WRONG");
+            //throw runtime_error("MINIMIZER FREQUENCY IS ZERO, SOMETHING IS WRONG");
         }
 
         if (total_minimizer_freq / all_minimizer_freq > 0.01) {
@@ -3472,7 +3478,7 @@ std::vector<MinimizerMapper::Minimizer> MinimizerMapper::find_rymers(const std::
         this->rymer_index.rymer_regions(sequence);
     for (auto& m : minimizers) {
 
-        //cerr << "CHECKING RYMER: " << get<0>(m).key.decode(5) << endl;
+        //cerr << "CHECKING RYMER KEY: " << get<0>(m).key << endl;
 
         double score = 0.0;
         auto hits = this->rymer_index.count_and_find(get<0>(m));

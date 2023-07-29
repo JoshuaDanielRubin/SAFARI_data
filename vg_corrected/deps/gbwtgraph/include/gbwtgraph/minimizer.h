@@ -894,7 +894,7 @@ public:
     }
     size_t window_length = this->window_bp(), total_length = end - begin;
     if(total_length < window_length) { return result; }
-    
+
     // Find the minimizers.
     CircularBuffer buffer(this->w());
     // Note that start_pos isn't meaningfully the start of the window we are
