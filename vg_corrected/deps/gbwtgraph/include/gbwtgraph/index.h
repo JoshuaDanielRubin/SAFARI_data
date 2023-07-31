@@ -72,6 +72,8 @@ index_haplotypes(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
        if(minimizer.empty()) { continue; }
        //continue;
 
+      cerr << "MINIMIZER K FOR INDEXING: " << k <<  endl;
+
        std::string minimizer_sequence = minimizer.key.decode(k); // TO CORRECT
        //cerr << "MINIMIZER SEQUENCE (IN MINIMIZER INDEXING)  " << minimizer_sequence << endl;
 
@@ -128,6 +130,8 @@ index_haplotypes_rymer(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
 
   int threads = omp_get_max_threads();
 
+  cerr << "RYMER K FOR INDEXING: " << k <<  endl;
+
   // Minimizer caching. We only generate the payloads after we have removed duplicate positions.
   std::vector<std::vector<std::pair<minimizer_type, pos_t>>> cache(threads);
   constexpr size_t MINIMIZER_CACHE_SIZE = 1024;
@@ -166,7 +170,7 @@ index_haplotypes_rymer(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
       if(minimizer.empty()) { continue; }
       //continue;
 
-      std::string minimizer_sequence = minimizer.key.decode_rymer(5); // TO CORRECT
+      std::string minimizer_sequence = minimizer.key.decode_rymer(k); // TO CORRECT
 
       cerr << "RYMER TO INDEX: " << minimizer_sequence << endl;
 
