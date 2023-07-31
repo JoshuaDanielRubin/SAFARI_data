@@ -261,11 +261,11 @@ int main_rymer(int argc, char** argv) {
 
 
 if (distance_name.empty()) {
-    gbwtgraph::index_haplotypes(gbz->graph, *index, [](const pos_t&) -> gbwtgraph::payload_type {
+    gbwtgraph::index_haplotypes_rymer(gbz->graph, *index, [](const pos_t&) -> gbwtgraph::payload_type {
         return MIPayload::NO_CODE;
     }, IndexingParameters::minimizer_k);
 } else {
-    gbwtgraph::index_haplotypes(gbz->graph, *index, [&](const pos_t& pos) -> gbwtgraph::payload_type {
+    gbwtgraph::index_haplotypes_rymer(gbz->graph, *index, [&](const pos_t& pos) -> gbwtgraph::payload_type {
         return MIPayload::encode(get_minimizer_distances(*distance_index,pos));
     }, IndexingParameters::minimizer_k);
 }

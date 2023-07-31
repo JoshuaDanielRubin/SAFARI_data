@@ -151,7 +151,7 @@ index_haplotypes_rymer(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
   // Minimizer finding.
   auto find_minimizers = [&](const std::vector<handle_t>& traversal, const std::string& seq)
   {
-    std::vector<minimizer_type> minimizers = index.rymers(gbwtgraph::convertToRymerSpace(seq));
+    std::vector<minimizer_type> minimizers = index.minimizers(seq);
     auto iter = traversal.begin();
     size_t node_start = 0;
     int thread_id = omp_get_thread_num();
@@ -167,7 +167,7 @@ index_haplotypes_rymer(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
       //continue;
 
       std::string minimizer_sequence = minimizer.key.decode_rymer(k); // TO CORRECT
-      //minimizer.key = Key64::encode_rymer(minimizer_sequence);
+      minimizer.key = Key64::encode_rymer(minimizer_sequence);
 
       // Find the node covering minimizer starting position.
       size_t node_length = graph.get_length(*iter);

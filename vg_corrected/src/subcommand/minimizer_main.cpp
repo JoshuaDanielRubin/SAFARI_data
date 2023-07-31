@@ -260,7 +260,7 @@ int main_minimizer(int argc, char** argv) {
     }
 
 
-    if (distance_name.empty()) {
+  if (distance_name.empty()) {
     gbwtgraph::index_haplotypes(gbz->graph, *index, [](const pos_t&) -> gbwtgraph::payload_type {
         return MIPayload::NO_CODE;
     }, IndexingParameters::minimizer_k);

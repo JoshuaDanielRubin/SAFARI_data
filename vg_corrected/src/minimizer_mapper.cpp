@@ -13,6 +13,7 @@
 #include "algorithms/count_covered.hpp"
 #include "algorithms/intersect_path_offsets.hpp"
 #include <bdsg/overlays/strand_split_overlay.hpp>
+#include <gbwtgraph/minimizer.h>
 #include <gbwtgraph/algorithms.h>
 #include <gbwtgraph/cached_gbwtgraph.h>
 #include <iostream>
@@ -571,18 +572,21 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln, std::unordered_map<std::s
     //std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel);
     //std::vector<Minimizer> minimizers_rymer = minimizers;
 
+cerr << "ALIGNMENT SEQUENCE: " << aln.sequence() << endl;
 
 // Get minimizers
 std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel);
 
-// Get rymers
-std::vector<Minimizer> minimizers_rymer = this->find_rymers(gbwtgraph::convertToRymerSpace(aln.sequence()), funnel_rymer);
-
-for (const auto & mr : minimizers_rymer){
-    cerr << "RYMER SEQUENCE: " << mr.forward_sequence() << endl;
+if (minimizers.empty()){
+    throw runtime_error("NO MINIMIZERS!!!");
 }
 
-throw runtime_error("PRINTING RYMERS");
+// Get rymers
+std::vector<Minimizer> minimizers_rymer = this->find_rymers(aln.sequence(), funnel_rymer);
+
+if (minimizers_rymer.empty()){
+    throw runtime_error("NO RYMERS!!!");
+}
 
 // Insert the rymers to the end of the minimizers
 //minimizers.insert(minimizers.end(), minimizers_rymer.begin(), minimizers_rymer.end());
@@ -642,6 +646,10 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
     vector<Seed> filtered_seeds;
     size_t initial_rymers = seeds_rymer.size();
 
+    if (seeds_rymer.size() == 0){
+        throw runtime_error("NO RYMER SEEDS!!!");
+    }
+
     for (const auto& seed : seeds_rymer) {
         //cerr << "Processing Rymer sequence: " << seed.seq << endl;
 
@@ -661,9 +669,9 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
             unique_minimizers.insert(it->second.seq);
         }
 
-        //cerr << "Unique minimizer sequences for Rymer sequence " << seed.seq << ":\n";
+        cerr << "Unique minimizer sequences for Rymer sequence " << seed.seq << ":\n";
         for (const auto& minimizer_seq : unique_minimizers) {
-          //  cerr << "\t" << minimizer_seq << "\n";
+            cerr << "\t" << minimizer_seq << "\n";
 
             int raw_count = kmer_freq_map[minimizer_seq];
             double minimizer_freq = static_cast<double>(raw_count) / total_minimizers;
@@ -681,7 +689,7 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
         }
 
         if (all_minimizer_freq == 0.0) {
-            //throw runtime_error("MINIMIZER FREQUENCY IS ZERO, SOMETHING IS WRONG");
+            throw runtime_error("MINIMIZER FREQUENCY IS ZERO, SOMETHING IS WRONG");
         }
 
         if (total_minimizer_freq / all_minimizer_freq > 0.01) {
@@ -3475,15 +3483,30 @@ std::vector<MinimizerMapper::Minimizer> MinimizerMapper::find_rymers(const std::
     // Get minimizers and their window agglomeration starts and lengths
     // Starts and lengths are all 0 if we are using syncmers.
     vector<tuple<gbwtgraph::DefaultMinimizerIndex::minimizer_type, size_t, size_t>> minimizers =
-        this->rymer_index.rymer_regions(sequence);
+        this->minimizer_index.minimizer_regions(sequence);
+
     for (auto& m : minimizers) {
 
-        //cerr << "CHECKING RYMER KEY: " << get<0>(m).key << endl;
+        std::string rymer_sequence = get<0>(m).key.decode_rymer(this->rymer_index.k());
+        std::string minimizer_sequence = get<0>(m).key.decode(this->rymer_index.k());
+
+
+        cerr << "RYMER SEQUENCE: " << rymer_sequence << endl;
+
+        if (get<0>(m).is_reverse){
+            cerr << "REVERSE" << endl;
+            continue;//get<0>(m).key = gbwtgraph::Key64::encode_rymer(rymer_sequence);
+                                 }
+
+        else{
+            cerr << "FORWARD" << endl;
+            get<0>(m).key = gbwtgraph::Key64::encode_rymer(rymer_sequence);
+            }
 
         double score = 0.0;
         auto hits = this->rymer_index.count_and_find(get<0>(m));
 
-        //cerr << "NUMBER OF RYMER HITS AFTER COUNT AND FIND: " << hits.first << endl;
+        cerr << "NUMBER OF RYMER HITS AFTER COUNT AND FIND: " << hits.first << endl;
 
         if (hits.first > 0) {
             if (hits.first <= this->hard_hit_cap) {
@@ -3494,7 +3517,7 @@ std::vector<MinimizerMapper::Minimizer> MinimizerMapper::find_rymers(const std::
         }
 
         // Length of the match from this minimizer or syncmer
-        int32_t match_length = (int32_t) minimizer_index.k();
+        int32_t match_length = (int32_t) this->rymer_index.k();
         // Number of candidate kmers that this minimizer is minimal of
         int32_t candidate_count = this->rymer_index.uses_syncmers() ? 1 : (int32_t) minimizer_index.w();
 
@@ -3537,6 +3560,9 @@ std::vector<MinimizerMapper::Minimizer> MinimizerMapper::find_minimizers(const s
     vector<tuple<gbwtgraph::DefaultMinimizerIndex::minimizer_type, size_t, size_t>> minimizers =
         this->minimizer_index.minimizer_regions(sequence);
     for (auto& m : minimizers) {
+
+        //cerr << "FOUND THIS MINIMIZER" << endl;
+
         double score = 0.0;
         auto hits = this->minimizer_index.count_and_find(get<0>(m));
 
