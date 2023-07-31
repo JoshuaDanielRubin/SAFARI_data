@@ -76,10 +76,10 @@ const std::vector<unsigned char> Key64::CHAR_TO_PACK_RYMER =
   4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  // 16 - 31
   4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  // 32 - 47 (includes space, punctuation)
   4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  // 48 - 63 (includes digits)
-  4, 0, 4, 1,  4, 4, 4, 0,  4, 4, 4, 4,  4, 4, 4, 4,  // 64 - 79 (includes A, C, G -> A)
-  4, 4, 4, 4,  1, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  // 80 - 95 (includes T -> C)
-  4, 0, 4, 1,  4, 4, 4, 0,  4, 4, 4, 4,  4, 4, 4, 4,  // 96 - 111 (includes a, c, g -> a)
-  4, 4, 4, 4,  1, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  // 112 - 127 (includes t -> c)
+  4, 0, 4, 1,  4, 4, 4, 0,  4, 4, 4, 4,  4, 4, 4, 4,  // 64 - 79 (includes A -> 0, C -> 1, G -> 0)
+  4, 4, 4, 4,  1, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  // 80 - 95 (includes T -> 1)
+  4, 0, 4, 1,  4, 4, 4, 0,  4, 4, 4, 4,  4, 4, 4, 4,  // 96 - 111 (includes a -> 0, c -> 1, g -> 0)
+  4, 4, 4, 4,  1, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  // 112 - 127 (includes t -> 1)
   4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  // 128 - 143
   4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  // 144 - 159
   4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  // 160 - 175
@@ -91,7 +91,7 @@ const std::vector<unsigned char> Key64::CHAR_TO_PACK_RYMER =
 };
 
 const std::vector<char> Key64::PACK_TO_CHAR = { 'A', 'C', 'G', 'T' };
-const std::vector<char> Key64::PACK_TO_CHAR_RYMER = {'A', 'G', 'A', 'G'};
+const std::vector<char> Key64::PACK_TO_CHAR_RYMER = {'A', 'C', 'A', 'C'};
 
 const std::vector<Key64::key_type> Key64::KMER_MASK =
 {
@@ -512,7 +512,7 @@ Key64::decode_rymer(size_t k) const
   for(size_t i = 0; i < k; i++)
   {
     char decoded_char = PACK_TO_CHAR_RYMER[(this->key >> ((k - i - 1) * PACK_WIDTH_RYMER)) & PACK_MASK_RYMER];
-    if(decoded_char != 'A' && decoded_char != 'G') {
+    if(decoded_char != 'A' && decoded_char != 'C') {
       throw std::runtime_error("[DECODE_RYMER] Key64::decode_rymer(): Unexpected character in decoded sequence: " + std::string(1, decoded_char));
     }
     result << decoded_char;

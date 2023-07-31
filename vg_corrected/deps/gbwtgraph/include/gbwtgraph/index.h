@@ -166,7 +166,10 @@ index_haplotypes_rymer(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
       if(minimizer.empty()) { continue; }
       //continue;
 
-      std::string minimizer_sequence = minimizer.key.decode_rymer(k); // TO CORRECT
+      std::string minimizer_sequence = minimizer.key.decode_rymer(5); // TO CORRECT
+
+      cerr << "RYMER TO INDEX: " << minimizer_sequence << endl;
+
       minimizer.key = Key64::encode_rymer(minimizer_sequence);
 
       // Find the node covering minimizer starting position.

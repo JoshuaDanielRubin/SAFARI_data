@@ -54,28 +54,6 @@ const std::string convertToRymerSpace(const std::string& input) {
     return output;
 }
 
-const std::vector<std::string> convertPartialToRymerSpace(const std::string& input, int percentage, int iterations) {
-    std::cerr << "DOING PARTIAL CONVERSION" << std::endl;
-    std::vector<std::string> outputs;
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(0, input.size() - 1);
-
-    int length = input.size() * percentage / 100;
-
-    for (int i = 0; i < iterations; ++i) {
-        std::string output = input;
-        int start = dis(gen);
-
-        for (int j = start; j < start + length && j < input.size(); ++j) {
-            output[j] = convertBaseToRymer(output[j]);
-        }
-        
-        outputs.push_back(std::move(output));
-    }
-    
-    return outputs;
-}
 
 //------------------------------------------------------------------------------
 
