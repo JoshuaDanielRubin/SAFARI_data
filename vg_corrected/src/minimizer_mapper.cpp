@@ -586,7 +586,7 @@ if (minimizers.empty()){
 std::vector<Minimizer> minimizers_rymer = minimizers;
 
 for (auto & m : minimizers_rymer){
-    string seq = m.value.key.decode(m.length);
+    string seq = gbwtgraph::convertToRymerSpace(m.value.key.decode(m.length));
     m.value.key = gbwtgraph::Key64::encode_rymer(seq);
 }
 
@@ -615,8 +615,6 @@ vector<Seed> seeds_rymer = this->find_seeds<Seed>(minimizers_rymer, aln, funnel_
 cerr << "NUMBER OF MINIMIZER SEEDS: " << seeds.size() << endl;
 cerr << "NUMBER OF RYMER SEEDS: " << seeds_rymer.size() << endl;
 
-//std::map<int, std::set<int>> rymer_to_minimizer;
-
 std::multimap<std::pair<size_t, pos_t>, Seed> rymer_to_minimizer;
 
 for (const auto & sr : seeds_rymer) {
@@ -632,12 +630,6 @@ for (const auto & sr : seeds_rymer) {
         funnel.stage("cluster");
         funnel_rymer.stage("cluster");
     }
-
-    clusters = clusterer.cluster_seeds(seeds, get_distance_limit(aln.sequence().size()));
-    clusters_rymer = clusterer.cluster_seeds(seeds_rymer, get_distance_limit(aln.sequence().size()));
-
-   //cerr << "NUMBER OF RYMER CLUSTERS: " << clusters_rymer.size() << endl;
-   //cerr << "NUMBER OF MINIMIZER CLUSTERS: " << minimizers_rymer.size() << endl;
 
 // Compute total count of all minimizers outside of the lambda
 int total_minimizers = 0;
@@ -678,9 +670,11 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
             unique_minimizers.insert(it->second.seq);
         }
 
-        cerr << "Unique minimizer sequences for Rymer sequence " << seed.seq << ":\n";
+        string seq = "ACACA";
+
+        cerr << "Unique minimizer sequences for Rymer sequence " << seq << ":\n";
         for (const auto& minimizer_seq : unique_minimizers) {
-            cerr << "\t" << minimizer_seq << "\n";
+            //cerr << "\t" << minimizer_seq << "\n";
 
             int raw_count = kmer_freq_map[minimizer_seq];
             double minimizer_freq = static_cast<double>(raw_count) / total_minimizers;
@@ -710,9 +704,15 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
 };
 
 // Use the lambda function
-seeds_rymer = apply_rymer_filter(seeds_rymer, rymer_to_minimizer, kmer_freq_map, total_minimizers);
+//seeds_rymer = apply_rymer_filter(seeds_rymer, rymer_to_minimizer, kmer_freq_map, total_minimizers);
 
-if (seeds_rymer.empty()){throw runtime_error("[VG Giraffe] No RYmers passed filtering");}
+//if (seeds_rymer.empty()){throw runtime_error("[VG Giraffe] No RYmers passed filtering");}
+
+ clusters = clusterer.cluster_seeds(seeds, get_distance_limit(aln.sequence().size()));
+    clusters_rymer = clusterer.cluster_seeds(seeds_rymer, get_distance_limit(aln.sequence().size()));
+
+   cerr << "NUMBER OF RYMER CLUSTERS: " << clusters_rymer.size() << endl;
+   cerr << "NUMBER OF MINIMIZER CLUSTERS: " << minimizers_rymer.size() << endl;
 
 #ifdef debug_validate_clusters
     vector<vector<Cluster>> all_clusters;
