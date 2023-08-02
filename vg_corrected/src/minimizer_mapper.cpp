@@ -644,9 +644,9 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
                                std::unordered_map<std::string, int> kmer_freq_map,
                                auto &minimizers, auto &rymers, int total_minimizers) {
 
-   // for(const auto &pair : kmer_freq_map) {
-   // cerr << "K-mer: " << pair.first << " Frequency: " << pair.second << endl;
-    //                                     }
+    for(const auto &pair : kmer_freq_map) {
+    cerr << "K-mer: " << pair.first << " Frequency: " << pair.second << endl;
+                                         }
 
     //throw runtime_error("test");
 
@@ -659,9 +659,9 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
 
     for (const auto& seed : seeds_rymer) {
 
-        if (minimizers[seed.source].value.is_reverse){
-            continue;
-        }
+        //if (minimizers[seed.source].value.is_reverse){
+        //    continue;
+       // }
 
         //cerr << "SEED SOURCE: " << seed.source << endl;
 
@@ -694,9 +694,12 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
             throw std::runtime_error("Minimizer sequence " + minimizer_seq + " not found in k-mer frequency map!");
         }
 
-        if (all_minimizer_freq == 0.0) {
+        if (minimizer_freq == 0.0) {
             cerr << endl << endl;
             cerr << "Minimizer seed " << minimizer_seq << ":\n";
+            cerr << "RAW COUNT: " << raw_count << endl;
+            cerr << "IS IT REVERSE? " << minimizers[seed.source].value.is_reverse << endl;
+            cerr << "FORWARD SEQWENCE: " << minimizers[seed.source].forward_sequence() << endl;
             throw runtime_error("MINIMIZER FREQUENCY IS ZERO, SOMETHING IS WRONG");
         }
 
@@ -1426,7 +1429,7 @@ seeds_rymer = apply_rymer_filter(seeds_rymer, kmer_freq_map, minimizers, minimiz
 
 #ifdef print_minimizer_table
     cerr << endl << endl;
-    cerr << "Kmer: " << aln.sequence() << "\t" << std::endl;
+    //cerr << "Kmer: " << aln.sequence() << "\t" << std::endl;
     //for (char c : aln.quality()) {
     //    cerr << (char)(c+33);
    // }
@@ -1435,11 +1438,11 @@ seeds_rymer = apply_rymer_filter(seeds_rymer, kmer_freq_map, minimizers, minimiz
         cerr << "NEW MINIMIZER" << endl;
         auto& minimizer = minimizers[i];
         cerr << "\t"
-             << minimizer.value.key.decode(minimizer.length) << "\t" << endl;
+             << minimizer.value.key.decode(minimizer.length) << endl;
              //<< minimizer.forward_offset() << "\t"
              //<< minimizer.agglomeration_start << "\t"
              //<< minimizer.agglomeration_length << "\t"
-             cerr << "HITS: " << minimizer.hits << "\t" << endl;
+             //<< "HITS: " << minimizer.hits << "\t"
              //<< minimizer_kept_count[i];
         // if (minimizer_kept_count[i]>0) {
         //     assert(minimizer.hits<=hard_hit_cap) ;
@@ -1455,6 +1458,9 @@ seeds_rymer = apply_rymer_filter(seeds_rymer, kmer_freq_map, minimizers, minimiz
     //} else {
      //   cerr << "\t" << "?" << endl;
    // }
+
+cerr << endl << endl;
+//throw runtime_error("PRINTED MINIMIZER TABLE");
 #endif
 
 #ifdef print_minimizer_table_rymer
