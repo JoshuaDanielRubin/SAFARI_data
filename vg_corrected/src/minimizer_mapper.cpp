@@ -572,7 +572,7 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln, std::unordered_map<std::s
     //std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel);
     //std::vector<Minimizer> minimizers_rymer = minimizers;
 
-cerr << "ALIGNMENT SEQUENCE: " << aln.sequence() << endl;
+//cerr << "ALIGNMENT SEQUENCE: " << aln.sequence() << endl;
 
 // Get minimizers
 std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel);
@@ -600,8 +600,8 @@ for (auto & m : minimizers_rymer){
 // Insert the rymers to the end of the minimizers
 //minimizers.insert(minimizers.end(), minimizers_rymer.begin(), minimizers_rymer.end());
 
-    std::cerr << "NUMBER OF MINIMIZERS FOUND: " << minimizers.size() << std::endl;
-    std::cerr << "NUMBER OF RYMERS FOUND: " << minimizers_rymer.size() << std::endl;
+    //std::cerr << "NUMBER OF MINIMIZERS FOUND: " << minimizers.size() << std::endl;
+    //std::cerr << "NUMBER OF RYMERS FOUND: " << minimizers_rymer.size() << std::endl;
 
     //Since there can be two different versions of a distance index, find seeds and clusters differently
 
@@ -612,8 +612,8 @@ for (auto & m : minimizers_rymer){
 vector<Seed> seeds = this->find_seeds<Seed>(minimizers, aln, funnel);
 vector<Seed> seeds_rymer = this->find_seeds<Seed>(minimizers_rymer, aln, funnel_rymer);
 
-cerr << "NUMBER OF MINIMIZER SEEDS: " << seeds.size() << endl;
-cerr << "NUMBER OF RYMER SEEDS: " << seeds_rymer.size() << endl;
+//cerr << "NUMBER OF MINIMIZER SEEDS: " << seeds.size() << endl;
+//cerr << "NUMBER OF RYMER SEEDS: " << seeds_rymer.size() << endl;
 
 std::multimap<std::pair<size_t, pos_t>, Seed> rymer_to_minimizer;
 
@@ -638,7 +638,7 @@ for (const auto& kv : kmer_freq_map) {
     total_minimizers += kv.second;
 }
 
-cerr << "TOTAL MINIMIZERS: " << total_minimizers << endl;
+//cerr << "TOTAL MINIMIZERS: " << total_minimizers << endl;
 
 auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
                                std::unordered_map<std::string, int> kmer_freq_map,
@@ -687,9 +687,12 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
         auto it_freq = kmer_freq_map.find(minimizer_seq);
 
         if(it_freq != kmer_freq_map.end()) {
-            //cerr << "MINIMIZER FREQ: " << static_cast<double>(it_freq->second) / static_cast<double>(total_possible_kmers) << endl;
+            cerr << "MINIMIZER FREQ: " << static_cast<double>(it_freq->second) / static_cast<double>(total_minimizers) << endl;
             //cerr << "RAW COUNT: " << it_freq->second << endl;
             all_minimizer_freq = static_cast<double>(it_freq->second) / static_cast<double>(total_possible_kmers);
+
+            cerr << "ALL MINIMIZER FREQ: " << setprecision(16) << all_minimizer_freq << endl;
+
         } else {
             throw std::runtime_error("Minimizer sequence " + minimizer_seq + " not found in k-mer frequency map!");
         }
@@ -720,8 +723,8 @@ seeds_rymer = apply_rymer_filter(seeds_rymer, kmer_freq_map, minimizers, minimiz
  clusters = clusterer.cluster_seeds(seeds, get_distance_limit(aln.sequence().size()));
     clusters_rymer = clusterer.cluster_seeds(seeds_rymer, get_distance_limit(aln.sequence().size()));
 
-   cerr << "NUMBER OF RYMER CLUSTERS: " << clusters_rymer.size() << endl;
-   cerr << "NUMBER OF MINIMIZER CLUSTERS: " << minimizers_rymer.size() << endl;
+   //cerr << "NUMBER OF RYMER CLUSTERS: " << clusters_rymer.size() << endl;
+   //cerr << "NUMBER OF MINIMIZER CLUSTERS: " << minimizers_rymer.size() << endl;
 
 #ifdef debug_validate_clusters
     vector<vector<Cluster>> all_clusters;
@@ -3587,12 +3590,12 @@ std::vector<MinimizerMapper::Minimizer> MinimizerMapper::find_minimizers(const s
         this->minimizer_index.minimizer_regions(sequence);
     for (auto& m : minimizers) {
 
-        cerr << "FOUND THIS MINIMIZER" << endl;
+        //cerr << "FOUND THIS MINIMIZER" << endl;
 
         double score = 0.0;
         auto hits = this->minimizer_index.count_and_find(get<0>(m));
 
-        cerr << "NUMBER OF MINIMIZER HITS AFTER COUNT AND FIND: " << hits.first << endl;
+        //cerr << "NUMBER OF MINIMIZER HITS AFTER COUNT AND FIND: " << hits.first << endl;
 
         if (hits.first > 0) {
             if (hits.first <= this->hard_hit_cap) {
