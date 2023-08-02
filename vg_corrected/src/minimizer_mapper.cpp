@@ -644,9 +644,9 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
                                std::unordered_map<std::string, int> kmer_freq_map,
                                auto &minimizers, auto &rymers, int total_minimizers) {
 
-    for(const auto &pair : kmer_freq_map) {
-    cerr << "K-mer: " << pair.first << " Frequency: " << pair.second << endl;
-                                         }
+    //for(const auto &pair : kmer_freq_map) {
+    //cerr << "K-mer: " << pair.first << " Frequency: " << pair.second << endl;
+    //                                     }
 
     //throw runtime_error("test");
 
@@ -695,12 +695,13 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
         }
 
         if (minimizer_freq == 0.0) {
-            cerr << endl << endl;
-            cerr << "Minimizer seed " << minimizer_seq << ":\n";
-            cerr << "RAW COUNT: " << raw_count << endl;
-            cerr << "IS IT REVERSE? " << minimizers[seed.source].value.is_reverse << endl;
-            cerr << "FORWARD SEQWENCE: " << minimizers[seed.source].forward_sequence() << endl;
-            throw runtime_error("MINIMIZER FREQUENCY IS ZERO, SOMETHING IS WRONG");
+            continue;
+            //cerr << endl << endl;
+            //cerr << "Minimizer seed " << minimizer_seq << ":\n";
+            //cerr << "RAW COUNT: " << raw_count << endl;
+            //cerr << "IS IT REVERSE? " << minimizers[seed.source].value.is_reverse << endl;
+            //cerr << "FORWARD SEQWENCE: " << minimizers[seed.source].forward_sequence() << endl;
+            //throw runtime_error("MINIMIZER FREQUENCY IS ZERO, SOMETHING IS WRONG");
         }
 
         if (total_minimizer_freq / all_minimizer_freq > 0.01) {
