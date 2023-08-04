@@ -106,6 +106,43 @@ struct seed_traits<SnarlDistanceIndexClusterer::Seed> {
 
 //-----------------------------------------------------------------------------
 
+double calculate_deam_prob(std::string dna, std::unordered_map<std::string, int>& kmer_count_map, double delta) {
+    // Transform the DNA sequence to uppercase to make it case insensitive.
+    std::transform(dna.begin(), dna.end(), dna.begin(), ::toupper);
+
+    int n = dna.size();
+
+    // Probabilities of obtaining the DNA string ending at position i from the non-deaminated sequences.
+    std::vector<double> dp(n+1, 0.0);
+
+    dp[0] = 1.0; // base case
+
+    for(int i = 0; i < n; ++i) {
+        // copy the previous string and change the last character if needed
+        std::string tmp = dna.substr(0, i+1);
+
+        if(dna[i] == 'A' || dna[i] == 'T') {
+            // If the character is 'A', it might have been 'G' before deamination.
+            if(dna[i] == 'A') tmp[i] = 'G';
+            // If the character is 'T', it might have been 'C' before deamination.
+            else tmp[i] = 'C';
+
+            // The chance that deamination did not occur is (1-delta), hence we multiply it with the probability so far.
+            dp[i+1] += dp[i] * (1-delta);
+        }
+        else {
+            // If the character is 'G' or 'C', deamination could not have occurred.
+            dp[i+1] = dp[i];
+        }
+
+        // Consider the deaminated case
+        dp[i+1] += dp[i] * delta * kmer_count_map[tmp];
+    }
+
+    // Return the probability of the last character.
+    return dp[n];
+}
+
 std::unordered_map<std::string, int> convertToRymerMap(const std::unordered_map<std::string, int>& kmer_count_map) {
     std::unordered_map<std::string, int> rymer_count_map;
 
