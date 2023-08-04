@@ -106,10 +106,10 @@ struct seed_traits<SnarlDistanceIndexClusterer::Seed> {
 
 //-----------------------------------------------------------------------------
 
-std::unordered_map<std::string, int> convertToRymerMap(const std::unordered_map<std::string, int>& kmer_freq_map) {
-    std::unordered_map<std::string, int> rymer_freq_map;
+std::unordered_map<std::string, int> convertToRymerMap(const std::unordered_map<std::string, int>& kmer_count_map) {
+    std::unordered_map<std::string, int> rymer_count_map;
 
-    for(const auto& pair : kmer_freq_map) {
+    for(const auto& pair : kmer_count_map) {
         std::string rymer = pair.first;
         for(char& c : rymer) {
             switch(c) {
@@ -124,10 +124,10 @@ std::unordered_map<std::string, int> convertToRymerMap(const std::unordered_map<
             }
         }
 
-        rymer_freq_map[rymer] += pair.second;
+        rymer_count_map[rymer] += pair.second;
     }
 
-    return rymer_freq_map;
+    return rymer_count_map;
 }
 
 string MinimizerMapper::log_name() {
@@ -563,17 +563,17 @@ void MinimizerMapper::dump_debug_query(const Alignment& aln1, const Alignment& a
 
 //-----------------------------------------------------------------------------
 
-void MinimizerMapper::map(Alignment& aln, AlignmentEmitter& alignment_emitter, std::unordered_map<std::string, int> kmer_freq_map) {
+void MinimizerMapper::map(Alignment& aln, AlignmentEmitter& alignment_emitter, std::unordered_map<std::string, int> kmer_count_map) {
 
     // Ship out all the aligned alignments
-    alignment_emitter.emit_mapped_single(map(aln, kmer_freq_map));
+    alignment_emitter.emit_mapped_single(map(aln, kmer_count_map));
 }
 
-vector<Alignment> MinimizerMapper::map(Alignment& aln, std::unordered_map<std::string, int> kmer_freq_map) {
+vector<Alignment> MinimizerMapper::map(Alignment& aln, std::unordered_map<std::string, int> kmer_count_map) {
 
 
-    if (kmer_freq_map.empty()) {
-        throw std::runtime_error("[VG Giraffe] Error: kmer_freq_map is empty!");
+    if (kmer_count_map.empty()) {
+        throw std::runtime_error("[VG Giraffe] Error: kmer_count_map is empty!");
     }
 
     if (show_work) {
@@ -658,7 +658,7 @@ for (const auto & sr : seeds_rymer) {
 
 //Compute total count of all minimizers outside of the lambda
 int total_minimizers = 0;
-for (const auto& kv : kmer_freq_map) {
+for (const auto& kv : kmer_count_map) {
     total_minimizers += kv.second;
 }
 
@@ -666,15 +666,15 @@ for (const auto& kv : kmer_freq_map) {
 
 
 auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
-                               std::unordered_map<std::string, int> kmer_freq_map,
-                               std::unordered_map<std::string, int> rymer_freq_map,
+                               std::unordered_map<std::string, int> kmer_count_map,
+                               std::unordered_map<std::string, int> rymer_count_map,
                                auto &minimizers, auto &rymers, int total_minimizers) {
 
     vector<Seed> filtered_seeds;
 
     for (const auto& seed : seeds_rymer) {
 
-        size_t kmer_length = kmer_freq_map.begin()->first.length();
+        size_t kmer_length = kmer_count_map.begin()->first.length();
         double total_possible_kmers = std::pow(4, kmer_length);
 
         string rymer_seq = rymers[seed.source].value.key.decode_rymer(rymers[seed.source].length);
@@ -684,10 +684,10 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
             throw std::runtime_error("ERROR WITH ENCODING");
         }
 
-        auto it_freq = kmer_freq_map.find(minimizer_seq);
-        if(it_freq == kmer_freq_map.end()) {
+        auto it_freq = kmer_count_map.find(minimizer_seq);
+        if(it_freq == kmer_count_map.end()) {
             // Sequencing error or mutation
-            auto hits = rymer_freq_map[rymer_seq];
+            auto hits = rymer_count_map[rymer_seq];
             cerr << "NUMBER OF HITS: " << hits << endl;
 
             if (hits == 0){
@@ -716,7 +716,7 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
 /*
 auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
                                const std::multimap<std::pair<size_t, pos_t>, Seed>& rymer_to_minimizer,
-                               std::unordered_map<std::string, int> kmer_freq_map,
+                               std::unordered_map<std::string, int> kmer_count_map,
                                int total_minimizers, auto &minimizers, auto &rymers) {
 
     vector<Seed> filtered_seeds;
@@ -737,7 +737,7 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
 
         double total_minimizer_freq = 0;
         double all_minimizer_freq = 0;
-        size_t kmer_length = kmer_freq_map.begin()->first.length();
+        size_t kmer_length = kmer_count_map.begin()->first.length();
         double total_possible_kmers = static_cast<size_t>(std::pow(4, kmer_length));
 
         std::unordered_set<string> unique_minimizers;
@@ -751,14 +751,14 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
         for (const auto& minimizer_seq : unique_minimizers) {
             cerr << "\t" << minimizer_seq << "\n";
 
-            int raw_count = kmer_freq_map[minimizer_seq];
+            int raw_count = kmer_count_map[minimizer_seq];
             double minimizer_freq = static_cast<double>(raw_count) / total_minimizers;
             total_minimizer_freq += minimizer_freq;
 
             // Calculate all_minimizer_freq based on each corresponding minimizer
-            auto it_freq = kmer_freq_map.find(minimizer_seq);
+            auto it_freq = kmer_count_map.find(minimizer_seq);
 
-            if(it_freq != kmer_freq_map.end()) {
+            if(it_freq != kmer_count_map.end()) {
                 //cerr << "MINIMIZER FREQ: " << static_cast<double>(it_freq->second) / static_cast<double>(total_possible_kmers) << endl;
                 all_minimizer_freq += static_cast<double>(it_freq->second) / static_cast<double>(total_possible_kmers);
             } else {
@@ -779,11 +779,11 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
 };
 */
 
-auto rymer_freq_map = convertToRymerMap(kmer_freq_map);
+auto rymer_count_map = convertToRymerMap(kmer_count_map);
 
 // Use the lambda function
-seeds_rymer = apply_rymer_filter(seeds_rymer, kmer_freq_map, rymer_freq_map, minimizers, minimizers_rymer, total_minimizers);
-//seeds_rymer = apply_rymer_filter(seeds_rymer, rymer_to_minimizer, kmer_freq_map, total_minimizers, minimizers, minimizers_rymer);
+seeds_rymer = apply_rymer_filter(seeds_rymer, kmer_count_map, rymer_count_map, minimizers, minimizers_rymer, total_minimizers);
+//seeds_rymer = apply_rymer_filter(seeds_rymer, rymer_to_minimizer, kmer_count_map, total_minimizers, minimizers, minimizers_rymer);
 
 //if (seeds_rymer.empty()){throw runtime_error("[VG Giraffe] No RYmers passed filtering");}
 
