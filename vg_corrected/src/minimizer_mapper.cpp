@@ -151,30 +151,6 @@ double calculate_deam_prob(std::string dna, std::unordered_map<std::string, int>
     return dp[n];
 }
 
-std::unordered_map<std::string, int> convertToRymerMap(const std::unordered_map<std::string, int>& kmer_count_map) {
-    std::unordered_map<std::string, int> rymer_count_map;
-
-    for(const auto& pair : kmer_count_map) {
-        std::string rymer = pair.first;
-        for(char& c : rymer) {
-            switch(c) {
-                case 'A':
-                case 'G':
-                    c = 'A';
-                    break;
-                case 'C':
-                case 'T':
-                    c = 'C';
-                    break;
-            }
-        }
-
-        rymer_count_map[rymer] += pair.second;
-    }
-
-    return rymer_count_map;
-}
-
 string MinimizerMapper::log_name() {
     return "T" + to_string(omp_get_thread_num()) + ":\t";
 }
@@ -706,8 +682,7 @@ FuncType calculate_deam_prob_ptr = calculate_deam_prob;
 
 auto apply_rymer_filter = [calculate_deam_prob_ptr](const vector<Seed>& seeds_rymer,
                                std::unordered_map<std::string, int> kmer_count_map,
-                               std::unordered_map<std::string, int> rymer_count_map,
-                               auto &minimizers, auto &rymers) {
+                               auto &minimizers, auto &rymers, auto &rymer_index) {
 
     vector<Seed> filtered_seeds;
 
@@ -726,8 +701,7 @@ auto apply_rymer_filter = [calculate_deam_prob_ptr](const vector<Seed>& seeds_ry
         auto it_freq = kmer_count_map.find(minimizer_seq);
         if(it_freq == kmer_count_map.end()) {
             // Sequencing error or mutation
-            auto hits = rymer_count_map[rymer_seq];
-            cerr << "NUMBER OF HITS: " << hits << endl;
+            auto hits = rymer_index.find(rymers[seed.source].value).size();
 
             if (hits == 0){
                 continue;
@@ -738,7 +712,10 @@ auto apply_rymer_filter = [calculate_deam_prob_ptr](const vector<Seed>& seeds_ry
                 // GATEKEEPING HERE
                 const double deam_prob = (*calculate_deam_prob_ptr)(minimizer_seq, kmer_count_map, 0.2);
 
-                filtered_seeds.push_back(seed);
+                //cerr << "DEAM PROB: " << deam_prob << endl;
+                if (deam_prob > 0.5) {
+                    filtered_seeds.push_back(seed);
+                                     }
 
                 }
         }
@@ -821,10 +798,8 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
 };
 */
 
-auto rymer_count_map = convertToRymerMap(kmer_count_map);
-
 // Use the lambda function
-seeds_rymer = apply_rymer_filter(seeds_rymer, kmer_count_map, rymer_count_map, minimizers, minimizers_rymer);
+seeds_rymer = apply_rymer_filter(seeds_rymer, kmer_count_map, minimizers, minimizers_rymer, this->rymer_index);
 //seeds_rymer = apply_rymer_filter(seeds_rymer, rymer_to_minimizer, kmer_count_map, total_minimizers, minimizers, minimizers_rymer);
 
 //if (seeds_rymer.empty()){throw runtime_error("[VG Giraffe] No RYmers passed filtering");}
