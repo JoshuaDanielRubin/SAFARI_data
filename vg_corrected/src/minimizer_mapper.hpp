@@ -228,6 +228,7 @@ public:
             fragment_length_distr.force_parameters(fragment_length_distr.mean(), fragment_length_distr.std_dev());
         } 
     }
+
     void force_fragment_length_distr(double mean, double stdev) {
         fragment_length_distr.force_parameters(mean, stdev);
     }
@@ -755,7 +756,7 @@ protected:
         const function<void(size_t)>& discard_item_by_score) const;
         
     // Internal debugging functions
-    
+
     /// Get the thread identifier prefix for logging
     static string log_name();
     

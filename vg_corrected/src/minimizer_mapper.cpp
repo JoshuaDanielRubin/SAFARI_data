@@ -38,7 +38,8 @@
 namespace vg {
 
 using namespace std;
-
+// Declaration of your function as a function pointer type
+using FuncType = double (*)(std::string, std::unordered_map<std::string, int>&, double);
 using Seed = SnarlDistanceIndexClusterer::Seed;
 
 MinimizerMapper::MinimizerMapper(const gbwtgraph::GBWTGraph& graph,
@@ -115,6 +116,12 @@ double calculate_deam_prob(std::string dna, std::unordered_map<std::string, int>
     // Probabilities of obtaining the DNA string ending at position i from the non-deaminated sequences.
     std::vector<double> dp(n+1, 0.0);
 
+    // Calculate the total count of all kmers.
+    int total_count = 0;
+    for(const auto& kv : kmer_count_map) {
+        total_count += kv.second;
+    }
+
     dp[0] = 1.0; // base case
 
     for(int i = 0; i < n; ++i) {
@@ -135,8 +142,9 @@ double calculate_deam_prob(std::string dna, std::unordered_map<std::string, int>
             dp[i+1] = dp[i];
         }
 
-        // Consider the deaminated case
-        dp[i+1] += dp[i] * delta * kmer_count_map[tmp];
+        // Consider the deaminated case. Convert the count to frequency by dividing it by the total count.
+        double kmer_frequency = static_cast<double>(kmer_count_map[tmp]) / total_count;
+        dp[i+1] += dp[i] * delta * kmer_frequency;
     }
 
     // Return the probability of the last character.
@@ -693,12 +701,13 @@ for (const auto & sr : seeds_rymer) {
         funnel_rymer.stage("cluster");
     }
 
+// Then pass it to your lambda as follows:
+FuncType calculate_deam_prob_ptr = calculate_deam_prob;
 
-auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
+auto apply_rymer_filter = [calculate_deam_prob_ptr](const vector<Seed>& seeds_rymer,
                                std::unordered_map<std::string, int> kmer_count_map,
                                std::unordered_map<std::string, int> rymer_count_map,
-                               auto &minimizers, auto &rymers, int total_minimizers,
-                               int total_rymers) {
+                               auto &minimizers, auto &rymers) {
 
     vector<Seed> filtered_seeds;
 
@@ -727,6 +736,7 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
             else{
 
                 // GATEKEEPING HERE
+                const double deam_prob = (*calculate_deam_prob_ptr)(minimizer_seq, kmer_count_map, 0.2);
 
                 filtered_seeds.push_back(seed);
 
@@ -813,21 +823,8 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
 
 auto rymer_count_map = convertToRymerMap(kmer_count_map);
 
-
-//Compute total count of all minimizers outside of the lambda
-int total_minimizers = 0;
-for (const auto& kv : kmer_count_map) {
-    total_minimizers += kv.second;
-}
-
-//Compute total count of all minimizers outside of the lambda
-int total_rymers = 0;
-for (const auto& kv : rymer_count_map) {
-    total_rymers += kv.second;
-}
-
 // Use the lambda function
-seeds_rymer = apply_rymer_filter(seeds_rymer, kmer_count_map, rymer_count_map, minimizers, minimizers_rymer, total_minimizers, total_rymers);
+seeds_rymer = apply_rymer_filter(seeds_rymer, kmer_count_map, rymer_count_map, minimizers, minimizers_rymer);
 //seeds_rymer = apply_rymer_filter(seeds_rymer, rymer_to_minimizer, kmer_count_map, total_minimizers, minimizers, minimizers_rymer);
 
 //if (seeds_rymer.empty()){throw runtime_error("[VG Giraffe] No RYmers passed filtering");}
