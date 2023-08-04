@@ -689,6 +689,8 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
 
             else{
 
+                // GATEKEEPING HERE
+
                 filtered_seeds.push_back(seed);
 
                 }
