@@ -656,19 +656,12 @@ for (const auto & sr : seeds_rymer) {
         funnel_rymer.stage("cluster");
     }
 
-//Compute total count of all minimizers outside of the lambda
-int total_minimizers = 0;
-for (const auto& kv : kmer_count_map) {
-    total_minimizers += kv.second;
-}
-
-//cerr << "TOTAL MINIMIZERS: " << total_minimizers << endl;
-
 
 auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
                                std::unordered_map<std::string, int> kmer_count_map,
                                std::unordered_map<std::string, int> rymer_count_map,
-                               auto &minimizers, auto &rymers, int total_minimizers) {
+                               auto &minimizers, auto &rymers, int total_minimizers,
+                               int total_rymers) {
 
     vector<Seed> filtered_seeds;
 
@@ -781,8 +774,21 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
 
 auto rymer_count_map = convertToRymerMap(kmer_count_map);
 
+
+//Compute total count of all minimizers outside of the lambda
+int total_minimizers = 0;
+for (const auto& kv : kmer_count_map) {
+    total_minimizers += kv.second;
+}
+
+//Compute total count of all minimizers outside of the lambda
+int total_rymers = 0;
+for (const auto& kv : rymer_count_map) {
+    total_rymers += kv.second;
+}
+
 // Use the lambda function
-seeds_rymer = apply_rymer_filter(seeds_rymer, kmer_count_map, rymer_count_map, minimizers, minimizers_rymer, total_minimizers);
+seeds_rymer = apply_rymer_filter(seeds_rymer, kmer_count_map, rymer_count_map, minimizers, minimizers_rymer, total_minimizers, total_rymers);
 //seeds_rymer = apply_rymer_filter(seeds_rymer, rymer_to_minimizer, kmer_count_map, total_minimizers, minimizers, minimizers_rymer);
 
 //if (seeds_rymer.empty()){throw runtime_error("[VG Giraffe] No RYmers passed filtering");}
