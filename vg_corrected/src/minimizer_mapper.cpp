@@ -623,7 +623,7 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln, std::unordered_map<std::s
 std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel);
 
 if (minimizers.empty()){
-    throw runtime_error("NO MINIMIZERS!!!");
+    //throw runtime_error("NO MINIMIZERS!!!");
 }
 
 // Get rymers
@@ -638,7 +638,7 @@ for (auto & m : minimizers_rymer){
 //std::vector<Minimizer> minimizers_rymer = this->find_rymers(aln.sequence(), funnel_rymer);
 
 if (minimizers_rymer.empty()){
-    throw runtime_error("NO RYMERS!!!");
+    //throw runtime_error("NO RYMERS!!!");
 }
 
 // Insert the rymers to the end of the minimizers
@@ -712,7 +712,7 @@ auto apply_rymer_filter = [calculate_deam_prob_ptr](const vector<Seed>& seeds_ry
                 // GATEKEEPING HERE
                 const double deam_prob = (*calculate_deam_prob_ptr)(minimizer_seq, kmer_count_map, 0.2);
 
-                //cerr << "DEAM PROB: " << deam_prob << endl;
+                cerr << "DEAM PROB: " << deam_prob << endl;
                 if (deam_prob > 0.5) {
                     filtered_seeds.push_back(seed);
                                      }
@@ -3666,6 +3666,9 @@ std::vector<MinimizerMapper::Minimizer> MinimizerMapper::find_minimizers(const s
         funnel.stage("minimizer");
     }
 
+    //cerr << "MINIMIZER K VALUE: " << (int32_t) minimizer_index.k() << endl;
+    //cerr << "MINIMIZER WINDOW VALUE: " << (int32_t) minimizer_index.w() << endl;
+
     std::vector<Minimizer> result;
     double base_score = 1.0 + std::log(this->hard_hit_cap);
     // Get minimizers and their window agglomeration starts and lengths
@@ -3704,6 +3707,8 @@ std::vector<MinimizerMapper::Minimizer> MinimizerMapper::find_minimizers(const s
             // And run for the k-mer length
             agglomeration_length = match_length;
         }
+
+        //cerr << "PUSHING IT BACK" << endl;
         
         result.push_back({ value, agglomeration_start, agglomeration_length, hits.first, hits.second,
                             match_length, candidate_count, score });
@@ -3714,6 +3719,8 @@ std::vector<MinimizerMapper::Minimizer> MinimizerMapper::find_minimizers(const s
         // Record how many we found, as new lines.
         funnel.introduce(result.size());
     }
+
+    //cerr << "IS RESULT EMPTY? " << result.empty() << endl;
 
     return result;
 }
