@@ -681,7 +681,7 @@ for (const auto & sr : seeds_rymer) {
 FuncType calculate_deam_prob_ptr = calculate_deam_prob;
 
 auto apply_rymer_filter = [calculate_deam_prob_ptr](const vector<Seed>& seeds_rymer,
-                               std::unordered_map<std::string, int> kmer_count_map,
+                               std::unordered_map<std::string, int> &kmer_count_map,
                                auto &minimizers, auto &rymers, auto &rymer_index) {
 
     vector<Seed> filtered_seeds;
