@@ -644,76 +644,42 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
                                std::unordered_map<std::string, int> kmer_freq_map,
                                auto &minimizers, auto &rymers, int total_minimizers) {
 
-    //for(const auto &pair : kmer_freq_map) {
-    //cerr << "K-mer: " << pair.first << " Frequency: " << pair.second << endl;
-    //                                     }
-
-    //throw runtime_error("test");
-
     vector<Seed> filtered_seeds;
-    size_t initial_rymers = seeds_rymer.size();
-
-    //if (seeds_rymer.size() == 0){
-    //    throw runtime_error("NO RYMER SEEDS!!!");
-   // }
 
     for (const auto& seed : seeds_rymer) {
 
-        //if (minimizers[seed.source].value.is_reverse){
-        //    continue;
-       // }
-
-        //cerr << "SEED SOURCE: " << seed.source << endl;
-
         double total_minimizer_freq = 0;
-        double all_minimizer_freq = 0;
         size_t kmer_length = kmer_freq_map.begin()->first.length();
-        double total_possible_kmers = static_cast<size_t>(std::pow(4, kmer_length));
+        double total_possible_kmers = std::pow(4, kmer_length);
 
         string rymer_seq = rymers[seed.source].value.key.decode_rymer(rymers[seed.source].length);
-        //cerr << "Rymer seed " << rymer_seq << ":\n";
         string minimizer_seq = minimizers[seed.source].value.key.decode(minimizers[seed.source].length);
-        //cerr << "Minimizer seed " << minimizer_seq << ":\n";
 
         if(rymer_seq != gbwtgraph::convertToRymerSpace(minimizer_seq)){
-            throw runtime_error("ERROR WITH ENCODING");
+            throw std::runtime_error("ERROR WITH ENCODING");
         }
 
-        int raw_count = kmer_freq_map[minimizer_seq];
-        double minimizer_freq = static_cast<double>(raw_count) / total_minimizers;
-        total_minimizer_freq += minimizer_freq;
-
-        // Calculate all_minimizer_freq based on each corresponding minimizer
         auto it_freq = kmer_freq_map.find(minimizer_seq);
-
-        if(it_freq != kmer_freq_map.end()) {
-            cerr << "MINIMIZER FREQ: " << static_cast<double>(it_freq->second) / static_cast<double>(total_minimizers) << endl;
-            //cerr << "RAW COUNT: " << it_freq->second << endl;
-            all_minimizer_freq = static_cast<double>(it_freq->second) / static_cast<double>(total_possible_kmers);
-
-            cerr << "ALL MINIMIZER FREQ: " << setprecision(16) << all_minimizer_freq << endl;
-
-        } else {
+        if(it_freq == kmer_freq_map.end()) {
             throw std::runtime_error("Minimizer sequence " + minimizer_seq + " not found in k-mer frequency map!");
         }
 
-        if (minimizer_freq == 0.0) {
-            continue;
-            //cerr << endl << endl;
-            //cerr << "Minimizer seed " << minimizer_seq << ":\n";
-            //cerr << "RAW COUNT: " << raw_count << endl;
-            //cerr << "IS IT REVERSE? " << minimizers[seed.source].value.is_reverse << endl;
-            //cerr << "FORWARD SEQWENCE: " << minimizers[seed.source].forward_sequence() << endl;
-            //throw runtime_error("MINIMIZER FREQUENCY IS ZERO, SOMETHING IS WRONG");
-        }
+        double minimizer_freq = static_cast<double>(it_freq->second) / total_minimizers;
+        total_minimizer_freq += minimizer_freq;
 
-        if (total_minimizer_freq / all_minimizer_freq > 0.01) {
+        cerr << "MINIMIZER FREQ: " << minimizer_freq << "\n";
+
+        double all_minimizer_freq = static_cast<double>(it_freq->second) / total_possible_kmers;
+        cerr << "ALL MINIMIZER FREQ: " << std::setprecision(16) << all_minimizer_freq << "\n";
+
+        if(minimizer_freq > 0 && total_minimizer_freq / all_minimizer_freq > 0.01) {
             filtered_seeds.push_back(seed);
         }
     }
 
     return filtered_seeds;
 };
+
 
 // Use the lambda function
 seeds_rymer = apply_rymer_filter(seeds_rymer, kmer_freq_map, minimizers, minimizers_rymer, total_minimizers);
