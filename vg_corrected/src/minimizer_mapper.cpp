@@ -108,30 +108,24 @@ struct seed_traits<SnarlDistanceIndexClusterer::Seed> {
 
 //-----------------------------------------------------------------------------
 
-double calculate_deam_prob(std::string dna, std::unordered_map<std::string, int>& kmer_count_map, double delta) {
+inline double calculate_deam_prob(std::string dna, std::unordered_map<std::string, int>& kmer_count_map, double delta) {
     // Transform the DNA sequence to uppercase to make it case insensitive.
     std::transform(dna.begin(), dna.end(), dna.begin(), ::toupper);
-
     int n = dna.size();
-
     // Probabilities of obtaining the DNA string ending at position i from the non-deaminated sequences.
     std::vector<double> dp(n+1, 0.0);
-
     // Calculate the total count of all kmers.
     int total_count = 0;
     for(const auto& kv : kmer_count_map) {
         total_count += kv.second;
     }
-
     dp[0] = 1.0; // base case
-
+    std::string tmp = dna; // create tmp string outside the loop
     for(int i = 0; i < n; ++i) {
-        // copy the previous string and change the last character if needed
-        std::string tmp = dna.substr(0, i+1);
-
-        if(dna[i] == 'A' || dna[i] == 'T') {
+        char orig_char = tmp[i]; // save original character
+        if(orig_char == 'A' || orig_char == 'T') {
             // If the character is 'A', it might have been 'G' before deamination.
-            if(dna[i] == 'A') tmp[i] = 'G';
+            if(orig_char == 'A') tmp[i] = 'G';
             // If the character is 'T', it might have been 'C' before deamination.
             else tmp[i] = 'C';
 
@@ -142,15 +136,16 @@ double calculate_deam_prob(std::string dna, std::unordered_map<std::string, int>
             // If the character is 'G' or 'C', deamination could not have occurred.
             dp[i+1] = dp[i];
         }
-
         // Consider the deaminated case. Convert the count to frequency by dividing it by the total count.
-        double kmer_frequency = static_cast<double>(kmer_count_map[tmp]) / total_count;
+        auto kmer_it = kmer_count_map.find(tmp);
+        double kmer_frequency = (kmer_it == kmer_count_map.end() ? 0.0 : static_cast<double>(kmer_it->second) / total_count);
         dp[i+1] += dp[i] * delta * kmer_frequency;
+        tmp[i] = orig_char; // restore original character
     }
-
     // Return the probability of the last character.
     return dp[n];
 }
+
 
 string MinimizerMapper::log_name() {
     return "T" + to_string(omp_get_thread_num()) + ":\t";
@@ -657,11 +652,11 @@ if (minimizers_rymer.empty()){
 vector<Seed> seeds = this->find_seeds<Seed>(minimizers, aln, funnel);
 vector<Seed> seeds_rymer = this->find_seeds<Seed>(minimizers_rymer, aln, funnel_rymer);
 
-/*
-cerr << "NUMBER OF MINIMIZER SEEDS: " << seeds.size() << endl;
-cerr << "NUMBER OF RYMER SEEDS: " << seeds_rymer.size() << endl;
-throw runtime_error("TESTING");
+//cerr << "NUMBER OF MINIMIZER SEEDS: " << seeds.size() << endl;
+//cerr << "NUMBER OF RYMER SEEDS: " << seeds_rymer.size() << endl;
+//throw runtime_error("TESTING");
 
+/*
 std::multimap<std::pair<size_t, pos_t>, Seed> rymer_to_minimizer;
 
 for (const auto & sr : seeds_rymer) {
@@ -689,6 +684,8 @@ auto apply_rymer_filter = [calculate_deam_prob_ptr](const vector<Seed>& seeds_ry
 
     for (const auto& seed : seeds_rymer) {
 
+        //cerr << "LOOPING A SEED" << endl;
+
         size_t kmer_length = kmer_count_map.begin()->first.length();
         double total_possible_kmers = std::pow(4, kmer_length);
 
@@ -702,7 +699,7 @@ auto apply_rymer_filter = [calculate_deam_prob_ptr](const vector<Seed>& seeds_ry
         auto it_freq = kmer_count_map.find(minimizer_seq);
         if(it_freq == kmer_count_map.end()) {
 
-            cerr << "CANNOT FIND THIS KMER" << endl;
+            //cerr << "CANNOT FIND THIS KMER" << endl;
 
             // Sequencing error or mutation
             auto hits = rymer_index.find(rymers[seed.source].value).size();
@@ -717,7 +714,7 @@ auto apply_rymer_filter = [calculate_deam_prob_ptr](const vector<Seed>& seeds_ry
                 const double deam_prob = (*calculate_deam_prob_ptr)(minimizer_seq, kmer_count_map, 0.2);
 
                 cerr << "DEAM PROB: " << deam_prob << endl;
-                if (deam_prob > 0.01) {
+                if (deam_prob > 0.3) {
                     filtered_seeds.push_back(seed);
                                       }
 
