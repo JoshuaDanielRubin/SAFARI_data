@@ -19,6 +19,7 @@
 #include <tuple>
 #include <unordered_map>
 #include <vector>
+#define RYMER
 
 /*
   utils.h: Common utilities and definitions.
@@ -27,9 +28,15 @@
 namespace gbwtgraph
 {
 
+#ifdef RYMER
 const std::string convertToRymerSpace(const std::string& input);
+#endif
+
 const std::vector<std::string> convertPartialToRymerSpace(const std::string& input, int percentage, int iterations);
+
+#ifdef RYMER
 char convertBaseToRymer(const char base);
+#endif
 
 //------------------------------------------------------------------------------
 

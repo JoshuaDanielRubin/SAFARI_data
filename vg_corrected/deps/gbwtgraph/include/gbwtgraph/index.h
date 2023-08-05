@@ -8,6 +8,7 @@
 
 #include <gbwtgraph/gbwtgraph.h>
 #include <gbwtgraph/minimizer.h>
+#define RYMER
 
 /*
   index.h: Minimizer index construction from GBWTGraph.
@@ -119,6 +120,7 @@ index_haplotypes(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
 }
 
 
+#ifdef RYMER
 //-------------------------------------------------------------------------------
 
 /*
@@ -225,5 +227,6 @@ index_haplotypes_rymer(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
 }
 
 } // namespace gbwtgraph
+#endif
 
 #endif // GBWTGRAPH_CONSTRUCTION_H

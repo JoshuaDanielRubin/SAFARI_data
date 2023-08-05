@@ -1,6 +1,7 @@
 #include <gbwtgraph/minimizer.h>
 
 #include <sstream>
+#define RYMER
 
 namespace gbwtgraph
 {
@@ -70,6 +71,8 @@ const std::vector<unsigned char> Key64::CHAR_TO_PACK =
   4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4
 };
 
+
+#ifdef RYMER
 const std::vector<unsigned char> Key64::CHAR_TO_PACK_RYMER =
 {
   4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  // 0 - 15
@@ -89,9 +92,13 @@ const std::vector<unsigned char> Key64::CHAR_TO_PACK_RYMER =
   4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  // 224 - 239
   4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4,  4, 4, 4, 4   // 240 - 255
 };
+#endif
 
 const std::vector<char> Key64::PACK_TO_CHAR = { 'A', 'C', 'G', 'T' };
+
+#ifdef RYMER
 const std::vector<char> Key64::PACK_TO_CHAR_RYMER = {'A', 'C', 'A', 'C'};
+#endif
 
 const std::vector<Key64::key_type> Key64::KMER_MASK =
 {

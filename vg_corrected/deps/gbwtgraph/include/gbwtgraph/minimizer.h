@@ -14,6 +14,7 @@
 
 #include <gbwtgraph/io.h>
 #include <gbwtgraph/utils.h>
+#define RYMER
 
 /*
   minimizer.h: Minimizer index.
@@ -212,6 +213,8 @@ public:
     }
   }
 
+#ifdef RYMER
+
 // Move the rymer forward, with c as the next character. Update the key, assuming that
 // it encodes the rymer in forward orientation.
 void forward_rymer(size_t k, unsigned char c, size_t& valid_chars)
@@ -245,13 +248,21 @@ void reverse_rymer(size_t k, unsigned char c)
   }
 }
 
+#endif
+
   /// Encode a string of size k to a key.
   static Key64 encode(const std::string& sequence);
+
+#ifdef RYMER
   static Key64 encode_rymer(const std::string& sequence);
+#endif
 
   /// Decode the key back to a string, given the kmer size used.
   std::string decode(size_t k) const;
+
+#ifdef RYMER
   std::string decode_rymer(size_t k) const;
+#endif
 
   // Required numeric constants.
   constexpr static std::size_t KEY_BITS = sizeof(key_type) * gbwt::BYTE_BITS;

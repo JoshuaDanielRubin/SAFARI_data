@@ -21,6 +21,7 @@
 #include <cmath>
 #include <cfloat>
 #include <map>
+#define RYMER
 
 // Turn on debugging prints
 //#define debug
@@ -49,7 +50,7 @@ MinimizerMapper::MinimizerMapper(const gbwtgraph::GBWTGraph& graph,
     const PathPositionHandleGraph* path_graph) :
     path_graph(path_graph), minimizer_index(minimizer_index),
     rymer_index(rymer_index),
-    distance_index(distance_index),  
+    distance_index(distance_index),
     clusterer(distance_index, &graph),
     gbwt_graph(graph),
     extender(gbwt_graph, *(get_regular_aligner())),
@@ -700,6 +701,9 @@ auto apply_rymer_filter = [calculate_deam_prob_ptr](const vector<Seed>& seeds_ry
 
         auto it_freq = kmer_count_map.find(minimizer_seq);
         if(it_freq == kmer_count_map.end()) {
+
+            cerr << "CANNOT FIND THIS KMER" << endl;
+
             // Sequencing error or mutation
             auto hits = rymer_index.find(rymers[seed.source].value).size();
 
@@ -713,9 +717,9 @@ auto apply_rymer_filter = [calculate_deam_prob_ptr](const vector<Seed>& seeds_ry
                 const double deam_prob = (*calculate_deam_prob_ptr)(minimizer_seq, kmer_count_map, 0.2);
 
                 cerr << "DEAM PROB: " << deam_prob << endl;
-                if (deam_prob > 0.5) {
+                if (deam_prob > 0.01) {
                     filtered_seeds.push_back(seed);
-                                     }
+                                      }
 
                 }
         }
