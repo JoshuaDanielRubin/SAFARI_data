@@ -46,8 +46,44 @@ if not os.path.exists('plots'):
 df = pd.read_csv('results.tsv', sep='\t')
 
 # Call the functions to generate and save plots
-# Uncomment the following lines to generate the plots:
 generate_stratified_plot_by_column('delta', 'stratified_plot_by_delta')
 generate_stratified_plot_by_column('W', 'stratified_plot_by_W')
 generate_stratified_plot_by_column('L', 'stratified_plot_by_read_length')
+
+def plot_side_by_side_subplots(df):
+    """Plot two side-by-side subplots comparing precision and correct rescue rate for both rymers and minimizers."""
+    # Set up the figure and axes
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
+    
+    # Define the bar width and positions
+    bar_width = 0.35
+    indices = range(len(df))
+    
+    # First subplot for precision
+    ax1.bar(indices, df["Minimizer precision"], bar_width, label='Minimizer Precision', color=colors_minimizer[1])
+    ax1.bar([i + bar_width for i in indices], df["Rymer precision"], bar_width, label='Rymer Precision', color=colors_rymer[1])
+    ax1.set_title('Precision Comparison')
+    ax1.set_xticks([i + bar_width/2 for i in indices])
+    ax1.set_xticklabels(indices)  # Using row indices for labeling
+    ax1.legend()
+    ax1.set_xlabel('Data Points')
+    ax1.set_ylabel('Precision')
+    
+    # Second subplot for correct rescue rate
+    ax2.bar(indices, df["Correct Rescue Rate"], bar_width, label='Minimizer', color=colors_minimizer[0])
+    ax2.bar([i + bar_width for i in indices], df["Correct Rescue Rate"], bar_width, label='Rymer', color=colors_rymer[0])
+    ax2.set_title('Correct Rescue Rate Comparison')
+    ax2.set_xticks([i + bar_width/2 for i in indices])
+    ax2.set_xticklabels(indices)  # Using row indices for labeling
+    ax2.legend()
+    ax2.set_xlabel('Data Points')
+    ax2.set_ylabel('Correct Rescue Rate')
+    
+    # Display the plots
+    plt.tight_layout()
+    plt.savefig('plots/side_by_side_comparison.png')
+    plt.show()
+
+# Call the new function after reading the data
+plot_side_by_side_subplots(df)
 
