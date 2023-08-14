@@ -44,7 +44,7 @@ class UniqueMinimizerSketch:
 
     @staticmethod
     def reverse_complement(kmer):
-        complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'}
+        complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A', 'N': 'N'}
         return "".join(complement[base] for base in reversed(kmer))
 
     def find_seeds(self, index, read, origin):
@@ -93,7 +93,7 @@ class MinimizerSketch:
 
     @staticmethod
     def reverse_complement(kmer):
-        complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'}
+        complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A', 'N': 'N'}
         return "".join(complement[base] for base in reversed(kmer))
 
     def find_seeds(self, index, read, origin):

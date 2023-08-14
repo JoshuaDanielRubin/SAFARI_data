@@ -12,7 +12,7 @@ def generate_dna(length):
 
 def print_stats(params, stats):
     labels = ['N', 'L', 'delta', 'k', 'W', 'Total minimizer seeds', 'Total rymer seeds',
-              'Minimizer precision', 'Rymer precision', 'Incorrect Rescue Rate',
+              'Minimizer precision', 'Rymer precision',
               'Correct Rescue Rate', 'Uniqueness', 'Minimizer sketch']
     for label, value in zip(labels, params + stats):
         print(f'{label}: {value}')
@@ -27,7 +27,7 @@ def calculate_uniqueness(rymer_minimizer_map):
 
 def write_header(filename):
     header = ['N', 'L', 'delta', 'k', 'W', 'Total minimizer seeds', 'Total rymer seeds',
-              'Minimizer precision', 'Rymer precision', 'Incorrect Rescue Rate',
+              'Minimizer precision', 'Rymer precision',
               'Correct Rescue Rate', 'Uniqueness', 'Minimizer sketch']
 
     if not os.path.exists(filename) or os.path.getsize(filename) == 0:
@@ -70,7 +70,6 @@ def main(N, L, delta, k, W, unique_minimizer_sketch, stdout, contamination_rate)
     total_rymer_seeds = len(sketch.rymer_index)
     minimizer_precision = 0
     rymer_precision = 0
-    rymer_incorrect_rescue_sum = 0
     rymer_correct_rescue_sum = 0
 
     for read, origin, _ in reads:
@@ -79,11 +78,10 @@ def main(N, L, delta, k, W, unique_minimizer_sketch, stdout, contamination_rate)
         rymer_seeds = sketch.find_seeds(sketch.rymer_index, rymer_read, origin)
 
         stats_calculator = StatsCalculator(minimizer_seeds, rymer_seeds, deaminated_bases, k)  # Pass deaminated_bases
-        _, _, minimizer_prec, rymer_prec, rymer_incorrect_rescue, rymer_correct_rescue = stats_calculator.compute_stats()
+        _, _, minimizer_prec, rymer_prec, rymer_correct_rescue = stats_calculator.compute_stats()
 
         minimizer_precision += minimizer_prec
         rymer_precision += rymer_prec
-        rymer_incorrect_rescue_sum += rymer_incorrect_rescue
         rymer_correct_rescue_sum += rymer_correct_rescue
 
     uniqueness = calculate_uniqueness(sketch.rymer_minimizer_map)
@@ -94,7 +92,6 @@ def main(N, L, delta, k, W, unique_minimizer_sketch, stdout, contamination_rate)
         total_rymer_seeds,
         "{:.3f}".format(minimizer_precision / len(reads)) if len(reads) > 0 else 0,
         "{:.3f}".format(rymer_precision / len(reads)) if len(reads) > 0 else 0,
-        "{:.3f}".format(rymer_incorrect_rescue_sum / len(reads)) if len(reads) > 0 else 0,
         "{:.3f}".format(rymer_correct_rescue_sum / len(reads)) if len(reads) > 0 else 0,
         "{:.3f}".format(uniqueness),
         sketch_type
