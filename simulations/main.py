@@ -41,9 +41,19 @@ def append_row(filename, params, stats):
         writer = csv.writer(tsvfile, delimiter='\t')
         writer.writerow(row)
 
+def get_reference_dna(filename):
+    with open(filename, 'r') as file:
+        # Skip the fasta header
+        next(file)
+        return ''.join(line.strip() for line in file)
 
-def main(N, L, delta, k, W, unique_minimizer_sketch, stdout):
-    S = generate_dna(2000)
+def main(N, L, delta, k, W, unique_minimizer_sketch, stdout, contamination_rate):
+
+    if contamination_rate == 0:
+        S = get_reference_dna("rCRS.fa")
+    else:
+        reference_length = int((1 - contamination_rate) * 2000)
+        S = get_reference_dna("rCRS.fa")[:reference_length] + generate_dna(2000 - reference_length)
     
     if unique_minimizer_sketch:
         sketch = UniqueMinimizerSketch(S, W, k)
@@ -107,6 +117,7 @@ if __name__ == "__main__":
     parser.add_argument('--W', type=int, default=30, help='Length of window')
     parser.add_argument('--unique', action='store_true', help='Use unique minimizer sketch')
     parser.add_argument('--stdout', action='store_true', help='Print results to stdout instead of writing to a file')
+    parser.add_argument('--contamination_rate', type=float, default=0.0, help='Proportion of DNA that should be random')
     args = parser.parse_args()
 
     assert 0 <= args.delta <= 1, "Mutation rate must be between 0 and 1"
@@ -115,4 +126,4 @@ if __name__ == "__main__":
     assert args.k > 0, "Length of k-mer must be greater than 0"
     assert args.W >= args.k, "Length of window must be greater than or equal to length of k-mer"
 
-    main(args.N, args.L, args.delta, args.k, args.W, args.unique, args.stdout)
+    main(args.N, args.L, args.delta, args.k, args.W, args.unique, args.stdout, args.contamination_rate)
