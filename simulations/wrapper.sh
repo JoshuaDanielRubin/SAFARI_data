@@ -3,27 +3,21 @@
 # Define the filename of the Python script
 python_script="main.py"
 
-# Run the Python script with varying parameters
-for W in 20
-do
-    for L in 100
-    do
-        for delta in 0.01 0.5
-        do
-            for k in 10 15
-            do
-                for N in 100 500 1000 1500 3000
-                do
-                    for unique_flag in "" "--unique"
-                    do
-                        if [ $W -ge $k ]; then
-                            echo "Running with N=$N, L=$L, delta=$delta, k=$k, W=$W $unique_flag"
-                            python3 $python_script --N $N --L $L --delta $delta --k $k --W $W $unique_flag
-                        fi
-                    done
-                done
-            done
-        done
-    done
-done
+run_task() {
+    W=$1
+    L=$2
+    delta=$3
+    k=$4
+    N=$5
+    unique_flag=$6
+
+    if [ $W -ge $k ]; then
+        echo "Running with N=$N, L=$L, delta=$delta, k=$k, W=$W $unique_flag"
+        python3 main.py --N $N --L $L --delta $delta --k $k --W $W $unique_flag
+    fi
+}
+
+export -f run_task
+
+parallel -j20 run_task ::: 20 50 100 ::: 50 100 200 ::: 0.01 0.5 0.9 ::: 10 15 30 ::: 100 1000 5000 ::: "" "--unique"
 
