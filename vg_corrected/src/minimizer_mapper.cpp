@@ -652,6 +652,11 @@ if (minimizers_rymer.empty()){
 vector<Seed> seeds = this->find_seeds<Seed>(minimizers, aln, funnel);
 vector<Seed> seeds_rymer = this->find_seeds<Seed>(minimizers_rymer, aln, funnel_rymer);
 
+if (seeds.size() != seeds_rymer.size()){
+    vector<Alignment> empty_aln;
+    return empty_aln;
+                                       }
+
 //cerr << "NUMBER OF MINIMIZER SEEDS: " << seeds.size() << endl;
 //cerr << "NUMBER OF RYMER SEEDS: " << seeds_rymer.size() << endl;
 //throw runtime_error("TESTING");
@@ -673,140 +678,97 @@ for (const auto & sr : seeds_rymer) {
         funnel_rymer.stage("cluster");
     }
 
-// Then pass it to your lambda as follows:
 FuncType calculate_deam_prob_ptr = calculate_deam_prob;
 
-auto apply_rymer_filter = [calculate_deam_prob_ptr](const vector<Seed>& seeds_rymer,
-                               std::unordered_map<std::string, int> &kmer_count_map,
-                               auto &minimizers, auto &rymers, auto &rymer_index) {
+auto apply_rymer_filter = [calculate_deam_prob_ptr](
+    const vector<Seed>& seeds, const vector<Seed>& seeds_rymer,
+    std::unordered_map<std::string, int> &kmer_count_map,
+    auto &minimizers, auto &rymers, auto &rymer_index) {
+
+    if (seeds.size() != seeds_rymer.size()) {
+    std::ostringstream errMsg;
+    errMsg << "Mismatch in sizes of seeds and seeds_rymer: seeds size = " 
+           << seeds.size() << ", seeds_rymer size = " << seeds_rymer.size();
+    throw std::runtime_error(errMsg.str());
+                                            }
+
+    size_t kmer_length = 0;
+    if (!kmer_count_map.empty()) {
+        kmer_length = kmer_count_map.begin()->first.length();
+    } else {
+        cerr << "WARNING: kmer_count_map is empty!" << endl;
+    }
 
     vector<Seed> filtered_seeds;
+    vector<Seed> filtered_seeds_rymer;
 
-    for (const auto& seed : seeds_rymer) {
+    // Preallocate space based on the maximum possible size.
+    filtered_seeds.reserve(seeds_rymer.size());
+    filtered_seeds_rymer.reserve(seeds_rymer.size());
 
-        //cerr << "LOOPING A SEED" << endl;
+    // Collect the results from all threads.
+    vector<vector<Seed>> thread_seeds(omp_get_max_threads());
+    vector<vector<Seed>> thread_seeds_rymer(omp_get_max_threads());
 
-        size_t kmer_length = kmer_count_map.begin()->first.length();
-        double total_possible_kmers = std::pow(4, kmer_length);
+    #pragma omp parallel
+    {
+        int tid = omp_get_thread_num();
+        vector<Seed>& local_filtered_seeds = thread_seeds[tid];
+        vector<Seed>& local_filtered_seeds_rymer = thread_seeds_rymer[tid];
 
-        string rymer_seq = rymers[seed.source].value.key.decode_rymer(rymers[seed.source].length);
-        string minimizer_seq = minimizers[seed.source].value.key.decode(minimizers[seed.source].length);
+        #pragma omp for
+        for (size_t i = 0; i < seeds_rymer.size(); ++i) {
+            const auto& seed = seeds_rymer[i];
+            double total_possible_kmers = std::pow(4, kmer_length);
 
-        if(rymer_seq != gbwtgraph::convertToRymerSpace(minimizer_seq)){
-            throw std::runtime_error("ERROR WITH ENCODING");
-        }
+            string rymer_seq = rymers[seed.source].value.key.decode_rymer(rymers[seed.source].length);
+            string minimizer_seq = minimizers[seed.source].value.key.decode(minimizers[seed.source].length);
 
-        auto it_freq = kmer_count_map.find(minimizer_seq);
-        if(it_freq == kmer_count_map.end()) {
-
-            //cerr << "CANNOT FIND THIS KMER" << endl;
-
-            // Sequencing error or mutation
-            auto hits = rymer_index.find(rymers[seed.source].value).size();
-
-            if (hits == 0){
+            if (rymer_seq != gbwtgraph::convertToRymerSpace(minimizer_seq)) {
+                cerr << "Thread: " << tid << " Iteration: " << i << " ERROR WITH ENCODING" << endl;
                 continue;
             }
 
-            else{
-
-                // GATEKEEPING HERE
-                const double deam_prob = (*calculate_deam_prob_ptr)(minimizer_seq, kmer_count_map, 0.2);
-
-                cerr << "DEAM PROB: " << deam_prob << endl;
-                if (deam_prob > 0.3) {
-                    filtered_seeds.push_back(seed);
-                                      }
-
-                }
-        }
-
-        else{
-
-        // Match in kmer space, automatically accept
-        filtered_seeds.push_back(seed);
-
-            }
-    }
-
-    return filtered_seeds;
-};
-
-
-/*
-auto apply_rymer_filter = [&](const vector<Seed>& seeds_rymer,
-                               const std::multimap<std::pair<size_t, pos_t>, Seed>& rymer_to_minimizer,
-                               std::unordered_map<std::string, int> kmer_count_map,
-                               int total_minimizers, auto &minimizers, auto &rymers) {
-
-    vector<Seed> filtered_seeds;
-    size_t initial_rymers = seeds_rymer.size();
-
-    if (seeds_rymer.size() == 0){
-        throw runtime_error("NO RYMER SEEDS!!!");
-    }
-
-    for (const auto& seed : seeds_rymer) {
-        //cerr << "Processing Rymer sequence: " << seed.seq << endl;
-
-        auto its = rymer_to_minimizer.equal_range(std::make_pair(seed.source, seed.pos));
-
-        if (its.first == its.second) {
-            continue;
-        }
-
-        double total_minimizer_freq = 0;
-        double all_minimizer_freq = 0;
-        size_t kmer_length = kmer_count_map.begin()->first.length();
-        double total_possible_kmers = static_cast<size_t>(std::pow(4, kmer_length));
-
-        std::unordered_set<string> unique_minimizers;
-        for (auto it = its.first; it != its.second; ++it) {
-            unique_minimizers.insert(minimizers[seed.source].value.key.decode(minimizers[seed.source].length));
-        }
-
-        string seq = minimizers[seed.source].value.key.decode(minimizers[seed.source].length);
-
-        cerr << "Unique minimizer sequences for Rymer sequence " << seq << ":\n";
-        for (const auto& minimizer_seq : unique_minimizers) {
-            cerr << "\t" << minimizer_seq << "\n";
-
-            int raw_count = kmer_count_map[minimizer_seq];
-            double minimizer_freq = static_cast<double>(raw_count) / total_minimizers;
-            total_minimizer_freq += minimizer_freq;
-
-            // Calculate all_minimizer_freq based on each corresponding minimizer
             auto it_freq = kmer_count_map.find(minimizer_seq);
+            if (it_freq == kmer_count_map.end()) {
+                auto hits = rymer_index.find(rymers[seed.source].value).size();
 
-            if(it_freq != kmer_count_map.end()) {
-                //cerr << "MINIMIZER FREQ: " << static_cast<double>(it_freq->second) / static_cast<double>(total_possible_kmers) << endl;
-                all_minimizer_freq += static_cast<double>(it_freq->second) / static_cast<double>(total_possible_kmers);
+                if (hits == 0) {
+                    continue;
+                } else {
+                    const double deam_prob = (*calculate_deam_prob_ptr)(minimizer_seq, kmer_count_map, 0.2);
+                    cerr << "Thread: " << tid << " Iteration: " << i << " DEAM PROB: " << deam_prob << endl;
+                    if (deam_prob > 0.3) {
+                        local_filtered_seeds.push_back(seeds[i]);
+                        local_filtered_seeds_rymer.push_back(seed);
+                    }
+                }
             } else {
-                throw std::runtime_error("Minimizer sequence " + minimizer_seq + " not found in k-mer frequency map!");
+                local_filtered_seeds.push_back(seeds[i]);
+                local_filtered_seeds_rymer.push_back(seed);
             }
-        }
-
-        if (all_minimizer_freq == 0.0) {
-            throw runtime_error("MINIMIZER FREQUENCY IS ZERO, SOMETHING IS WRONG");
-        }
-
-        if (total_minimizer_freq / all_minimizer_freq > 0.01) {
-            filtered_seeds.push_back(seed);
         }
     }
 
-    return filtered_seeds;
+    // Merge the results from all threads.
+    for (int i = 0; i < omp_get_max_threads(); ++i) {
+        filtered_seeds.insert(filtered_seeds.end(), thread_seeds[i].begin(), thread_seeds[i].end());
+        filtered_seeds_rymer.insert(filtered_seeds_rymer.end(), thread_seeds_rymer[i].begin(), thread_seeds_rymer[i].end());
+    }
+
+    return make_pair(filtered_seeds, filtered_seeds_rymer);
 };
-*/
+
 
 // Use the lambda function
-seeds_rymer = apply_rymer_filter(seeds_rymer, kmer_count_map, minimizers, minimizers_rymer, this->rymer_index);
-//seeds_rymer = apply_rymer_filter(seeds_rymer, rymer_to_minimizer, kmer_count_map, total_minimizers, minimizers, minimizers_rymer);
+auto [seeds_filtered, seeds_rymer_filtered] = apply_rymer_filter(seeds, seeds_rymer, kmer_count_map, minimizers, minimizers_rymer, this->rymer_index);
+seeds = move(seeds_filtered);
+seeds_rymer = move(seeds_rymer_filtered);
 
-//if (seeds_rymer.empty()){throw runtime_error("[VG Giraffe] No RYmers passed filtering");}
+
 
  clusters = clusterer.cluster_seeds(seeds, get_distance_limit(aln.sequence().size()));
-    clusters_rymer = clusterer.cluster_seeds(seeds_rymer, get_distance_limit(aln.sequence().size()));
+ clusters_rymer = clusterer.cluster_seeds(seeds_rymer, get_distance_limit(aln.sequence().size()));
 
    //cerr << "NUMBER OF RYMER CLUSTERS: " << clusters_rymer.size() << endl;
    //cerr << "NUMBER OF MINIMIZER CLUSTERS: " << minimizers_rymer.size() << endl;
