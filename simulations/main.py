@@ -115,6 +115,8 @@ if __name__ == "__main__":
     parser.add_argument('--unique', action='store_true', help='Use unique minimizer sketch')
     parser.add_argument('--stdout', action='store_true', help='Print results to stdout instead of writing to a file')
     parser.add_argument('--contamination_rate', type=float, default=0.0, help='Proportion of DNA that should be random')
+    parser.add_argument('--random-reference', action='store_true', help='Use random DNA of 20000 bp as reference')
+
     args = parser.parse_args()
 
     assert 0 <= args.delta <= 1, "Mutation rate must be between 0 and 1"
@@ -124,3 +126,4 @@ if __name__ == "__main__":
     assert args.W >= args.k, "Length of window must be greater than or equal to length of k-mer"
 
     main(args.N, args.L, args.delta, args.k, args.W, args.unique, args.stdout, args.contamination_rate)
+
