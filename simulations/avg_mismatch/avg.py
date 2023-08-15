@@ -108,4 +108,4 @@ plt.grid(True)
 plt.savefig("avg_mismatches.png")
 plt.close()
 
-print(average_mismatches_list_delta)
+#print(average_mismatches_list_delta)
