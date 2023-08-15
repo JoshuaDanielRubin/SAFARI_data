@@ -19,7 +19,7 @@ def create_minimizer_index(dna_sequence, k=20, w=11):
         minimizer_index[min_kmer].append(i + minimizers.index(min_kmer))
     return minimizer_index
 
-def simulate_reads_with_positions(dna_sequence, read_length=100, num_reads=10):
+def simulate_reads_with_positions(dna_sequence, read_length=100, num_reads=500):
     reads = []
     positions = []
     for _ in range(num_reads):
