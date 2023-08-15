@@ -10,7 +10,7 @@ if not os.path.exists('plots'):
 data = pd.read_csv("results.tsv", sep="\t")
 
 # Calculate the expected Rymer rescue rate
-data['Expected Rate'] = (data['delta']**2) / (1 + 2*data['delta'] + data['delta']**2)
+data['Expected Rate'] = 1 / (4 * (data['delta']**2 + 2 * data['delta'] + 1))
 
 # Group by delta and compute the mean and standard deviation of the Correct Rescue Rate
 grouped_data = data.groupby('delta').agg({
