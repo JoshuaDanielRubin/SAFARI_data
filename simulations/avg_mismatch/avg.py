@@ -85,7 +85,7 @@ def compute_average_mismatches_for_k(k, w):
 
 # Main Script
 reference = generate_random_dna()
-delta_values = np.arange(0, 1.2, 0.2)
+delta_values = np.arange(0, 1.2, 0.1)
 k_values = list(range(5, 21, 2))
 
 plt.figure(figsize=(10, 6))
@@ -93,6 +93,7 @@ colors = ['r', 'g', 'b', 'c', 'm', 'y', 'k', 'orange']
 labels = []
 
 for idx, k in enumerate(k_values):
+    print("k = " + str(k))
     w = k - 2
     average_mismatches_list_delta = compute_average_mismatches_for_k(k, w)
     label = f'k = {k}, w = {w}'
