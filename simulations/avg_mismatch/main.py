@@ -100,7 +100,7 @@ def find_mismatched_kmers(reads: List[str], k: int, w: int, minimizer_table: Dic
             kmer_found = kmer in minimizer_table or rc_kmer in minimizer_table
             rymer_found = rymer in rymer_table or rc_rymer in rymer_table
 
-            if kmer_found and not rymer_found:
+            if rymer_found:
                 # Fix: Directly get the corresponding sequence segment instead of using a different position
                 ref_segment = sequence[i:i+k]
                 mismatch_count = sum(1 for a, b in zip(kmer, ref_segment) if (a == 'T' and b == 'C') or (a == 'A' and b == 'G'))
