@@ -2,6 +2,7 @@ import random
 from typing import List, Dict
 from collections import defaultdict
 import matplotlib.pyplot as plt
+import numpy as np
 
 # Functions for reading and preprocessing
 
@@ -48,6 +49,19 @@ def create_index_table(sequence: str, k: int, w: int) -> Dict[str, List[int]]:
     return table
 
 # Functions for read generation and mutation introduction
+
+def fragment_genome(sequence: str, mean_fragment_size: int, std_dev: int, num_fragments: int) -> List[str]:
+    """
+    Fragment the genome into smaller pieces.
+    The size of the fragments is drawn from a normal distribution with the specified mean and standard deviation.
+    """
+    fragments = []
+    for _ in range(num_fragments):
+        start = random.randint(0, len(sequence) - mean_fragment_size)
+        fragment_size = int(np.random.normal(mean_fragment_size, std_dev))
+        fragment = sequence[start:start+fragment_size]
+        fragments.append(fragment)
+    return fragments
 
 def generate_circular_reads(sequence: str, read_length: int, num_reads: int = None) -> List[str]:
     """
@@ -125,8 +139,22 @@ rymer_table = create_index_table(rymer_transform(sequence), k, w)
 # Generate circular reads and introduce mutations
 read_length = 50
 mutation_rate = 0.5
-circular_reads = generate_circular_reads(sequence, read_length, 1000)
-mutated_reads = apply_deamination_mutations(circular_reads, mutation_rate)
+# Fragment the genome
+mean_fragment_size = 5000  # for example
+std_dev = 500  # for example
+num_fragments = 200  # for example
+num_reads_per_fragment = 1
+
+fragments = fragment_genome(sequence, mean_fragment_size, std_dev, num_fragments)
+
+# Generate reads from the fragments
+all_reads = []
+for fragment in fragments:
+    reads_from_fragment = generate_circular_reads(fragment, read_length, num_reads_per_fragment)
+    all_reads.extend(reads_from_fragment)
+
+# Continue with the mutation step using all_reads
+mutated_reads = apply_deamination_mutations(all_reads, mutation_rate)
 
 # Extract mismatch counts for the subset of k-mers
 mismatch_counts = find_mismatched_kmers(mutated_reads, k, w, minimizer_table, rymer_table)
