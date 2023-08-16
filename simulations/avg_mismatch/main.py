@@ -1,95 +1,121 @@
-import gzip
-from typing import List, Dict, Tuple
+import random
+from typing import List, Dict
+from collections import defaultdict
 
-# 1. Parsing the Fasta File
-def parse_fasta(file_path: str) -> str:
-    with open(file_path, 'r') as file:
-        sequence = ''.join(line.strip() for line in file if not line.startswith('>'))
-    return sequence
+# Functions for reading and preprocessing
 
-# 2. Compute Minimizer Index
-def compute_minimizer(sequence: str, k: int, w: int) -> List[str]:
-    if k > w:
-        raise ValueError("k should be less than or equal to w")
-    
-    minimizers = []
-    for i in range(len(sequence) - w + 1):
-        window = sequence[i:i+w]
-        minimizers.append(min([window[j:j+k] for j in range(w - k + 1)]))
-    return minimizers
+def read_fasta(file_path: str) -> str:
+    """
+    Read a FASTA file and return the sequence as a single string.
+    """
+    with open(file_path, 'r') as f:
+        sequence = ''.join(line.strip() for line in f.readlines()[1:])
+    return sequence.upper()
 
-# 3. Rymer Transformation
-def rymer_transform(sequence: str) -> str:
-    return sequence.replace("T", "C").replace("G", "A")
-
-# 4. Create Index Table
-def create_index_table(sequence: str, k: int, w: int) -> Dict[str, List[int]]:
-    index_table = {}
-    minimizers = compute_minimizer(sequence, k, w)
-    for i, minimizer in enumerate(minimizers):
-        if minimizer not in index_table:
-            index_table[minimizer] = []
-        index_table[minimizer].append(i)
-    return index_table
-
-# 5. Reverse Complement
-def reverse_complement(seq: str) -> str:
-    complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'}
+def reverse_complement_safe(seq: str) -> str:
+    """
+    Returns the reverse complement of a DNA sequence, safely handling 'N' bases.
+    """
+    complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A', 'N': 'N'}
     return ''.join(complement[base] for base in reversed(seq))
 
-# 6. Parse Gzipped Fastq
-def parse_gzipped_fastq(file_path: str) -> List[str]:
-    sequences = []
-    with gzip.open(file_path, 'rt') as file:
-        lines = file.readlines()
-        for i in range(1, len(lines), 4):
-            sequences.append(lines[i].strip())
-    return sequences
+# Functions for index creation
 
-# 7. Count Matches
-def count_matches(reads: List[str], k: int, w: int, minimizer_table: Dict[str, List[int]], rymer_table: Dict[str, List[int]]) -> Dict[str, int]:
-    both_match = 0
-    neither_match = 0
-    only_rymer_match = 0
-    only_kmer_match = 0
+def rymer_transform(seq: str) -> str:
+    """
+    Transforms a DNA sequence into its rymer equivalent.
+    C and T become C.
+    G and A become A.
+    """
+    return ''.join(['C' if base in ['C', 'T'] else 'A' if base in ['G', 'A'] else 'N' for base in seq])
 
+def create_minimizer(seq: str, k: int, w: int) -> str:
+    """
+    Extract the lexicographically smallest k-mer from a window of length w in the sequence.
+    """
+    return min(seq[i:i+k] for i in range(w - k + 1))
+
+def create_index_table(sequence: str, k: int, w: int) -> Dict[str, List[int]]:
+    """
+    Create a minimizer index table for a sequence.
+    """
+    table = defaultdict(list)
+    for i in range(len(sequence) - w + 1):
+        window = sequence[i:i+w]
+        minimizer = create_minimizer(window, k, w)
+        table[minimizer].append(i)
+    return table
+
+# Functions for read generation and mutation introduction
+
+def generate_circular_reads(sequence: str, read_length: int) -> List[str]:
+    """
+    Generate circular reads of the specified length from the given sequence.
+    """
+    reads = [sequence[i:i+read_length] for i in range(len(sequence))]
+    for i in range(1, read_length):
+        reads.append(sequence[-i:] + sequence[:read_length-i])
+    return reads
+
+def apply_deamination_mutations(reads: List[str], mutation_rate: float) -> List[str]:
+    """
+    Apply deamination mutations (C->T or G->A) to the reads at a specified rate.
+    """
+    mutated_reads = []
     for read in reads:
-        for i in range(len(read) - w + 1):
-            window = read[i:i+w]
-            minimizer = min(window[j:j+k] for j in range(w - k + 1))
-            rymer = rymer_transform(minimizer)
+        mutated_read = []
+        for base in read:
+            if base == "C" and random.random() < mutation_rate:
+                mutated_read.append("T")
+            elif base == "G" and random.random() < mutation_rate:
+                mutated_read.append("A")
+            else:
+                mutated_read.append(base)
+        mutated_reads.append(''.join(mutated_read))
+    return mutated_reads
+
+# Function for mismatch analysis
+
+def find_mismatched_kmers_safe(reads: List[str], k: int, w: int, minimizer_table: Dict[str, List[int]], rymer_table: Dict[str, List[int]]) -> List[int]:
+    """
+    Identify k-mers that match the k-mer index but not the rymer index, and return the number of mismatches observed.
+    """
+    mismatch_counts = []
+    for read in reads:
+        for i in range(len(read) - k + 1):
+            kmer = read[i:i+k]
+            rymer = rymer_transform(kmer)
+            rc_kmer = reverse_complement_safe(kmer)
+            rc_rymer = rymer_transform(rc_kmer)
             
-            rc_minimizer = reverse_complement(minimizer)
-            rc_rymer = rymer_transform(rc_minimizer)
-            
-            minimizer_found = minimizer in minimizer_table or rc_minimizer in minimizer_table
+            kmer_found = kmer in minimizer_table or rc_kmer in minimizer_table
             rymer_found = rymer in rymer_table or rc_rymer in rymer_table
+            
+            if kmer_found and not rymer_found:
+                ref_minimizer = sequence[minimizer_table[kmer][0]:minimizer_table[kmer][0]+k]
+                mismatch_count = sum(1 for a, b in zip(kmer, ref_minimizer) if a != b)
+                mismatch_counts.append(mismatch_count)
+    return mismatch_counts
 
-            if minimizer_found and rymer_found:
-                both_match += 1
-            elif not minimizer_found and not rymer_found:
-                neither_match += 1
-            elif rymer_found:
-                only_rymer_match += 1
-            elif minimizer_found:
-                only_kmer_match += 1
+# Main Execution
 
-    return {
-        "Both Match": both_match,
-        "Neither Match": neither_match,
-        "Only Rymer Match": only_rymer_match,
-        "Only Minimizer Match": only_kmer_match
-    }
+sequence = read_fasta("rCRS.fa")
+k = 8
+w = 10
 
-# Load the reference sequence and create hash tables
-sequence = parse_fasta("rCRS.fa")
-k, w = 8, 10
+# Create minimizer and rymer tables
 minimizer_table = create_index_table(sequence, k, w)
-rymer_sequence = rymer_transform(sequence)
-rymer_table = create_index_table(rymer_sequence, k, w)
+rymer_table = create_index_table(rymer_transform(sequence), k, w)
 
-# Parse the gzipped fastq file and count the matches
-reads = parse_gzipped_fastq("bact.fq.gz")
-match_counts = count_matches(reads, k, w, minimizer_table, rymer_table)
-print(match_counts)
+# Generate circular reads and introduce mutations
+read_length = 50
+mutation_rate = 0.5
+circular_reads = generate_circular_reads(sequence, read_length)
+mutated_reads = apply_deamination_mutations(circular_reads, mutation_rate)
+
+# Extract mismatch counts for the subset of k-mers
+mismatch_counts = find_mismatched_kmers_safe(mutated_reads, k, w, minimizer_table, rymer_table)
+
+# Output can be plotted or further analyzed
+print(mismatch_counts)
 
