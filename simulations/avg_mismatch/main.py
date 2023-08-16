@@ -48,7 +48,7 @@ def create_index_table(sequence: str, k: int, w: int) -> Dict[str, List[int]]:
 
 # Functions for read generation and mutation introduction
 
-def generate_circular_reads(sequence: str, read_length: int) -> List[str]:
+def generate_circular_reads(sequence: str, read_length: int, num_reads: int = None) -> List[str]:
     """
     Generate circular reads of the specified length from the given sequence.
     """
@@ -57,13 +57,17 @@ def generate_circular_reads(sequence: str, read_length: int) -> List[str]:
 
     # Create a circular sequence by appending the start of the sequence to its end
     circular_sequence = sequence + sequence[:read_length-1]
-    
+
+    # If num_reads is not provided, default to the length of the sequence
+    if num_reads is None:
+        num_reads = len(sequence)
+
     # Generate the reads
-    reads = [circular_sequence[i:i+read_length] for i in range(len(sequence))]
-    
+    reads = [circular_sequence[i:i+read_length] for i in range(num_reads)]
+
     # Assert all reads are of the same length
     assert all(len(read) == read_length for read in reads), "All reads should have the same length."
-    
+
     return reads
 
 def apply_deamination_mutations(reads: List[str], mutation_rate: float) -> List[str]:
@@ -120,7 +124,7 @@ rymer_table = create_index_table(rymer_transform(sequence), k, w)
 # Generate circular reads and introduce mutations
 read_length = 50
 mutation_rate = 0.5
-circular_reads = generate_circular_reads(sequence, read_length)
+circular_reads = generate_circular_reads(sequence, read_length, 5)
 mutated_reads = apply_deamination_mutations(circular_reads, mutation_rate)
 
 # Extract mismatch counts for the subset of k-mers
