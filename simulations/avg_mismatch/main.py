@@ -157,8 +157,8 @@ rymer_table = create_index_table(rymer_transform(sequence), k, w)
 read_length = 75
 mutation_rate = 0.2
 # Fragment the genome
-mean_fragment_size = 2000  # for example
-std_dev = 100  # for example
+mean_fragment_size = 150  # for example
+std_dev = 0  # for example
 num_fragments = 200  # for example
 num_reads_per_fragment = 2
 
