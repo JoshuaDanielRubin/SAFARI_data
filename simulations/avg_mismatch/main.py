@@ -52,9 +52,18 @@ def generate_circular_reads(sequence: str, read_length: int) -> List[str]:
     """
     Generate circular reads of the specified length from the given sequence.
     """
-    reads = [sequence[i:i+read_length] for i in range(len(sequence))]
-    for i in range(1, read_length):
-        reads.append(sequence[-i:] + sequence[:read_length-i])
+    # Ensure that the sequence length is at least equal to the read_length
+    assert len(sequence) >= read_length, "Sequence length should be greater than or equal to read_length."
+
+    # Create a circular sequence by appending the start of the sequence to its end
+    circular_sequence = sequence + sequence[:read_length-1]
+    
+    # Generate the reads
+    reads = [circular_sequence[i:i+read_length] for i in range(len(sequence))]
+    
+    # Assert all reads are of the same length
+    assert all(len(read) == read_length for read in reads), "All reads should have the same length."
+    
     return reads
 
 def apply_deamination_mutations(reads: List[str], mutation_rate: float) -> List[str]:
@@ -118,4 +127,3 @@ mismatch_counts = find_mismatched_kmers_safe(mutated_reads, k, w, minimizer_tabl
 
 # Output can be plotted or further analyzed
 print(mismatch_counts)
-
