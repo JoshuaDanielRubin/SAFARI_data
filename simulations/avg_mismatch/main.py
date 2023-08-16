@@ -85,21 +85,38 @@ def generate_circular_reads(sequence: str, read_length: int, num_reads: int = No
 
     return reads
 
+# Implementing the Briggs model for ancient DNA damage
+def briggs_model_damage_probability(x, P0=0.9, lambda_val=10):
+    """Calculate the probability of damage at position x using the Briggs model."""
+    import math
+    return P0 * math.exp(-x/lambda_val)
+
+# Incorporating the Briggs model into the mutation introduction function
 def apply_deamination_mutations(reads: List[str], mutation_rate: float) -> List[str]:
     """
-    Apply deamination mutations (C->T or G->A) to the reads at a specified rate.
+    Introduce deamination mutations to a list of reads using the Briggs model.
+    C -> T mutations at the start and end of fragments.
     """
     mutated_reads = []
+    
     for read in reads:
         mutated_read = []
-        for base in read:
-            if base == "C" and random.random() < mutation_rate:
-                mutated_read.append("T")
-            elif base == "G" and random.random() < mutation_rate:
-                mutated_read.append("A")
+        
+        for i, base in enumerate(read):
+            # Calculate probability of mutation at this position using the Briggs model
+            # Consider both ends (start and end) of the fragment
+            prob_start = briggs_model_damage_probability(i)
+            prob_end = briggs_model_damage_probability(len(read) - 1 - i)
+            prob = max(prob_start, prob_end)
+            
+            # Apply mutation with the calculated probability
+            if base == 'C' and random.random() < prob * mutation_rate:
+                mutated_read.append('T')
             else:
                 mutated_read.append(base)
-        mutated_reads.append(''.join(mutated_read))
+        
+        mutated_reads.append("".join(mutated_read))
+    
     return mutated_reads
 
 # Function for mismatch analysis
