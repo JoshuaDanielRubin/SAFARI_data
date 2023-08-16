@@ -1,6 +1,7 @@
 import random
 from typing import List, Dict
 from collections import defaultdict
+import matplotlib.pyplot as plt
 
 # Functions for reading and preprocessing
 
@@ -132,3 +133,15 @@ mismatch_counts = find_mismatched_kmers(mutated_reads, k, w, minimizer_table, ry
 
 # Output can be plotted or further analyzed
 print(mismatch_counts)
+
+
+plt.figure(figsize=(10,6))
+plt.hist(mismatch_counts_k12, bins=range(0, max(mismatch_counts_k12) + 2), edgecolor="k", align="left")
+plt.title(f"Mismatch Counts Histogram")
+plt.xlabel("Number of Mismatches")
+plt.ylabel("Frequency")
+plt.grid(axis="y", linestyle="--", alpha=0.7)
+plt.xticks(range(0, max(mismatch_counts_k12) + 1))
+plt.tight_layout()
+plt.savefig("mismatch.png")
+plt.close()
