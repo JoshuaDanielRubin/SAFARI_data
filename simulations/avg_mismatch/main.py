@@ -125,23 +125,23 @@ rymer_table = create_index_table(rymer_transform(sequence), k, w)
 # Generate circular reads and introduce mutations
 read_length = 50
 mutation_rate = 0.5
-circular_reads = generate_circular_reads(sequence, read_length, 5)
+circular_reads = generate_circular_reads(sequence, read_length, 1000)
 mutated_reads = apply_deamination_mutations(circular_reads, mutation_rate)
 
 # Extract mismatch counts for the subset of k-mers
 mismatch_counts = find_mismatched_kmers(mutated_reads, k, w, minimizer_table, rymer_table)
 
 # Output can be plotted or further analyzed
-print(mismatch_counts)
+#print(mismatch_counts)
 
 
 plt.figure(figsize=(10,6))
-plt.hist(mismatch_counts_k12, bins=range(0, max(mismatch_counts_k12) + 2), edgecolor="k", align="left")
+plt.hist(mismatch_counts, bins=range(0, max(mismatch_counts) + 2), edgecolor="k", align="left")
 plt.title(f"Mismatch Counts Histogram")
 plt.xlabel("Number of Mismatches")
 plt.ylabel("Frequency")
 plt.grid(axis="y", linestyle="--", alpha=0.7)
-plt.xticks(range(0, max(mismatch_counts_k12) + 1))
+plt.xticks(range(0, max(mismatch_counts) + 1))
 plt.tight_layout()
 plt.savefig("mismatch.png")
 plt.close()
