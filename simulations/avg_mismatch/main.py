@@ -154,13 +154,13 @@ minimizer_table = create_index_table(sequence, k, w)
 rymer_table = create_index_table(rymer_transform(sequence), k, w)
 
 # Generate circular reads and introduce mutations
-read_length = 50
-mutation_rate = 0.5
+read_length = 75
+mutation_rate = 0.2
 # Fragment the genome
-mean_fragment_size = 5000  # for example
-std_dev = 500  # for example
+mean_fragment_size = 2000  # for example
+std_dev = 100  # for example
 num_fragments = 200  # for example
-num_reads_per_fragment = 1
+num_reads_per_fragment = 2
 
 fragments = fragment_genome(sequence, mean_fragment_size, std_dev, num_fragments)
 
