@@ -40,7 +40,7 @@ namespace vg {
 
 using namespace std;
 // Declaration of your function as a function pointer type
-using FuncType = double (*)(std::string, std::string);
+using FuncType = double (*)(std::string&, std::string&);
 using Seed = SnarlDistanceIndexClusterer::Seed;
 
 MinimizerMapper::MinimizerMapper(const gbwtgraph::GBWTGraph& graph,
@@ -108,8 +108,32 @@ struct seed_traits<SnarlDistanceIndexClusterer::Seed> {
 
 //-----------------------------------------------------------------------------
 
-inline double calculate_deam_prob(std::string dna, std::string rymer_seq) {
-   return 0.2;
+inline double calculate_deam_prob(std::string &minimizer_seq, std::string &seed_seq) {
+    const double delta = 0.1;  // given probability for specific mismatches
+    double prob_model2 = 1.0;  // initialize the probability for model 2
+    
+    int mismatches = 0;  // to count the number of mismatches
+
+    for (size_t i = 0; i < minimizer_seq.size(); i++) {
+        if (minimizer_seq[i] != seed_seq[i]) {
+            mismatches++;
+
+            // check the specific mismatches for model 2
+            if ((seed_seq[i] == 'C' && minimizer_seq[i] == 'T') || 
+                (seed_seq[i] == 'G' && minimizer_seq[i] == 'A')) {
+                prob_model2 *= delta;
+            } else {
+                prob_model2 = 0.0;
+                break;  // no need to continue if any mismatch does not follow the given condition
+            }
+        }
+    }
+
+    // Placeholder for model 1's probability based on mismatches
+    double prob_model1 = 1.0;  // just a placeholder, you need to replace with the actual formula
+
+    // Assuming you want to return the probability of model 2 for now
+    return prob_model2;
 }
 
 
@@ -641,75 +665,6 @@ for (const auto & sr : seeds_rymer) {
 
 FuncType calculate_deam_prob_ptr = calculate_deam_prob;
 
-/*
-auto apply_rymer_filter = [calculate_deam_prob_ptr](
-    const vector<Seed>& seeds, const vector<Seed>& seeds_rymer,
-    auto &minimizers, auto &rymers, auto &rymer_index) {
-
-    if (seeds.size() != seeds_rymer.size()) {
-    std::ostringstream errMsg;
-    errMsg << "Mismatch in sizes of seeds and seeds_rymer: seeds size = " 
-           << seeds.size() << ", seeds_rymer size = " << seeds_rymer.size();
-    throw std::runtime_error(errMsg.str());
-                                            }
-    vector<Seed> filtered_seeds;
-    vector<Seed> filtered_seeds_rymer;
-
-    // Preallocate space based on the maximum possible size.
-    filtered_seeds.reserve(seeds_rymer.size());
-    filtered_seeds_rymer.reserve(seeds_rymer.size());
-
-    // Collect the results from all threads.
-    vector<vector<Seed>> thread_seeds(omp_get_max_threads());
-    vector<vector<Seed>> thread_seeds_rymer(omp_get_max_threads());
-
-    #pragma omp parallel
-    {
-        int tid = omp_get_thread_num();
-        vector<Seed>& local_filtered_seeds = thread_seeds[tid];
-        vector<Seed>& local_filtered_seeds_rymer = thread_seeds_rymer[tid];
-
-        #pragma omp for
-        for (size_t i = 0; i < seeds_rymer.size(); ++i) {
-            const auto& seed = seeds_rymer[i];
-
-            string rymer_seq = rymers[seed.source].value.key.decode_rymer(rymers[seed.source].length);
-            string minimizer_seq = minimizers[seed.source].value.key.decode(minimizers[seed.source].length);
-
-            if (rymer_seq != gbwtgraph::convertToRymerSpace(minimizer_seq)) {
-                cerr << "Thread: " << tid << " Iteration: " << i << " ERROR WITH ENCODING" << endl;
-                continue;
-            }
-
-                auto hits = rymer_index.find(rymers[seed.source].value).size();
-
-                if (hits == 0) {
-                    continue;
-                } else {
-                    const double deam_prob = (*calculate_deam_prob_ptr)(minimizer_seq, rymer_seq);
-                    cerr << "Thread: " << tid << " Iteration: " << i << " DEAM PROB: " << deam_prob << endl;
-                    if (true) {
-                        local_filtered_seeds.push_back(seeds[i]);
-                        local_filtered_seeds_rymer.push_back(seed);
-                               }
-                        }
-            } else {
-                local_filtered_seeds.push_back(seeds[i]);
-                local_filtered_seeds_rymer.push_back(seed);
-            }
-        }
-     }
-
-    // Merge the results from all threads.
-    for (int i = 0; i < omp_get_max_threads(); ++i) {
-        filtered_seeds.insert(filtered_seeds.end(), thread_seeds[i].begin(), thread_seeds[i].end());
-        filtered_seeds_rymer.insert(filtered_seeds_rymer.end(), thread_seeds_rymer[i].begin(), thread_seeds_rymer[i].end());
-    }
-
-    return make_pair(filtered_seeds, filtered_seeds_rymer);
-};
-*/
-
 auto apply_rymer_filter = [&](
     const vector<Seed>& seeds, const vector<Seed>& seeds_rymer,
     const auto& minimizers, const auto& rymers, const auto& rymer_index){
@@ -749,7 +704,8 @@ auto apply_rymer_filter = [&](
                 auto hits = rymer_index.find(rymers[seed.source].value).size();
 
                 if (hits > 0) {
-                    const double deam_prob = (*calculate_deam_prob_ptr)(minimizer_seq, rymer_seq);
+                    std::string seed_seq = "GATTACA";
+                    const double deam_prob = (*calculate_deam_prob_ptr)(minimizer_seq, seed_seq);
                     cerr << "Thread: " << tid << " Iteration: " << i << " DEAM PROB: " << deam_prob << endl;
                     local_filtered_seeds.push_back(seeds[i]);
                     local_filtered_seeds_rymer.push_back(seed);
