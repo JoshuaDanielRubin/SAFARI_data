@@ -3531,7 +3531,8 @@ std::vector<MinimizerMapper::Minimizer> MinimizerMapper::find_rymers(const std::
     // Get minimizers and their window agglomeration starts and lengths
     // Starts and lengths are all 0 if we are using syncmers.
     vector<tuple<gbwtgraph::DefaultMinimizerIndex::minimizer_type, size_t, size_t>> minimizers =
-        this->minimizer_index.rymer_regions(sequence);
+        this->minimizer_index.rymer_regions(sequence, this->rymer_index);
+
 
     //if (minimizers.empty()){throw runtime_error("RYMER REGIONS FAIL");}
 
@@ -3543,8 +3544,8 @@ std::vector<MinimizerMapper::Minimizer> MinimizerMapper::find_rymers(const std::
         std::string rymer_sequence = get<0>(m).key.decode_rymer(this->rymer_index.k());
         std::string minimizer_sequence = get<0>(m).key.decode(this->rymer_index.k());
 
-        cerr << "RYMER SEQUENCE: " << rymer_sequence << endl;
-        cerr << "ORIGINAL MINIMIZER SEQUENCE: " << minimizer_sequence << endl;
+        //cerr << "RYMER SEQUENCE: " << rymer_sequence << endl;
+        //cerr << "ORIGINAL MINIMIZER SEQUENCE: " << minimizer_sequence << endl;
 
         if (get<0>(m).is_reverse){
             //cerr << "REVERSE" << endl;

@@ -733,40 +733,6 @@ public:
   };
 
 
-char rymer_encode(char c) {
-    switch (c) {
-        case 'A': case 'G': return 'A';
-        case 'C': case 'T': return 'C';
-        default: return c; // handle 'N' or other ambiguous bases if they exist
-    }
-}
-
-// Helper function to convert a character to RYMER space.
-static char charToRymerSpace(char c) {
-    switch (c) {
-        case 'A': case 'G': return 'A';
-        case 'C': case 'T': return 'C';
-        default: return c;  // Handle other characters without conversion.
-    }
-}
-
-std::vector<std::tuple<minimizer_type, size_t, size_t>> rymer_regions(std::string::const_iterator begin, std::string::const_iterator end) const {
-    // Convert the input string to RYMER space.
-    std::string rymer_str;
-    for (auto it = begin; it != end; ++it) {
-        //rymer_str.push_back(charToRymerSpace(*it));
-        rymer_str.push_back(*it);
-    }
-
-    // Compute minimizers on the RYMER-encoded string using the original algorithm.
-    auto rymer_minimizers = minimizer_regions(rymer_str.begin(), rymer_str.end());
-
-    // For this particular case, since the RYMER space encoding reduces the DNA space, the minimizers calculated on RYMER space are valid in the original kmer space. 
-    // Therefore, we can return the results directly.
-
-    return rymer_minimizers;
-}
-
   /*
     Returns all minimizers in the string specified by the iterators. The return
     value is a vector of minimizers sorted by their offsets. If there are multiple
@@ -981,139 +947,43 @@ std::vector<std::tuple<minimizer_type, size_t, size_t>> rymer_regions(std::strin
     return result;
   }
 
-   /*
-    Returns all minimizers in the string specified by the iterators, together
-    with the start and length of the run of windows they arise from. The return
-    value is a vector of tuples of minimizers, starts, and lengths, sorted by
-    minimizer offset.
 
-    Calls syncmers() if the index uses closed syncmers but leaves the start
-    and length fields empty.
-  */
+const std::vector<std::tuple<minimizer_type, size_t, size_t>> rymer_regions(std::string str, const auto &rymer_index) const {
+  
+  std::string rymer_str = gbwtgraph::convertToRymerSpace(str);
 
-/*
-  std::vector<std::tuple<minimizer_type, size_t, size_t>> rymer_regions(std::string::const_iterator begin, std::string::const_iterator end) const
-  {
-    std::vector<std::tuple<minimizer_type, size_t, size_t>> result;
-    if(this->uses_syncmers())
-    {
-      std::vector<minimizer_type> res = this->syncmers(begin, end);
-      result.reserve(res.size());
-      for(const minimizer_type& m : res) { result.emplace_back(m, 0, 0); }
-      return result;
-    }
-    size_t window_length = this->window_bp(), total_length = end - begin;
-    if(total_length < window_length) { return result; }
-    
-    // Find the minimizers.
-    CircularBuffer buffer(this->w());
-    // Note that start_pos isn't meaningfully the start of the window we are
-    // looking at.
-    size_t valid_chars = 0, start_pos = 0;
-    size_t next_read_offset = 0;  // The first read offset that may contain a new minimizer.
-    // All results before this are finished and have their lengths filled in.
-    // All results after are current winning minimizers of the current window.
-    size_t finished_through = 0; 
-    key_type forward_key, reverse_key;
-    std::string::const_iterator iter = begin;
-    while(iter != end)
-    {
+  std::vector<std::tuple<minimizer_type, size_t, size_t>> rymers_found = rymer_index.minimizer_regions(rymer_str.begin(), rymer_str.end());
+  std::vector<std::tuple<minimizer_type, size_t, size_t>> minimizers_found = this->minimizer_regions(str.begin(), str.end());
 
-      //std::cerr << "RYMER FORWARD KEY BEFORE: " << forward_key << std::endl;
-      //std::cerr << "RYMER REVERSE KEY BEFORE: " << reverse_key << std::endl;
+    // Sort both vectors based on start position and then end position
+    auto sorter = [](const auto& a, const auto& b) {
+        return std::tie(std::get<1>(a), std::get<2>(a)) < std::tie(std::get<1>(b), std::get<2>(b));
+    };
 
-      // Get the forward and reverse strand minimizer candidates
-      forward_key.forward_rymer(this->k(), *iter, valid_chars);
-      reverse_key.reverse_rymer(this->k(), *iter);
+    std::sort(rymers_found.begin(), rymers_found.end(), sorter);
+    std::sort(minimizers_found.begin(), minimizers_found.end(), sorter);
 
-      //std::cerr << "RYMER FORWARD KEY AFTER: " << forward_key << std::endl;
-      //std::cerr << "RYMER REVERSE KEY AFTER: " << reverse_key << std::endl;
+    std::vector<std::tuple<minimizer_type, size_t, size_t>> ret;
+    ret.reserve(minimizers_found.size());
 
-      // If they don't have any Ns or anything in them, throw them into the sliding window tracked by buffer.
-      // Otherwise just slide it along.
-      if(valid_chars >= this->k()) { buffer.advance(start_pos, forward_key, reverse_key); }
-      else                         { buffer.advance(start_pos); }
-      ++iter;
-      if(static_cast<size_t>(iter - begin) >= this->k()) { start_pos++; }
-      
-      // We have a full window.
-      if(static_cast<size_t>(iter - begin) >= window_length)
-      {
-        // Work out where the window we are minimizing in began
-        size_t window_start = static_cast<size_t>(iter - begin) - window_length;
-        
-        // Work out the past-the-end index of the window we have just finished (not the current window)
-        size_t prev_past_end_pos = window_start + window_length - 1;
-      
-        // Finish off end positions for results that weren't replaced but are going out of range
-        while(finished_through < result.size() &&
-          std::get<0>(result[finished_through]).offset < window_start)
-        {
-          // Compute region length based on it stopping at the previous step
-          std::get<2>(result[finished_through]) = prev_past_end_pos - std::get<1>(result[finished_through]);
-          finished_through++;
+    // Iterate over rymers_found and minimizers_found to find corresponding tuples
+    size_t rymer_idx = 0;
+    for (const auto& minimizer_tuple : minimizers_found) {
+        while (rymer_idx < rymers_found.size() && (std::get<1>(rymers_found[rymer_idx]) < std::get<1>(minimizer_tuple) ||
+               (std::get<1>(rymers_found[rymer_idx]) == std::get<1>(minimizer_tuple) && 
+                std::get<2>(rymers_found[rymer_idx]) < std::get<2>(minimizer_tuple)))) {
+            ++rymer_idx;
         }
-      
-        // Our full window has a minimizer in it
-        if (!buffer.empty())
-        {
-        
-          // Insert the candidates if:
-          // 1) this is the first minimizer we encounter;
-          // 2) the last reported minimizer had the same hash (we may have new occurrences); or
-          // 3) the first candidate is located after the last reported minimizer.
-          if(result.empty() ||
-            std::get<0>(result.back()).hash == buffer.front().hash ||
-            std::get<0>(result.back()).offset < buffer.front().offset)
-          {
-            // Insert all new occurrences of the minimizer in the window.
-            for(size_t i = buffer.begin(); i < buffer.end() && buffer.at(i).hash == buffer.front().hash; i++)
-            {
-              if(buffer.at(i).offset >= next_read_offset)
-              {
-                // Insert the minimizer instance, with its region starting
-                // where the window covered by the buffer starts.
-                result.emplace_back(buffer.at(i), window_start, 0);
-                // There can only ever really be one minimizer at a given start
-                // position. So look for the next one 1 base to the right.
-                next_read_offset = buffer.at(i).offset + 1;
-              }
-            }
-            
-            // If new minimizers beat out old ones, finish off the old ones.
-            while(!result.empty() &&
-              finished_through < result.size() &&
-              std::get<0>(result.back()).hash != std::get<0>(result[finished_through]).hash)
-            {
-              // The window before the one we are looking at was the last one for this minimizer.
-              std::get<2>(result[finished_through]) = prev_past_end_pos - std::get<1>(result[finished_through]);
-              finished_through++;
-            }
-          }
-        }
-      }
+
+        if (rymer_idx < rymers_found.size() && std::get<1>(rymers_found[rymer_idx]) == std::get<1>(minimizer_tuple) && 
+            std::get<2>(rymers_found[rymer_idx]) == std::get<2>(minimizer_tuple)) {
+            minimizer_type modified_minimizer = std::get<0>(minimizers_found[rymer_idx]);
+            ret.push_back(std::make_tuple(modified_minimizer, std::get<1>(minimizer_tuple), std::get<2>(minimizer_tuple)));
+        } 
     }
 
-    // Now close off the minimizers left active when we hit the end of the string.
-    while(finished_through < result.size())
-    {
-      // The region length is from the region start to the string end
-      std::get<2>(result[finished_through]) = total_length - std::get<1>(result[finished_through]);
-      finished_through++;
-    }
-
-    // It was more convenient to use the first offset of the kmer, regardless of the orientation.
-    // If the minimizer is a reverse complement, we must return the last offset instead.
-    for(auto& record : result)
-    {
-      if(std::get<0>(record).is_reverse) { std::get<0>(record).offset += this->k() - 1; }
-    }
-    std::sort(result.begin(), result.end());
-
-    return result;
-  }
-*/
-
+  return ret;
+};
 
   /*
     Returns all minimizers in the string. The return value is a vector of
@@ -1559,3 +1429,4 @@ template<class KeyType> const std::string MinimizerIndex<KeyType>::EXTENSION = "
 } // namespace gbwtgraph
 
 #endif // GBWTGRAPH_MINIMIZER_H
+
