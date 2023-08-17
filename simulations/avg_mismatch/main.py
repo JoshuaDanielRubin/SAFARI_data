@@ -143,50 +143,56 @@ def find_mismatched_kmers(reads: List[str], k: int, w: int, minimizer_table: Dic
                 mismatch_counts.append(mismatch_count)
     return mismatch_counts
 
-# Main Execution
+def compute_mismatch_average_for_k(sequence, k):
+    w = k + 2
+    
+    # Create minimizer and rymer tables
+    minimizer_table = create_index_table(sequence, k, w)
+    rymer_table = create_index_table(rymer_transform(sequence), k, w)
+
+    # Generate circular reads and introduce mutations
+    read_length = 75
+    mutation_rate = 0.2
+    mean_fragment_size = 150
+    std_dev = 0
+    num_fragments = 1000
+    num_reads_per_fragment = 2
+
+    fragments = fragment_genome(sequence, mean_fragment_size, std_dev, num_fragments)
+    all_reads = []
+    for fragment in fragments:
+        reads_from_fragment = generate_circular_reads(fragment, read_length, num_reads_per_fragment)
+        all_reads.extend(reads_from_fragment)
+
+    mutated_reads = apply_deamination_mutations(all_reads, mutation_rate)
+    mismatch_counts = find_mismatched_kmers(mutated_reads, k, w, minimizer_table, rymer_table)
+
+    # Calculate the average excluding zero mismatches
+    non_zero_mismatches = [count for count in mismatch_counts if count > 0]
+    average_mismatch = sum(non_zero_mismatches) / len(non_zero_mismatches) if non_zero_mismatches else 0
+
+    return average_mismatch
+
 
 sequence = read_fasta("rCRS.fa")
-k = 8
-w = 10
 
-# Create minimizer and rymer tables
-minimizer_table = create_index_table(sequence, k, w)
-rymer_table = create_index_table(rymer_transform(sequence), k, w)
+# Define range of k values
+k_values = list(range(4, 31))  # Modify as per your needs
+average_mismatches = []
 
-# Generate circular reads and introduce mutations
-read_length = 75
-mutation_rate = 0.2
-# Fragment the genome
-mean_fragment_size = 150  # for example
-std_dev = 0  # for example
-num_fragments = 200  # for example
-num_reads_per_fragment = 2
+# Loop through k values and compute average mismatches
+for k in k_values:
+    print(k)
+    avg_mismatch = compute_mismatch_average_for_k(sequence, k)
+    average_mismatches.append(avg_mismatch)
 
-fragments = fragment_genome(sequence, mean_fragment_size, std_dev, num_fragments)
-
-# Generate reads from the fragments
-all_reads = []
-for fragment in fragments:
-    reads_from_fragment = generate_circular_reads(fragment, read_length, num_reads_per_fragment)
-    all_reads.extend(reads_from_fragment)
-
-# Continue with the mutation step using all_reads
-mutated_reads = apply_deamination_mutations(all_reads, mutation_rate)
-
-# Extract mismatch counts for the subset of k-mers
-mismatch_counts = find_mismatched_kmers(mutated_reads, k, w, minimizer_table, rymer_table)
-
-# Output can be plotted or further analyzed
-#print(mismatch_counts)
-
-
-plt.figure(figsize=(10,6))
-plt.hist(mismatch_counts, bins=range(0, max(mismatch_counts) + 2), edgecolor="k", align="left")
-plt.title(f"Mismatch Counts Histogram")
-plt.xlabel("Number of Mismatches")
-plt.ylabel("Frequency")
-plt.grid(axis="y", linestyle="--", alpha=0.7)
-plt.xticks(range(0, max(mismatch_counts) + 1))
-plt.tight_layout()
+# Plotting the results
+plt.plot(k_values, average_mismatches, marker='o', linestyle='-')
+plt.xticks(k_values)  # This sets the x-axis ticks to your specific k_values
+plt.xlabel('Value of k')
+plt.ylabel('Average Mismatches')
+plt.title('Average Mismatches as a function of k')
+plt.grid(True)
 plt.savefig("mismatch.png")
 plt.close()
+
