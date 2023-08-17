@@ -177,7 +177,7 @@ def compute_mismatch_average_for_k(sequence, k):
     mismatch_counts, exact_matches, total_kmers = find_mismatched_kmers(mutated_reads, k, w, minimizer_table, rymer_table)
 
     # Calculate the average excluding zero mismatches
-    non_zero_mismatches = [count for count in mismatch_counts]
+    non_zero_mismatches = [count for count in mismatch_counts if count > 0]
     average_mismatch = sum(non_zero_mismatches) / len(non_zero_mismatches) if non_zero_mismatches else 0
 
     return average_mismatch, exact_matches / total_kmers if total_kmers else 0
