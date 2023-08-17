@@ -168,7 +168,7 @@ def compute_mismatch_average_for_k(sequence, k):
     mismatch_counts = find_mismatched_kmers(mutated_reads, k, w, minimizer_table, rymer_table)
 
     # Calculate the average excluding zero mismatches
-    non_zero_mismatches = [count for count in mismatch_counts if count > 0]
+    non_zero_mismatches = [count for count in mismatch_counts]
     average_mismatch = sum(non_zero_mismatches) / len(non_zero_mismatches) if non_zero_mismatches else 0
 
     return average_mismatch
@@ -184,14 +184,15 @@ average_mismatches = []
 for k in k_values:
     print(k)
     avg_mismatch = compute_mismatch_average_for_k(sequence, k)
-    average_mismatches.append(avg_mismatch)
+    avg_mismatch_normalized = avg_mismatch / k  # Divide by k
+    average_mismatches.append(avg_mismatch_normalized)
 
 # Plotting the results
 plt.plot(k_values, average_mismatches, marker='o', linestyle='-')
 plt.xticks(k_values)  # This sets the x-axis ticks to your specific k_values
 plt.xlabel('Value of k')
-plt.ylabel('Average Mismatches')
-plt.title('Average Mismatches as a function of k')
+plt.ylabel('Sequence Similarity')
+plt.title('Sequence Similarity as a Function of k')
 plt.grid(True)
 plt.savefig("mismatch.png")
 plt.close()
