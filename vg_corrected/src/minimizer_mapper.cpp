@@ -33,14 +33,14 @@
 // Dump fragment length distribution information
 //#define debug_fragment_distr
 //Do a brute force check that clusters are correct
-//#define debug_validate_clusters
+#define debug_validate_clusters
 //#define dump_debug_rymers
 
 namespace vg {
 
 using namespace std;
 // Declaration of your function as a function pointer type
-using FuncType = double (*)(std::string, std::unordered_map<std::string, int>&, double);
+using FuncType = double (*)(std::string, std::string);
 using Seed = SnarlDistanceIndexClusterer::Seed;
 
 MinimizerMapper::MinimizerMapper(const gbwtgraph::GBWTGraph& graph,
@@ -108,42 +108,8 @@ struct seed_traits<SnarlDistanceIndexClusterer::Seed> {
 
 //-----------------------------------------------------------------------------
 
-inline double calculate_deam_prob(std::string dna, std::unordered_map<std::string, int>& kmer_count_map, double delta) {
-    // Transform the DNA sequence to uppercase to make it case insensitive.
-    std::transform(dna.begin(), dna.end(), dna.begin(), ::toupper);
-    int n = dna.size();
-    // Probabilities of obtaining the DNA string ending at position i from the non-deaminated sequences.
-    std::vector<double> dp(n+1, 0.0);
-    // Calculate the total count of all kmers.
-    int total_count = 0;
-    for(const auto& kv : kmer_count_map) {
-        total_count += kv.second;
-    }
-    dp[0] = 1.0; // base case
-    std::string tmp = dna; // create tmp string outside the loop
-    for(int i = 0; i < n; ++i) {
-        char orig_char = tmp[i]; // save original character
-        if(orig_char == 'A' || orig_char == 'T') {
-            // If the character is 'A', it might have been 'G' before deamination.
-            if(orig_char == 'A') tmp[i] = 'G';
-            // If the character is 'T', it might have been 'C' before deamination.
-            else tmp[i] = 'C';
-
-            // The chance that deamination did not occur is (1-delta), hence we multiply it with the probability so far.
-            dp[i+1] += dp[i] * (1-delta);
-        }
-        else {
-            // If the character is 'G' or 'C', deamination could not have occurred.
-            dp[i+1] = dp[i];
-        }
-        // Consider the deaminated case. Convert the count to frequency by dividing it by the total count.
-        auto kmer_it = kmer_count_map.find(tmp);
-        double kmer_frequency = (kmer_it == kmer_count_map.end() ? 0.0 : static_cast<double>(kmer_it->second) / total_count);
-        dp[i+1] += dp[i] * delta * kmer_frequency;
-        tmp[i] = orig_char; // restore original character
-    }
-    // Return the probability of the last character.
-    return dp[n];
+inline double calculate_deam_prob(std::string dna, std::string rymer_seq) {
+   return 0.2;
 }
 
 
@@ -580,18 +546,13 @@ void MinimizerMapper::dump_debug_query(const Alignment& aln1, const Alignment& a
 
 //-----------------------------------------------------------------------------
 
-void MinimizerMapper::map(Alignment& aln, AlignmentEmitter& alignment_emitter, std::unordered_map<std::string, int> kmer_count_map) {
+void MinimizerMapper::map(Alignment& aln, AlignmentEmitter& alignment_emitter) {
 
     // Ship out all the aligned alignments
-    alignment_emitter.emit_mapped_single(map(aln, kmer_count_map));
+    alignment_emitter.emit_mapped_single(map(aln));
 }
 
-vector<Alignment> MinimizerMapper::map(Alignment& aln, std::unordered_map<std::string, int> kmer_count_map) {
-
-
-    if (kmer_count_map.empty()) {
-        throw std::runtime_error("[VG Giraffe] Error: kmer_count_map is empty!");
-    }
+vector<Alignment> MinimizerMapper::map(Alignment& aln) {
 
     if (show_work) {
         #pragma omp critical (cerr)
@@ -680,9 +641,9 @@ for (const auto & sr : seeds_rymer) {
 
 FuncType calculate_deam_prob_ptr = calculate_deam_prob;
 
+/*
 auto apply_rymer_filter = [calculate_deam_prob_ptr](
     const vector<Seed>& seeds, const vector<Seed>& seeds_rymer,
-    std::unordered_map<std::string, int> &kmer_count_map,
     auto &minimizers, auto &rymers, auto &rymer_index) {
 
     if (seeds.size() != seeds_rymer.size()) {
@@ -691,12 +652,73 @@ auto apply_rymer_filter = [calculate_deam_prob_ptr](
            << seeds.size() << ", seeds_rymer size = " << seeds_rymer.size();
     throw std::runtime_error(errMsg.str());
                                             }
+    vector<Seed> filtered_seeds;
+    vector<Seed> filtered_seeds_rymer;
 
-    size_t kmer_length = 0;
-    if (!kmer_count_map.empty()) {
-        kmer_length = kmer_count_map.begin()->first.length();
-    } else {
-        cerr << "WARNING: kmer_count_map is empty!" << endl;
+    // Preallocate space based on the maximum possible size.
+    filtered_seeds.reserve(seeds_rymer.size());
+    filtered_seeds_rymer.reserve(seeds_rymer.size());
+
+    // Collect the results from all threads.
+    vector<vector<Seed>> thread_seeds(omp_get_max_threads());
+    vector<vector<Seed>> thread_seeds_rymer(omp_get_max_threads());
+
+    #pragma omp parallel
+    {
+        int tid = omp_get_thread_num();
+        vector<Seed>& local_filtered_seeds = thread_seeds[tid];
+        vector<Seed>& local_filtered_seeds_rymer = thread_seeds_rymer[tid];
+
+        #pragma omp for
+        for (size_t i = 0; i < seeds_rymer.size(); ++i) {
+            const auto& seed = seeds_rymer[i];
+
+            string rymer_seq = rymers[seed.source].value.key.decode_rymer(rymers[seed.source].length);
+            string minimizer_seq = minimizers[seed.source].value.key.decode(minimizers[seed.source].length);
+
+            if (rymer_seq != gbwtgraph::convertToRymerSpace(minimizer_seq)) {
+                cerr << "Thread: " << tid << " Iteration: " << i << " ERROR WITH ENCODING" << endl;
+                continue;
+            }
+
+                auto hits = rymer_index.find(rymers[seed.source].value).size();
+
+                if (hits == 0) {
+                    continue;
+                } else {
+                    const double deam_prob = (*calculate_deam_prob_ptr)(minimizer_seq, rymer_seq);
+                    cerr << "Thread: " << tid << " Iteration: " << i << " DEAM PROB: " << deam_prob << endl;
+                    if (true) {
+                        local_filtered_seeds.push_back(seeds[i]);
+                        local_filtered_seeds_rymer.push_back(seed);
+                               }
+                        }
+            } else {
+                local_filtered_seeds.push_back(seeds[i]);
+                local_filtered_seeds_rymer.push_back(seed);
+            }
+        }
+     }
+
+    // Merge the results from all threads.
+    for (int i = 0; i < omp_get_max_threads(); ++i) {
+        filtered_seeds.insert(filtered_seeds.end(), thread_seeds[i].begin(), thread_seeds[i].end());
+        filtered_seeds_rymer.insert(filtered_seeds_rymer.end(), thread_seeds_rymer[i].begin(), thread_seeds_rymer[i].end());
+    }
+
+    return make_pair(filtered_seeds, filtered_seeds_rymer);
+};
+*/
+
+auto apply_rymer_filter = [&](
+    const vector<Seed>& seeds, const vector<Seed>& seeds_rymer,
+    const auto& minimizers, const auto& rymers, const auto& rymer_index){
+
+    if (seeds.size() != seeds_rymer.size()) {
+        std::ostringstream errMsg;
+        errMsg << "Mismatch in sizes of seeds and seeds_rymer: seeds size = "
+               << seeds.size() << ", seeds_rymer size = " << seeds_rymer.size();
+        throw std::runtime_error(errMsg.str());
     }
 
     vector<Seed> filtered_seeds;
@@ -719,29 +741,18 @@ auto apply_rymer_filter = [calculate_deam_prob_ptr](
         #pragma omp for
         for (size_t i = 0; i < seeds_rymer.size(); ++i) {
             const auto& seed = seeds_rymer[i];
-            double total_possible_kmers = std::pow(4, kmer_length);
 
             string rymer_seq = rymers[seed.source].value.key.decode_rymer(rymers[seed.source].length);
             string minimizer_seq = minimizers[seed.source].value.key.decode(minimizers[seed.source].length);
 
-            if (rymer_seq != gbwtgraph::convertToRymerSpace(minimizer_seq)) {
-                cerr << "Thread: " << tid << " Iteration: " << i << " ERROR WITH ENCODING" << endl;
-                continue;
-            }
-
-            auto it_freq = kmer_count_map.find(minimizer_seq);
-            if (it_freq == kmer_count_map.end()) {
+            if (rymer_seq == gbwtgraph::convertToRymerSpace(minimizer_seq)) {
                 auto hits = rymer_index.find(rymers[seed.source].value).size();
 
-                if (hits == 0) {
-                    continue;
-                } else {
-                    const double deam_prob = (*calculate_deam_prob_ptr)(minimizer_seq, kmer_count_map, 0.2);
+                if (hits > 0) {
+                    const double deam_prob = (*calculate_deam_prob_ptr)(minimizer_seq, rymer_seq);
                     cerr << "Thread: " << tid << " Iteration: " << i << " DEAM PROB: " << deam_prob << endl;
-                    if (deam_prob > 0.3) {
-                        local_filtered_seeds.push_back(seeds[i]);
-                        local_filtered_seeds_rymer.push_back(seed);
-                    }
+                    local_filtered_seeds.push_back(seeds[i]);
+                    local_filtered_seeds_rymer.push_back(seed);
                 }
             } else {
                 local_filtered_seeds.push_back(seeds[i]);
@@ -759,12 +770,12 @@ auto apply_rymer_filter = [calculate_deam_prob_ptr](
     return make_pair(filtered_seeds, filtered_seeds_rymer);
 };
 
-
+#ifdef RYMER
 // Use the lambda function
-auto [seeds_filtered, seeds_rymer_filtered] = apply_rymer_filter(seeds, seeds_rymer, kmer_count_map, minimizers, minimizers_rymer, this->rymer_index);
+auto [seeds_filtered, seeds_rymer_filtered] = apply_rymer_filter(seeds, seeds_rymer, minimizers, minimizers_rymer, this->rymer_index);
 seeds = move(seeds_filtered);
 seeds_rymer = move(seeds_rymer_filtered);
-
+#endif
 
 
  clusters = clusterer.cluster_seeds(seeds, get_distance_limit(aln.sequence().size()));

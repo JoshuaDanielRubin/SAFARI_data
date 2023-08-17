@@ -46,12 +46,12 @@ public:
      * TODO: Can't be const because the clusterer's cluster_seeds isn't const.
      */
     
-    void map(Alignment& aln, AlignmentEmitter& alignment_emitter, std::unordered_map<std::string, int> kmer_freq_map = std::unordered_map<std::string, int>());
+    void map(Alignment& aln, AlignmentEmitter& alignment_emitter);
     
     /**
      * Map the given read. Return a vector of alignments that it maps to, winner first.
      */
-    vector<Alignment> map(Alignment& aln, std::unordered_map<std::string, int> kmer_freq_map = std::unordered_map<std::string, int>());
+    vector<Alignment> map(Alignment& aln);
     
     // The idea here is that the subcommand feeds all the reads to the version
     // of map_paired that takes a buffer, and then empties the buffer by

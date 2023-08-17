@@ -321,7 +321,7 @@ void help_giraffe(char** argv) {
     << "input options:" << endl
     << "  -G, --gam-in FILE             read and realign GAM-format reads from FILE" << endl
     << "  -f, --fastq-in FILE           read and align FASTQ-format reads from FILE (two are allowed, one for each mate)" << endl
-    << "  -k, --kmer-freq-in FILE       read kmer frequency from text file FILE" << endl
+    //<< "  -k, --kmer-freq-in FILE       read kmer frequency from text file FILE" << endl
     << "  -i, --interleaved             GAM/FASTQ input is interleaved pairs, for paired-end alignment" << endl
     << "alternate indexes:" << endl
     << "  -x, --xg-name FILE            use this xg index or graph" << endl
@@ -423,7 +423,7 @@ int main_giraffe(int argc, char** argv) {
     string fastq_filename_1;
     string fastq_filename_2;
     // What kmer stats file to read in
-    string kmer_freq_filename;
+    //string kmer_freq_filename;
     // Is the input interleaved/are we in paired-end mode?
     bool interleaved = false;
     // True if fastq_filename_2 or interleaved is set.
@@ -724,7 +724,7 @@ int main_giraffe(int argc, char** argv) {
                     exit(1);
                 }
                 break;
-
+/*
             case 'k':
                 kmer_freq_filename = optarg;
                 if (kmer_freq_filename.empty()) {
@@ -732,6 +732,7 @@ int main_giraffe(int argc, char** argv) {
                     exit(1);
                                                 }
     break;
+*/
 
             case 'i':
                 interleaved = true;
@@ -1201,29 +1202,6 @@ int main_giraffe(int argc, char** argv) {
         cerr << "Loading Distance Index v2" << endl;
     }
 
-    // Grab the kmer stats file
-    std::unordered_map<std::string, int> kmer_freq_map;
-
-    std::ifstream kmer_freq_file(kmer_freq_filename);
-if (!kmer_freq_file.is_open()) {
-    cerr << "error:[vg giraffe] Unable to open Kmer frequency file: " << kmer_freq_filename << endl;
-    exit(1);
-}
-
-std::string line;
-while (getline(kmer_freq_file, line)) {
-    std::istringstream iss(line);
-    std::string kmer;
-    int freq;
-    if (!(iss >> kmer >> freq)) {
-        cerr << "error:[vg giraffe] Kmer frequency file is malformed. Expected '<kmer> <frequency>'." << endl;
-        exit(1); 
-    } else {
-        kmer_freq_map[kmer] = freq;
-    }
-}
-kmer_freq_file.close();
-
     // If we are tracking correctness, we will fill this in with a graph for
     // getting offsets along ref paths.
     PathPositionHandleGraph* path_position_graph = nullptr;
@@ -1685,7 +1663,7 @@ kmer_freq_file.close();
                     toUppercaseInPlace(*aln.mutable_sequence());
                 
                     // Map the read with the MinimizerMapper.
-                    minimizer_mapper.map(aln, *alignment_emitter, kmer_freq_map);
+                    minimizer_mapper.map(aln, *alignment_emitter);
                     // Record that we mapped a read.
                     reads_mapped_by_thread.at(omp_get_thread_num())++;
                 };
