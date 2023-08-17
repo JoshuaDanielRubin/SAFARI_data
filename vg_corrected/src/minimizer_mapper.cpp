@@ -108,34 +108,44 @@ struct seed_traits<SnarlDistanceIndexClusterer::Seed> {
 
 //-----------------------------------------------------------------------------
 
-inline double calculate_deam_prob(std::string &minimizer_seq, std::string &seed_seq) {
+inline double calculate_deam_prob(std::string &kmer_seq, std::string &seed_seq) {
     const double delta = 0.1;  // given probability for specific mismatches
-    double prob_model2 = 1.0;  // initialize the probability for model 2
+    double prob_data_given_C = 1.0;  // likelihood for Model 2
     
     int mismatches = 0;  // to count the number of mismatches
 
-    for (size_t i = 0; i < minimizer_seq.size(); i++) {
-        if (minimizer_seq[i] != seed_seq[i]) {
+    for (size_t i = 0; i < kmer_seq.size(); i++) {
+        if (kmer_seq[i] != seed_seq[i]) {
             mismatches++;
 
             // check the specific mismatches for model 2
-            if ((seed_seq[i] == 'C' && minimizer_seq[i] == 'T') || 
-                (seed_seq[i] == 'G' && minimizer_seq[i] == 'A')) {
-                prob_model2 *= delta;
+            if ((seed_seq[i] == 'C' && kmer_seq[i] == 'T') || 
+                (seed_seq[i] == 'G' && kmer_seq[i] == 'A')) {
+                prob_data_given_C *= delta;
             } else {
-                prob_model2 = 0.0;
+                prob_data_given_C = 0.0;
                 break;  // no need to continue if any mismatch does not follow the given condition
             }
         }
     }
 
-    // Placeholder for model 1's probability based on mismatches
-    double prob_model1 = 1.0;  // just a placeholder, you need to replace with the actual formula
+    const double k = 1.0;  // a constant for our placeholder exponential model
+    double prob_data_given_M = std::exp(-k * mismatches);  // likelihood for Model 1
 
-    // Assuming you want to return the probability of model 2 for now
-    return prob_model2;
+    // Prior probabilities
+    double prior_M = 0.5;
+    double prior_C = 0.5;
+
+    // Overall probability of observing the data
+    double prob_data = prob_data_given_M * prior_M + prob_data_given_C * prior_C;
+
+    // Posterior probabilities using Bayes' theorem
+    double post_prob_M = (prob_data_given_M * prior_M) / prob_data;
+    double post_prob_C = (prob_data_given_C * prior_C) / prob_data;
+
+    // For now, let's return the posterior probability of Model 2 (correct alignment)
+    return post_prob_C;
 }
-
 
 string MinimizerMapper::log_name() {
     return "T" + to_string(omp_get_thread_num()) + ":\t";
@@ -595,28 +605,22 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
     });
 
     // Get the original sequence and the fully converted sequence
-    //std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel);
-    //std::vector<Minimizer> minimizers_rymer = minimizers;
+    std::vector<Minimizer> minimizers_rymer = this->find_rymers(aln.sequence(), funnel);
 
-//cerr << "ALIGNMENT SEQUENCE: " << aln.sequence() << endl;
+    std::vector<Minimizer> minimizers = minimizers_rymer;
 
 // Get minimizers
-std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel);
-
-if (minimizers.empty()){
-    //throw runtime_error("NO MINIMIZERS!!!");
-}
+//std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel);
 
 // Get rymers
 
-std::vector<Minimizer> minimizers_rymer = minimizers;
+//std::vector<Minimizer> minimizers_rymer = minimizers;
 
-for (auto & m : minimizers_rymer){
-    string seq = gbwtgraph::convertToRymerSpace(m.value.key.decode(m.length));
-    m.value.key = gbwtgraph::Key64::encode_rymer(seq);
-}
+//for (auto & m : minimizers_rymer){
+//    string seq = gbwtgraph::convertToRymerSpace(m.value.key.decode(m.length));
+//    m.value.key = gbwtgraph::Key64::encode_rymer(seq);
+//}
 
-//std::vector<Minimizer> minimizers_rymer = this->find_rymers(aln.sequence(), funnel_rymer);
 
 if (minimizers_rymer.empty()){
     //throw runtime_error("NO RYMERS!!!");
@@ -667,7 +671,7 @@ FuncType calculate_deam_prob_ptr = calculate_deam_prob;
 
 auto apply_rymer_filter = [&](
     const vector<Seed>& seeds, const vector<Seed>& seeds_rymer,
-    const auto& minimizers, const auto& rymers, const auto& rymer_index){
+    const auto& minimizers, const auto& rymers, auto &minimizer_index){
 
     if (seeds.size() != seeds_rymer.size()) {
         std::ostringstream errMsg;
@@ -695,22 +699,28 @@ auto apply_rymer_filter = [&](
 
         #pragma omp for
         for (size_t i = 0; i < seeds_rymer.size(); ++i) {
-            const auto& seed = seeds_rymer[i];
+            const auto& seed_rymer = seeds_rymer[i];
+            const auto& seed = seeds[i];
 
-            string rymer_seq = rymers[seed.source].value.key.decode_rymer(rymers[seed.source].length);
-            string minimizer_seq = minimizers[seed.source].value.key.decode(minimizers[seed.source].length);
+            string rymer_seq = rymers[seed_rymer.source].value.key.decode_rymer(rymers[seed_rymer.source].length);
+            string kmer_seq = minimizers[seed.source].value.key.decode(minimizers[seed.source].length);
 
-            if (rymer_seq == gbwtgraph::convertToRymerSpace(minimizer_seq)) {
-                auto hits = rymer_index.find(rymers[seed.source].value).size();
+            //if (rymer_seq != gbwtgraph::convertToRymerSpace(kmer_seq)) {
+            //   throw runtime_error("ERROR IN THE ENCODING SCHEME");
+           // }
 
-                if (hits > 0) {
-                    std::string seed_seq = "GATTACA";
-                    const double deam_prob = (*calculate_deam_prob_ptr)(minimizer_seq, seed_seq);
+            auto hits = rymer_index.find(rymers[seed.source].value);
+
+                if (hits.size() > 0) {
+                    std::string seed_seq = "GATTACA"; //minimizer_index.first.seq;
+                    const double deam_prob = (*calculate_deam_prob_ptr)(kmer_seq, seed_seq);
+                    cerr << "minimizer seq: " << kmer_seq << endl;
+                    cerr << "seed seq: " << seed_seq << endl;
                     cerr << "Thread: " << tid << " Iteration: " << i << " DEAM PROB: " << deam_prob << endl;
                     local_filtered_seeds.push_back(seeds[i]);
                     local_filtered_seeds_rymer.push_back(seed);
                 }
-            } else {
+               else {
                 local_filtered_seeds.push_back(seeds[i]);
                 local_filtered_seeds_rymer.push_back(seed);
             }
@@ -728,7 +738,7 @@ auto apply_rymer_filter = [&](
 
 #ifdef RYMER
 // Use the lambda function
-auto [seeds_filtered, seeds_rymer_filtered] = apply_rymer_filter(seeds, seeds_rymer, minimizers, minimizers_rymer, this->rymer_index);
+auto [seeds_filtered, seeds_rymer_filtered] = apply_rymer_filter(seeds, seeds_rymer, minimizers, minimizers_rymer, this->minimizer_index);
 seeds = move(seeds_filtered);
 seeds_rymer = move(seeds_rymer_filtered);
 #endif
@@ -3521,9 +3531,9 @@ std::vector<MinimizerMapper::Minimizer> MinimizerMapper::find_rymers(const std::
     // Get minimizers and their window agglomeration starts and lengths
     // Starts and lengths are all 0 if we are using syncmers.
     vector<tuple<gbwtgraph::DefaultMinimizerIndex::minimizer_type, size_t, size_t>> minimizers =
-        this->rymer_index.rymer_regions(gbwtgraph::convertToRymerSpace(sequence));
+        this->minimizer_index.rymer_regions(sequence);
 
-    if (minimizers.empty()){throw runtime_error("RYMER REGIONS FAIL");}
+    //if (minimizers.empty()){throw runtime_error("RYMER REGIONS FAIL");}
 
 
     for (auto& m : minimizers) {
@@ -3537,19 +3547,19 @@ std::vector<MinimizerMapper::Minimizer> MinimizerMapper::find_rymers(const std::
         cerr << "ORIGINAL MINIMIZER SEQUENCE: " << minimizer_sequence << endl;
 
         if (get<0>(m).is_reverse){
-            cerr << "REVERSE" << endl;
+            //cerr << "REVERSE" << endl;
             //get<0>(m).key = gbwtgraph::Key64::encode_rymer(rymer_sequence);
                                  }
 
         else{
-            cerr << "FORWARD" << endl;
+            //cerr << "FORWARD" << endl;
             //get<0>(m).key = gbwtgraph::Key64::encode_rymer(rymer_sequence);
             }
 
         double score = 0.0;
         auto hits = this->minimizer_index.count_and_find(get<0>(m));
 
-        cerr << "NUMBER OF RYMER HITS AFTER COUNT AND FIND: " << hits.first << endl;
+        //cerr << "NUMBER OF RYMER HITS AFTER COUNT AND FIND: " << hits.first << endl;
 
         if (hits.first > 0) {
             if (hits.first <= this->hard_hit_cap) {

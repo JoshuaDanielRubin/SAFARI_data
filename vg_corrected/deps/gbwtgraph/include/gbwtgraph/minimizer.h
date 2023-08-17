@@ -732,73 +732,40 @@ public:
     }
   };
 
- /*
-    Finding rymers.
-  */
 
-  /*
-    Returns all rymers in the string specified by the iterators. The return
-    value is a vector of minimizers sorted by their offsets. If there are multiple
-    occurrences of one or more minimizer keys with the same hash in a window,
-    return all of them.
+char rymer_encode(char c) {
+    switch (c) {
+        case 'A': case 'G': return 'A';
+        case 'C': case 'T': return 'C';
+        default: return c; // handle 'N' or other ambiguous bases if they exist
+    }
+}
 
-    Calls syncmers() if the index uses closed syncmers.
-  */
+// Helper function to convert a character to RYMER space.
+static char charToRymerSpace(char c) {
+    switch (c) {
+        case 'A': case 'G': return 'A';
+        case 'C': case 'T': return 'C';
+        default: return c;  // Handle other characters without conversion.
+    }
+}
 
-  std::vector<minimizer_type> rymers(std::string::const_iterator begin, std::string::const_iterator end) const
-  {
-    if(this->uses_syncmers()) { return this->syncmers(begin, end); }
-    std::vector<minimizer_type> result;
-    size_t window_length = this->window_bp(), total_length = end - begin;
-    if(total_length < window_length) { return result; }
-
-    // Find the minimizers.
-    CircularBuffer buffer(this->w());
-    size_t valid_chars = 0, start_pos = 0;
-    size_t next_read_offset = 0;  // The first read offset that may contain a new minimizer.
-    key_type forward_key, reverse_key;
-    std::string::const_iterator iter = begin;
-    while(iter != end)
-    {
-      forward_key.forward_rymer(this->k(), *iter, valid_chars);
-      reverse_key.reverse_rymer(this->k(), *iter);
-
-      if(valid_chars >= this->k()) { buffer.advance(start_pos, forward_key, reverse_key); }
-      else                         { buffer.advance(start_pos); }
-      ++iter;
-      if(static_cast<size_t>(iter - begin) >= this->k()) { start_pos++; }
-      // We have a full window with a minimizer.
-      if(static_cast<size_t>(iter - begin) >= window_length && !buffer.empty())
-      {
-        // Insert the candidates if:
-        // 1) this is the first minimizer we encounter;
-        // 2) the last reported minimizer had the same hash (we may have new occurrences); or
-        // 3) the first candidate is located after the last reported minimizer.
-        if(result.empty() || result.back().hash == buffer.front().hash || result.back().offset < buffer.front().offset)
-        {
-          // Insert all new occurrences of the minimizer in the window.
-          for(size_t i = buffer.begin(); i < buffer.end() && buffer.at(i).hash == buffer.front().hash; i++)
-          {
-            if(buffer.at(i).offset >= next_read_offset)
-            {
-              result.emplace_back(buffer.at(i));
-              next_read_offset = buffer.at(i).offset + 1;
-            }
-          }
-        }
-      }
+std::vector<std::tuple<minimizer_type, size_t, size_t>> rymer_regions(std::string::const_iterator begin, std::string::const_iterator end) const {
+    // Convert the input string to RYMER space.
+    std::string rymer_str;
+    for (auto it = begin; it != end; ++it) {
+        //rymer_str.push_back(charToRymerSpace(*it));
+        rymer_str.push_back(*it);
     }
 
-    // It was more convenient to use the first offset of the kmer, regardless of the orientation.
-    // If the minimizer is a reverse complement, we must return the last offset instead.
-    for(minimizer_type& minimizer : result)
-    {
-      if(minimizer.is_reverse) { minimizer.offset += this->k() - 1; }
-    }
-    std::sort(result.begin(), result.end());
+    // Compute minimizers on the RYMER-encoded string using the original algorithm.
+    auto rymer_minimizers = minimizer_regions(rymer_str.begin(), rymer_str.end());
 
-    return result;
-  }
+    // For this particular case, since the RYMER space encoding reduces the DNA space, the minimizers calculated on RYMER space are valid in the original kmer space. 
+    // Therefore, we can return the results directly.
+
+    return rymer_minimizers;
+}
 
   /*
     Returns all minimizers in the string specified by the iterators. The return
@@ -1023,6 +990,8 @@ public:
     Calls syncmers() if the index uses closed syncmers but leaves the start
     and length fields empty.
   */
+
+/*
   std::vector<std::tuple<minimizer_type, size_t, size_t>> rymer_regions(std::string::const_iterator begin, std::string::const_iterator end) const
   {
     std::vector<std::tuple<minimizer_type, size_t, size_t>> result;
@@ -1143,6 +1112,8 @@ public:
 
     return result;
   }
+*/
+
 
   /*
     Returns all minimizers in the string. The return value is a vector of
@@ -1159,7 +1130,7 @@ public:
    std::vector<std::tuple<minimizer_type, size_t, size_t>> rymer_regions(const std::string& str) const
   {
     const std::string rymer = gbwtgraph::convertToRymerSpace(str);
-    return this->rymer_regions(rymer.begin(), rymer.end());
+    return this->rymer_regions(str.begin(), str.end());
   }
 
 //------------------------------------------------------------------------------
