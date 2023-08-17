@@ -948,8 +948,9 @@ public:
   }
 
 
+/*
 const std::vector<std::tuple<minimizer_type, size_t, size_t>> rymer_regions(std::string str, const auto &rymer_index) const {
-  
+
   std::string rymer_str = gbwtgraph::convertToRymerSpace(str);
 
   std::vector<std::tuple<minimizer_type, size_t, size_t>> rymers_found = rymer_index.minimizer_regions(rymer_str.begin(), rymer_str.end());
@@ -967,23 +968,54 @@ const std::vector<std::tuple<minimizer_type, size_t, size_t>> rymer_regions(std:
     ret.reserve(minimizers_found.size());
 
     // Iterate over rymers_found and minimizers_found to find corresponding tuples
-    size_t rymer_idx = 0;
-    for (const auto& minimizer_tuple : minimizers_found) {
-        while (rymer_idx < rymers_found.size() && (std::get<1>(rymers_found[rymer_idx]) < std::get<1>(minimizer_tuple) ||
-               (std::get<1>(rymers_found[rymer_idx]) == std::get<1>(minimizer_tuple) && 
-                std::get<2>(rymers_found[rymer_idx]) < std::get<2>(minimizer_tuple)))) {
-            ++rymer_idx;
-        }
-
-        if (rymer_idx < rymers_found.size() && std::get<1>(rymers_found[rymer_idx]) == std::get<1>(minimizer_tuple) && 
-            std::get<2>(rymers_found[rymer_idx]) == std::get<2>(minimizer_tuple)) {
-            minimizer_type modified_minimizer = std::get<0>(minimizers_found[rymer_idx]);
-            ret.push_back(std::make_tuple(modified_minimizer, std::get<1>(minimizer_tuple), std::get<2>(minimizer_tuple)));
-        } 
+size_t rymer_idx = 0;
+for (const auto& minimizer_tuple : minimizers_found) {
+    // Only compare the second field of the tuples
+    while (rymer_idx < rymers_found.size() && std::get<2>(rymers_found[rymer_idx]) != std::get<2>(minimizer_tuple)) {
+        ++rymer_idx;
     }
+
+    if (rymer_idx < rymers_found.size() && std::get<1>(rymers_found[rymer_idx]) == std::get<1>(minimizer_tuple)) {
+        minimizer_type modified_minimizer = std::get<0>(minimizers_found[rymer_idx]);
+        ret.push_back(std::make_tuple(modified_minimizer, std::get<1>(minimizer_tuple), std::get<2>(minimizer_tuple)));
+    }
+}
 
   return ret;
 };
+*/
+
+const std::vector<std::tuple<minimizer_type, size_t, size_t>> rymer_regions(std::string str, const auto &rymer_index) const {
+
+    std::string rymer_str = gbwtgraph::convertToRymerSpace(str);
+
+    std::vector<std::tuple<minimizer_type, size_t, size_t>> rymers_found = rymer_index.minimizer_regions(rymer_str.begin(), rymer_str.end());
+    std::vector<std::tuple<minimizer_type, size_t, size_t>> minimizers_found = this->minimizer_regions(str.begin(), str.end());
+
+    std::vector<std::tuple<minimizer_type, size_t, size_t>> ret;
+    std::unordered_map<size_t, std::tuple<minimizer_type, size_t, size_t>> minimizer_map;
+
+    // Populate the map from minimizers_found based on the second field
+    for (const auto& minimizer_tuple : minimizers_found) {
+        minimizer_map[std::get<1>(minimizer_tuple)] = minimizer_tuple;
+    }
+
+    // Iterate over rymers_found and retrieve the matching minimizer from the map
+    for (const auto& rymer_tuple : rymers_found) {
+        auto it = minimizer_map.find(std::get<1>(rymer_tuple));
+        
+        if (it != minimizer_map.end()) {
+            const auto& minimizer_tuple = it->second;
+
+            if (std::get<1>(rymer_tuple) == std::get<1>(minimizer_tuple)) {
+                minimizer_type modified_minimizer = std::get<0>(minimizer_tuple);
+                ret.push_back(std::make_tuple(modified_minimizer, std::get<1>(minimizer_tuple), std::get<2>(minimizer_tuple)));
+            }
+        }
+    }
+
+    return ret;
+}
 
   /*
     Returns all minimizers in the string. The return value is a vector of
