@@ -125,6 +125,9 @@ def find_mismatched_kmers(reads: List[str], k: int, w: int, minimizer_table: Dic
     """
     Identify k-mers that match the k-mer index but not the rymer index, and return the number of mismatches observed.
     """
+    total_kmers=0
+    exact_matches=0
+
     mismatch_counts = []
     for read in reads:
         for i in range(len(read) - k + 1):
@@ -141,7 +144,13 @@ def find_mismatched_kmers(reads: List[str], k: int, w: int, minimizer_table: Dic
                 ref_segment = sequence[i:i+k]
                 mismatch_count = sum(1 for a, b in zip(kmer, ref_segment) if (a == 'T' and b == 'C') or (a == 'A' and b == 'G'))
                 mismatch_counts.append(mismatch_count)
-    return mismatch_counts
+
+                # Check for exact match and increment counters
+                total_kmers += 1
+                if kmer == ref_segment:
+                    exact_matches += 1
+
+    return mismatch_counts, exact_matches, total_kmers
 
 def compute_mismatch_average_for_k(sequence, k):
     w = k + 2
@@ -165,35 +174,48 @@ def compute_mismatch_average_for_k(sequence, k):
         all_reads.extend(reads_from_fragment)
 
     mutated_reads = apply_deamination_mutations(all_reads, mutation_rate)
-    mismatch_counts = find_mismatched_kmers(mutated_reads, k, w, minimizer_table, rymer_table)
+    mismatch_counts, exact_matches, total_kmers = find_mismatched_kmers(mutated_reads, k, w, minimizer_table, rymer_table)
 
     # Calculate the average excluding zero mismatches
     non_zero_mismatches = [count for count in mismatch_counts]
     average_mismatch = sum(non_zero_mismatches) / len(non_zero_mismatches) if non_zero_mismatches else 0
 
-    return average_mismatch
+    return average_mismatch, exact_matches / total_kmers if total_kmers else 0
 
 
 sequence = read_fasta("rCRS.fa")
-
 # Define range of k values
 k_values = list(range(4, 31))  # Modify as per your needs
 average_mismatches = []
 
-# Loop through k values and compute average mismatches
+# Looping through k values
+exact_match_fractions = []
 for k in k_values:
     print(k)
-    avg_mismatch = compute_mismatch_average_for_k(sequence, k)
-    avg_mismatch_normalized = avg_mismatch / k  # Divide by k
+    avg_mismatch, exact_match_fraction = compute_mismatch_average_for_k(sequence, k)
+    avg_mismatch_normalized = avg_mismatch / k
     average_mismatches.append(avg_mismatch_normalized)
+    exact_match_fractions.append(exact_match_fraction)
 
-# Plotting the results
+# Plotting the results for average mismatches
+plt.figure(figsize=(10, 5))
+plt.subplot(1, 2, 1)
 plt.plot(k_values, average_mismatches, marker='o', linestyle='-')
-plt.xticks(k_values)  # This sets the x-axis ticks to your specific k_values
+plt.xticks(k_values)
 plt.xlabel('Value of k')
 plt.ylabel('Sequence Similarity')
 plt.title('Sequence Similarity as a Function of k')
 plt.grid(True)
+
+# Plotting the results for exact match fractions
+plt.subplot(1, 2, 2)
+plt.plot(k_values, exact_match_fractions, marker='o', linestyle='-', color='red')
+plt.xticks(k_values)
+plt.xlabel('Value of k')
+plt.ylabel('Exact Match Fraction')
+plt.title('Exact Match Fraction as a Function of k')
+plt.grid(True)
+
+plt.tight_layout()
 plt.savefig("mismatch.png")
 plt.close()
-
