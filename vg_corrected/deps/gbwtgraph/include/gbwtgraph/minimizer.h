@@ -281,7 +281,7 @@ private:
   // Constants for the encoding between std::string and the key.
   constexpr static size_t   PACK_WIDTH = 2;
   constexpr static key_type PACK_MASK  = 0x3;
-  constexpr static size_t  PACK_WIDTH_RYMER = 1;
+  constexpr static size_t  PACK_WIDTH_RYMER = 2;
   constexpr static key_type PACK_MASK_RYMER  = 0x1;
 
   // Arrays for the encoding between std::string and the key.
