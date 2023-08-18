@@ -500,14 +500,14 @@ Key64::encode_rymer(const std::string& sequence)
     if(c != 'A' && c != 'C' && c != 'G' && c != 'T') {
   throw std::runtime_error("[ENCODE_RYMER] Key64::encode_rymer(): Unexpected character in input sequence: " + std::string(1, c));
                                                      }
-    auto packed_char = CHAR_TO_PACK_RYMER[c];
+    auto packed_char = CHAR_TO_PACK[c];
     //std::cerr << "Character to encode: " << c << ", encoded value: " << (int)packed_char << std::endl;
-    if(packed_char > PACK_MASK_RYMER)
+    if(packed_char > PACK_MASK)
     {
       std::cerr << "Failed to encode character '" << c << "' (ASCII " << (int)c << ")" << std::endl;
       throw std::runtime_error("[ENCODE_RYMER] Key64::encode(): Cannot encode character '" + std::string(1, c) + "'");
     }
-    packed = (packed << PACK_WIDTH_RYMER) | packed_char;
+    packed = (packed << PACK_WIDTH) | packed_char;
   }
   return Key64(packed);
 }
@@ -524,7 +524,19 @@ Key64::decode_rymer(size_t k) const
     }
     result << decoded_char;
   }
-  return result.str();
+
+  std::string decodedStr = result.str();
+  Key64 encoded = encode_rymer(decodedStr);
+  if (encoded.key != this->key) {
+      std::stringstream errorMsg;
+      errorMsg << "ENCODING SCHEME IS WRONG!\n";
+      errorMsg << "Decoded String: " << decodedStr << "\n";
+      errorMsg << "Re-encoded Value: " << encoded.key << "\n";
+      errorMsg << "Original Value: " << this->key;
+      throw std::runtime_error(errorMsg.str());
+  }
+
+  return decodedStr;
 }
 
 std::ostream&

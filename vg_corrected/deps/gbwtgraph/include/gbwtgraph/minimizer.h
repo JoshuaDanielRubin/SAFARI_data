@@ -907,7 +907,10 @@ public:
               {
                 // Insert the minimizer instance, with its region starting
                 // where the window covered by the buffer starts.
+
                 result.emplace_back(buffer.at(i), window_start, 0);
+                 //result.emplace_back(buffer.at(i), start_pos, 0);
+
                 // There can only ever really be one minimizer at a given start
                 // position. So look for the next one 1 base to the right.
                 next_read_offset = buffer.at(i).offset + 1;
@@ -948,69 +951,99 @@ public:
   }
 
 
-/*
 const std::vector<std::tuple<minimizer_type, size_t, size_t>> rymer_regions(std::string str, const auto &rymer_index) const {
 
     std::string rymer_str = gbwtgraph::convertToRymerSpace(str);
 
-    std::vector<std::tuple<minimizer_type, size_t, size_t>> rymers_found = rymer_index.minimizer_regions(rymer_str.begin(), rymer_str.end());
-    std::vector<std::tuple<minimizer_type, size_t, size_t>> minimizers_found = this->minimizer_regions(str.begin(), str.end());
-
-    std::vector<std::tuple<minimizer_type, size_t, size_t>> ret;
-    
-    // Using a pair (start, length) as the key for the unordered_map
-    std::unordered_map<std::pair<size_t, size_t>, std::tuple<minimizer_type, size_t, size_t>> minimizer_map;
-
-    // Populate the map from minimizers_found based on the second (start) and third (length) fields
-    for (const auto& minimizer_tuple : minimizers_found) {
-        minimizer_map[{std::get<1>(minimizer_tuple), std::get<2>(minimizer_tuple)}] = minimizer_tuple;
+    if(rymer_str.empty()) {
+        throw std::runtime_error("Error: Converted rymer_str is empty");
     }
 
-    // Iterate over rymers_found and retrieve the matching minimizer from the map
+    std::vector<std::tuple<minimizer_type, size_t, size_t>> rymers_found = this->minimizer_regions(rymer_str.begin(), rymer_str.end());
+    std::vector<std::tuple<minimizer_type, size_t, size_t>> minimizers_found = this->minimizer_regions(str.begin(), str.end());
+
+    std::cerr << "NUMBER OF RYMERS FOUND: " << rymers_found.size() << std::endl;
+    std::cerr << "NUMBER OF MINIMIZERS FOUND: " << minimizers_found.size() << std::endl;
+
+    //if(minimizers_found.size() < rymers_found.size()) {
+    //    throw std::runtime_error("ERROR, MORE RYMERS THAN MINIMIZERS");
+   // }
+
+    if(rymers_found.empty()) {
+        throw std::runtime_error("Error: No rymers found in rymer_str");
+    }
+
+    if(minimizers_found.empty()) {
+        throw std::runtime_error("Error: No minimizers found in input str");
+    }
+
+    std::cerr << std::endl << std::endl << std::endl;
+
+     // Print out details of rymers
+    std::cerr << "=== Rymers Found ===\n";
     for (const auto& rymer_tuple : rymers_found) {
-        auto it = minimizer_map.find({std::get<1>(rymer_tuple), std::get<2>(rymer_tuple)});
-        
-        if (it != minimizer_map.end()) {
-            const auto& minimizer_tuple = it->second;
-            minimizer_type modified_minimizer = std::get<0>(minimizer_tuple);
-            ret.push_back(std::make_tuple(modified_minimizer, std::get<1>(minimizer_tuple), std::get<2>(minimizer_tuple)));
+        std::cerr << " Rymer Key: " << std::get<0>(rymer_tuple).key
+                  << " Decoded sequence: " << std::get<0>(rymer_tuple).key.decode(this->k())
+                  << " Decode_rymer sequence: " << std::get<0>(rymer_tuple).key.decode_rymer(this->k())
+                  << " Start: " << std::get<1>(rymer_tuple)
+                  << " Hash: " << std::get<0>(rymer_tuple).hash
+                  << " Length: " << std::get<2>(rymer_tuple) << "\n";
+    }
+
+    // Print out details of minimizers
+    std::cerr << "=== Minimizers Found ===\n";
+    for (const auto& minimizer_tuple : minimizers_found) {
+        std::cerr << " Minimizer Key: " << std::get<0>(minimizer_tuple).key
+                  << " Decoded sequence: " << std::get<0>(minimizer_tuple).key.decode(this->k())
+                  << " Start: " << std::get<1>(minimizer_tuple)
+                  << " Hash: " << std::get<0>(minimizer_tuple).hash
+                  << " Length: " << std::get<2>(minimizer_tuple) << "\n";
+    }
+
+    std::cerr << std::endl << std::endl << std::endl;
+
+
+    std::vector<std::tuple<minimizer_type, size_t, size_t>> ret;
+
+    std::unordered_multimap<size_t, std::tuple<minimizer_type, size_t, size_t>> minimizer_map;
+
+    // Populate map using only the start value as the key
+    for (const auto& minimizer_tuple : minimizers_found) {
+        minimizer_map.emplace(std::get<1>(minimizer_tuple), minimizer_tuple);
+    }
+
+    if(minimizer_map.empty()) {
+        throw std::runtime_error("Error: No entries in the minimizer_map");
+    }
+
+    size_t matches_found = 0;
+
+    // Lookup using only the start value
+    for (const auto& rymer_tuple : rymers_found) {
+        auto range = minimizer_map.equal_range(std::get<1>(rymer_tuple));
+
+        if(range.first == range.second) {
+            std::cerr << "Warning: No matching minimizer found for rymer starting at position " << std::get<1>(rymer_tuple) << "\n";
+            continue;
         }
-    }
 
-    return ret;
-}
-*/
-
-const std::vector<std::tuple<minimizer_type, size_t, size_t>> rymer_regions(std::string str, const auto &rymer_index) const {
-
-    std::string rymer_str = gbwtgraph::convertToRymerSpace(str);
-
-    std::vector<std::tuple<minimizer_type, size_t, size_t>> rymers_found = rymer_index.minimizer_regions(rymer_str.begin(), rymer_str.end());
-    std::vector<std::tuple<minimizer_type, size_t, size_t>> minimizers_found = this->minimizer_regions(str.begin(), str.end());
-
-    std::vector<std::tuple<minimizer_type, size_t, size_t>> ret;
-
-    // Using a pair (start, length) as the key for the unordered_multimap
-    std::unordered_multimap<std::pair<size_t, size_t>, std::tuple<minimizer_type, size_t, size_t>> minimizer_map;
-
-    // Populate the map from minimizers_found based on the second (start) and third (length) fields
-    for (const auto& minimizer_tuple : minimizers_found) {
-        minimizer_map.emplace(std::make_pair(std::get<1>(minimizer_tuple), std::get<2>(minimizer_tuple)), minimizer_tuple);
-    }
-
-    // Iterate over rymers_found and retrieve the matching minimizer from the map
-    for (const auto& rymer_tuple : rymers_found) {
-        auto range = minimizer_map.equal_range({std::get<1>(rymer_tuple), std::get<2>(rymer_tuple)});
-        
         for(auto it = range.first; it != range.second; ++it) {
+            matches_found++;
             const auto& minimizer_tuple = it->second;
-            minimizer_type modified_minimizer = std::get<0>(minimizer_tuple);
-            ret.push_back(std::make_tuple(modified_minimizer, std::get<1>(minimizer_tuple), std::get<2>(minimizer_tuple)));
+            ret.push_back(minimizer_tuple);
         }
     }
 
+    if(matches_found == 0) {
+         std::cerr << "Warning: No matches found between rymers and minimizers" << std::endl;
+        //throw std::runtime_error("Error: No matches found between rymers and minimizers");
+    }
+
+    std::sort(ret.begin(), ret.end());
+
     return ret;
 }
+
 
 
   /*

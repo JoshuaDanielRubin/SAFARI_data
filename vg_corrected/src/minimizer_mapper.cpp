@@ -26,8 +26,8 @@
 // Turn on debugging prints
 //#define debug
 // Turn on printing of minimizer fact tables
-//#define print_minimizer_table
-//#define print_minimizer_table_rymer
+#define print_minimizer_table
+#define print_minimizer_table_rymer
 // Dump local graphs that we align against
 //#define debug_dump_graph
 // Dump fragment length distribution information
@@ -1457,21 +1457,22 @@ seeds_rymer = move(seeds_rymer_filtered);
 
 #ifdef print_minimizer_table
     cerr << endl << endl;
-    //cerr << "Kmer: " << aln.sequence() << "\t" << std::endl;
+    cerr << "Kmer: " << aln.sequence() << "\t" << std::endl;
     //for (char c : aln.quality()) {
     //    cerr << (char)(c+33);
    // }
     //cerr << "\t" << clusters.size();
     for (size_t i = 0 ; i < minimizers.size() ; i++) {
         cerr << "NEW MINIMIZER" << endl;
+        cerr << "SEQ/FORWARD_OFFSET/AGG START/AGG LENGTH/HITS" << endl;
         auto& minimizer = minimizers[i];
         cerr << "\t"
-             << minimizer.value.key.decode(minimizer.length) << endl;
-             //<< minimizer.forward_offset() << "\t"
-             //<< minimizer.agglomeration_start << "\t"
-             //<< minimizer.agglomeration_length << "\t"
-             //<< "HITS: " << minimizer.hits << "\t"
-             //<< minimizer_kept_count[i];
+             << minimizer.value.key.decode(minimizer.length) << "\t"
+             << minimizer.forward_offset() << "\t"
+             << minimizer.agglomeration_start << "\t"
+             << minimizer.agglomeration_length << "\t"
+             << minimizer.hits << "\t"
+             << minimizer_kept_count[i] << endl;
         // if (minimizer_kept_count[i]>0) {
         //     assert(minimizer.hits<=hard_hit_cap) ;
         // }
@@ -1500,14 +1501,15 @@ cerr << endl << endl;
     //cerr << "\t" << clusters_rymer.size();
     for (size_t i = 0 ; i < minimizers_rymer.size() ; i++) {
         cerr << endl << "NEW RYMER" << endl;
+        cerr << "SEQ/FORWARD_OFFSET/AGG START/AGG LENGTH/HITS" << endl;
         auto& minimizer_rymer = minimizers_rymer[i];
         cerr << "\t"
-             << minimizer_rymer.value.key.decode_rymer(minimizer_rymer.length) << "\t";
-             //<< minimizer_rymer.forward_offset() << "\t"
-             //<< minimizer_rymer.agglomeration_start << "\t"
-             //<< minimizer_rymer.agglomeration_length << "\t"
-             cerr << "HITS: " << minimizer_rymer.hits << "\t";
-             //<< minimizer_kept_count_rymer[i];
+             << minimizer_rymer.value.key.decode_rymer(minimizer_rymer.length) << "\t"
+             << minimizer_rymer.forward_offset() << "\t"
+             << minimizer_rymer.agglomeration_start << "\t"
+             << minimizer_rymer.agglomeration_length << "\t"
+             << minimizer_rymer.hits
+             << minimizer_kept_count_rymer[i];
          if (minimizer_kept_count_rymer[i]>0) {
              assert(minimizer_rymer.hits<=hard_hit_cap_rymer) ;
          }
