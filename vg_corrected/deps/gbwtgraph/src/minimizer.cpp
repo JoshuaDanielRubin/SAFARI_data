@@ -524,7 +524,7 @@ std::string
 Key64::decode_rymer(size_t k) const
 {
     std::stringstream result;
-    std::cerr << "Value before decoding: " << this->key << std::endl;
+    //std::cerr << "Value before decoding: " << this->key << std::endl;
 
     // Decode using the kmer scheme
     for(size_t i = 0; i < k; i++)
