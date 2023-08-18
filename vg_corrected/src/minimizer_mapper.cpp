@@ -606,7 +606,6 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
 
     // Get the original sequence and the fully converted sequence
     std::vector<Minimizer> minimizers_rymer = this->find_rymers(aln.sequence(), funnel);
-
     std::vector<Minimizer> minimizers = minimizers_rymer;
 
 // Get minimizers
@@ -3544,10 +3543,8 @@ std::vector<MinimizerMapper::Minimizer> MinimizerMapper::find_rymers(const std::
         //cerr << "RYMER K VALUE: " << this->rymer_index.k() << endl;
 
         std::string rymer_sequence = get<0>(m).key.decode_rymer(this->rymer_index.k());
-        std::string minimizer_sequence = get<0>(m).key.decode(this->rymer_index.k());
 
-        //cerr << "RYMER SEQUENCE: " << rymer_sequence << endl;
-        //cerr << "ORIGINAL MINIMIZER SEQUENCE: " << minimizer_sequence << endl;
+        cerr << "RYMER SEQUENCE: " << rymer_sequence << endl;
 
         if (get<0>(m).is_reverse){
             //cerr << "REVERSE" << endl;
