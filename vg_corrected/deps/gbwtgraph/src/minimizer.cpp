@@ -496,63 +496,29 @@ Key64::encode_rymer(const std::string& sequence)
     key_type packed = 0;
     for(auto c : sequence)
     {
-        std::cerr << "Character being encoded: " << c << std::endl;
+        //std::cerr << "Character being encoded: " << c << std::endl;
 
         if(c != 'A' && c != 'C' && c != 'G' && c != 'T') {
             throw std::runtime_error("[ENCODE_RYMER] Key64::encode_rymer(): Unexpected character in input sequence: " + std::string(1, c));
         }
         
         auto packed_char = CHAR_TO_PACK_RYMER[c];
-        std::cerr << "Packed value of character: " << (int)packed_char << std::endl;
+        //std::cerr << "Packed value of character: " << (int)packed_char << std::endl;
 
         if(packed_char > PACK_MASK_RYMER) {
             std::cerr << "Failed to encode character '" << c << "' (ASCII " << (int)c << ")" << std::endl;
             throw std::runtime_error("[ENCODE_RYMER] Key64::encode(): Cannot encode character '" + std::string(1, c) + "'");
         }
+
         
-        std::cerr << "Packed value before shifting and OR operation: " << packed << std::endl;
+        //std::cerr << "Packed value before shifting and OR operation: " << packed << std::endl;
         packed = (packed << PACK_WIDTH_RYMER) | packed_char;
-        std::cerr << "Packed value after shifting and OR operation: " << packed << std::endl;
+       // std::cerr << "Packed value after shifting and OR operation: " << packed << std::endl;
     }
-    std::cerr << "Final encoded value: " << packed << std::endl;
+    //std::cerr << "Final encoded value: " << packed << std::endl;
     return Key64(packed);
 }
 
-/*
-std::string
-Key64::decode_rymer(size_t k) const
-{
-    std::stringstream result;
-    std::cerr << "Value before decoding: " << this->key << std::endl;
-    
-    for(size_t i = 0; i < k; i++)
-    {
-        char decoded_char = PACK_TO_CHAR_RYMER[(this->key >> ((k - i - 1) * PACK_WIDTH_RYMER)) & PACK_MASK_RYMER];
-        std::cerr << "Decoded character: " << decoded_char << std::endl;
-        
-        if(decoded_char != 'A' && decoded_char != 'C') {
-            throw std::runtime_error("[DECODE_RYMER] Key64::decode_rymer(): Unexpected character in decoded sequence: " + std::string(1, decoded_char));
-        }
-        
-        result << decoded_char;
-    }
-
-    std::string decodedStr = result.str();
-    std::cerr << "Decoded sequence: " << decodedStr << std::endl;
-
-    Key64 encoded = encode_rymer(decodedStr);
-    if (encoded.key != this->key) {
-        std::stringstream errorMsg;
-        errorMsg << "ENCODING SCHEME IS WRONG!\n";
-        errorMsg << "Decoded String: " << decodedStr << "\n";
-        errorMsg << "Re-encoded Value: " << encoded.key << "\n";
-        errorMsg << "Original Value: " << this->key;
-        throw std::runtime_error(errorMsg.str());
-    }
-
-    return decodedStr;
-}
-*/
 
 std::string
 Key64::decode_rymer(size_t k) const
@@ -564,7 +530,7 @@ Key64::decode_rymer(size_t k) const
     for(size_t i = 0; i < k; i++)
     {
         char decoded_char = PACK_TO_CHAR[(this->key >> ((k - i - 1) * PACK_WIDTH)) & PACK_MASK];
-        std::cerr << "Decoded character using kmer scheme: " << decoded_char << std::endl;
+        //std::cerr << "Decoded character using kmer scheme: " << decoded_char << std::endl;
 
         // Convert the decoded character to its Rymer equivalent
         if(decoded_char == 'G') {
@@ -577,9 +543,27 @@ Key64::decode_rymer(size_t k) const
     }
 
     std::string decodedStr = result.str();
-    std::cerr << "Decoded sequence using Rymer scheme: " << decodedStr << std::endl;
+    //std::cerr << "Decoded sequence using Rymer scheme: " << decodedStr << std::endl;
 
     Key64 encoded = encode_rymer(decodedStr);
+
+    // Begin of the new check
+    key_type original_encoded_rymer_key = 0;
+    for(auto c : decodedStr)
+    {
+        auto packed_char = CHAR_TO_PACK_RYMER[c];
+        original_encoded_rymer_key = (original_encoded_rymer_key << PACK_WIDTH_RYMER) | packed_char;
+    }
+
+    if (encoded.key != original_encoded_rymer_key) {
+        std::stringstream errorMsg;
+        errorMsg << "ENCODING SCHEME IS WRONG!\n";
+        errorMsg << "Decoded String: " << decodedStr << "\n";
+        errorMsg << "Re-encoded Value: " << encoded.key << "\n";
+        errorMsg << "Original Rymer Encoded Value: " << original_encoded_rymer_key;
+        throw std::runtime_error(errorMsg.str());
+    }
+    // End of the new check
 
     return decodedStr;
 }
