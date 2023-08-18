@@ -959,7 +959,7 @@ const std::vector<std::tuple<minimizer_type, size_t, size_t>> rymer_regions(std:
         throw std::runtime_error("Error: Converted rymer_str is empty");
     }
 
-    std::vector<std::tuple<minimizer_type, size_t, size_t>> rymers_found = this->minimizer_regions(rymer_str.begin(), rymer_str.end());
+    std::vector<std::tuple<minimizer_type, size_t, size_t>> rymers_found = rymer_index.minimizer_regions(rymer_str.begin(), rymer_str.end());
     std::vector<std::tuple<minimizer_type, size_t, size_t>> minimizers_found = this->minimizer_regions(str.begin(), str.end());
 
     std::cerr << "NUMBER OF RYMERS FOUND: " << rymers_found.size() << std::endl;
