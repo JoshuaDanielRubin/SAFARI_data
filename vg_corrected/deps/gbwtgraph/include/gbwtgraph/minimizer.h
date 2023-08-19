@@ -965,22 +965,22 @@ const std::vector<std::tuple<minimizer_type, size_t, size_t>> rymer_regions(std:
     std::vector<std::tuple<minimizer_type, size_t, size_t>> rymers_found = rymer_index.minimizer_regions(rymer_str.begin(), rymer_str.end());
     std::vector<std::tuple<minimizer_type, size_t, size_t>> minimizers_found = this->minimizer_regions(str.begin(), str.end());
 
-    std::cerr << "NUMBER OF RYMERS FOUND: " << rymers_found.size() << std::endl;
-    std::cerr << "NUMBER OF MINIMIZERS FOUND: " << minimizers_found.size() << std::endl;
+    //std::cerr << "NUMBER OF RYMERS FOUND: " << rymers_found.size() << std::endl;
+    //std::cerr << "NUMBER OF MINIMIZERS FOUND: " << minimizers_found.size() << std::endl;
 
     //if(minimizers_found.size() < rymers_found.size()) {
     //    throw std::runtime_error("ERROR, MORE RYMERS THAN MINIMIZERS");
    // }
 
-    if(rymers_found.empty()) {
-        throw std::runtime_error("Error: No rymers found in rymer_str");
-    }
+    //if(rymers_found.empty()) {
+    //    throw std::runtime_error("Error: No rymers found in rymer_str");
+   // }
 
-    if(minimizers_found.empty()) {
-        throw std::runtime_error("Error: No minimizers found in input str");
-    }
+    //if(minimizers_found.empty()) {
+    //    throw std::runtime_error("Error: No minimizers found in input str");
+   // }
 
-    std::cerr << std::endl << std::endl << std::endl;
+    //std::cerr << std::endl << std::endl << std::endl;
 
 /*
      // Print out details of rymers
@@ -1016,7 +1016,7 @@ const std::vector<std::tuple<minimizer_type, size_t, size_t>> rymer_regions(std:
     }
 
     if(minimizer_map.empty()) {
-        throw std::runtime_error("Error: No entries in the minimizer_map");
+        //throw std::runtime_error("Error: No entries in the minimizer_map");
     }
 
     size_t matches_found = 0;

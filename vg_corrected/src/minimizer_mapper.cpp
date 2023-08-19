@@ -26,8 +26,8 @@
 // Turn on debugging prints
 //#define debug
 // Turn on printing of minimizer fact tables
-#define print_minimizer_table
-#define print_minimizer_table_rymer
+//#define print_minimizer_table
+//#define print_minimizer_table_rymer
 // Dump local graphs that we align against
 //#define debug_dump_graph
 // Dump fragment length distribution information
@@ -608,6 +608,14 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
 // Get minimizers
 std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel);
 std::vector<Minimizer> minimizers_rymer = this->find_rymers(aln.sequence(), funnel);
+
+gbwtgraph::Key64 thing;
+for (auto & m : minimizers_rymer){
+    string rymer_seq = m.value.key.decode_rymer(m.length);
+    //cerr << "SEED RYMER SEQ: " << rymer_seq << endl;
+    auto original_key = thing.get_original_kmer_key(rymer_seq);
+    m.value.key = original_key;
+}
 
 // Insert the rymers to the end of the minimizers
 //minimizers.insert(minimizers.end(), minimizers_rymer.begin(), minimizers_rymer.end());
@@ -3525,7 +3533,7 @@ std::vector<MinimizerMapper::Minimizer> MinimizerMapper::find_rymers(const std::
 
         std::string rymer_sequence = get<0>(m).key.decode_rymer(this->rymer_index.k());
 
-        cerr << "RYMER SEQUENCE: " << rymer_sequence << endl;
+        //cerr << "RYMER SEQUENCE: " << rymer_sequence << endl;
 
         if (get<0>(m).is_reverse){
             //cerr << "REVERSE" << endl;
