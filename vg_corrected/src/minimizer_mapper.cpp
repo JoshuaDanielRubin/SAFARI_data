@@ -609,16 +609,6 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
 std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel);
 std::vector<Minimizer> minimizers_rymer = this->find_rymers(aln.sequence(), funnel);
 
-//for (auto & m : minimizers_rymer){
-//    string seq = gbwtgraph::convertToRymerSpace(m.value.key.decode(m.length));
-//    m.value.key = gbwtgraph::Key64::encode_rymer(seq);
-//}
-
-
-if (minimizers_rymer.empty()){
-    //throw runtime_error("NO RYMERS!!!");
-}
-
 // Insert the rymers to the end of the minimizers
 //minimizers.insert(minimizers.end(), minimizers_rymer.begin(), minimizers_rymer.end());
 
@@ -631,29 +621,24 @@ if (minimizers_rymer.empty()){
     std::vector<Cluster> clusters;
     std::vector<Cluster> clusters_rymer;
 
+
+minimizers.insert(minimizers.end(), minimizers_rymer.begin(), minimizers_rymer.end());
+//clusters = clusterer.cluster_seeds(seeds, get_distance_limit(aln.sequence().size()));
+
 vector<Seed> seeds = this->find_seeds<Seed>(minimizers, aln, funnel);
-vector<Seed> seeds_rymer = this->find_seeds<Seed>(minimizers_rymer, aln, funnel_rymer);
-
-//if (seeds.size() != seeds_rymer.size()){
-//    vector<Alignment> empty_aln;
-//    return empty_aln;
-//                                       }
-
-//cerr << "NUMBER OF MINIMIZER SEEDS: " << seeds.size() << endl;
-//cerr << "NUMBER OF RYMER SEEDS: " << seeds_rymer.size() << endl;
-//throw runtime_error("TESTING");
+//vector<Seed> seeds_rymer = this->find_seeds<Seed>(minimizers_rymer, aln, funnel_rymer);
 
 /*
-std::multimap<std::pair<size_t, pos_t>, Seed> rymer_to_minimizer;
-
-for (const auto & sr : seeds_rymer) {
-    for (const auto & sm : seeds) {
-        if (sm.source == sr.source) {
-            rymer_to_minimizer.emplace(std::make_pair(sr.source, sr.pos), sm);
-        }
-    }
+gbwtgraph::Key64 thing;
+for (auto & s : seeds_rymer){
+    string rymer_seq = minimizers_rymer[s.source].value.key.decode_rymer(this->rymer_index.k());
+    //cerr << "SEED RYMER SEQ: " << rymer_seq << endl;
+    auto original_key = thing.get_original_kmer_key(rymer_seq);
+    s.source = original_key;
+    s.minimizer_cache = MIPayload::NO_CODE;
 }
 */
+
     // Cluster the seeds. Get sets of input seed indexes that go together.
     if (track_provenance) {
         funnel.stage("cluster");
@@ -739,13 +724,11 @@ auto apply_rymer_filter = [&](
 
  clusters = clusterer.cluster_seeds(seeds, get_distance_limit(aln.sequence().size()));
 
- //clusters_rymer = clusterer.cluster_seeds(seeds_rymer, get_distance_limit(aln.sequence().size()));
+ //clusters = clusterer.cluster_seeds(seeds_rymer, get_distance_limit(aln.sequence().size()));
 
  //seeds.insert(seeds.end(), seeds_rymer.begin(), seeds_rymer.end());
  //clusters = clusterer.cluster_seeds(seeds, get_distance_limit(aln.sequence().size()));
 
-   //cerr << "NUMBER OF RYMER CLUSTERS: " << clusters_rymer.size() << endl;
-   //cerr << "NUMBER OF MINIMIZER CLUSTERS: " << minimizers_rymer.size() << endl;
 
 #ifdef debug_validate_clusters
     vector<vector<Cluster>> all_clusters;
@@ -755,9 +738,9 @@ auto apply_rymer_filter = [&](
     vector<vector<Seed>> all_seeds;
     vector<vector<Seed>> all_seeds_rymer;
     all_seeds.emplace_back(seeds);
-    all_seeds_rymer.emplace_back(seeds_rymer);
+    //all_seeds_rymer.emplace_back(seeds_rymer);
     validate_clusters(all_clusters, all_seeds, get_distance_limit(aln.sequence().size()), 0);
-    validate_clusters(all_clusters_rymer, all_seeds_rymer, get_distance_limit(aln.sequence().size()), 0);
+    //validate_clusters(all_clusters_rymer, all_seeds_rymer, get_distance_limit(aln.sequence().size()), 0);
 #endif
 
     // Determine the scores and read coverages for each cluster.
@@ -781,7 +764,7 @@ auto apply_rymer_filter = [&](
     double best_cluster_score_rymer = 0.0, second_best_cluster_score_rymer = 0.0;
     for (size_t i = 0; i < clusters_rymer.size(); i++) {
         Cluster& cluster_rymer = clusters_rymer[i];
-        this->score_cluster(cluster_rymer, i, minimizers_rymer, seeds_rymer, aln.sequence().length(), funnel_rymer);
+       // this->score_cluster(cluster_rymer, i, minimizers_rymer, seeds_rymer, aln.sequence().length(), funnel_rymer);
         if (cluster_rymer.score > best_cluster_score_rymer) {
             second_best_cluster_score_rymer = best_cluster_score_rymer;
             best_cluster_score_rymer = cluster_rymer.score;
