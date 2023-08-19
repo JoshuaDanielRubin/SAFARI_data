@@ -568,6 +568,20 @@ Key64::decode_rymer(size_t k) const
     return decodedStr;
 }
 
+Key64::key_type
+Key64::get_original_kmer_key(const std::string& rymerStr) const
+{
+    key_type original_encoded_rymer_key = 0;
+
+    for(auto c : rymerStr)
+    {
+        auto packed_char = CHAR_TO_PACK_RYMER[c];
+        original_encoded_rymer_key = (original_encoded_rymer_key << PACK_WIDTH_RYMER) | packed_char;
+    }
+
+    return original_encoded_rymer_key;
+}
+
 std::ostream&
 operator<<(std::ostream& out, Key64 value)
 {

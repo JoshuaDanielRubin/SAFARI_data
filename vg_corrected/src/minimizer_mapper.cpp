@@ -26,8 +26,8 @@
 // Turn on debugging prints
 //#define debug
 // Turn on printing of minimizer fact tables
-#define print_minimizer_table
-#define print_minimizer_table_rymer
+//#define print_minimizer_table
+//#define print_minimizer_table_rymer
 // Dump local graphs that we align against
 //#define debug_dump_graph
 // Dump fragment length distribution information
@@ -606,24 +606,13 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
 
     // Get the original sequence and the fully converted sequence
     std::vector<Minimizer> minimizers_rymer = this->find_rymers(aln.sequence(), funnel);
-    std::vector<Minimizer> minimizers = minimizers_rymer;
+    std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel);
 
-// Get minimizers
-//std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel);
-
-// Get rymers
-
-//std::vector<Minimizer> minimizers_rymer = minimizers;
-
+//gbwtgraph::Key64 thing;
 //for (auto & m : minimizers_rymer){
-//    string seq = gbwtgraph::convertToRymerSpace(m.value.key.decode(m.length));
-//    m.value.key = gbwtgraph::Key64::encode_rymer(seq);
+//    string seq = thing.decode_rymer(m.length);
+//    m.value.key = thing.get_original_kmer_key(seq);
 //}
-
-
-if (minimizers_rymer.empty()){
-    //throw runtime_error("NO RYMERS!!!");
-}
 
 // Insert the rymers to the end of the minimizers
 //minimizers.insert(minimizers.end(), minimizers_rymer.begin(), minimizers_rymer.end());
@@ -637,8 +626,10 @@ if (minimizers_rymer.empty()){
     std::vector<Cluster> clusters;
     std::vector<Cluster> clusters_rymer;
 
+//vector<Seed> seeds;
 vector<Seed> seeds = this->find_seeds<Seed>(minimizers, aln, funnel);
 vector<Seed> seeds_rymer = this->find_seeds<Seed>(minimizers_rymer, aln, funnel_rymer);
+
 
 if (seeds.size() != seeds_rymer.size()){
     vector<Alignment> empty_aln;
@@ -710,12 +701,12 @@ auto apply_rymer_filter = [&](
 
             auto hits = rymer_index.find(rymers[seed.source].value);
 
-                if (hits.size() > 0) {
+                if (true) {//if (hits.size() > 0) {
                     std::string seed_seq = "GATTACA"; //minimizer_index.first.seq;
                     const double deam_prob = (*calculate_deam_prob_ptr)(kmer_seq, seed_seq);
-                    cerr << "minimizer seq: " << kmer_seq << endl;
-                    cerr << "seed seq: " << seed_seq << endl;
-                    cerr << "Thread: " << tid << " Iteration: " << i << " DEAM PROB: " << deam_prob << endl;
+                    //cerr << "minimizer seq: " << kmer_seq << endl;
+                    //cerr << "seed seq: " << seed_seq << endl;
+                    //cerr << "Thread: " << tid << " Iteration: " << i << " DEAM PROB: " << deam_prob << endl;
                     local_filtered_seeds.push_back(seeds[i]);
                     local_filtered_seeds_rymer.push_back(seed);
                 }
@@ -737,17 +728,21 @@ auto apply_rymer_filter = [&](
 
 #ifdef RYMER
 // Use the lambda function
-auto [seeds_filtered, seeds_rymer_filtered] = apply_rymer_filter(seeds, seeds_rymer, minimizers, minimizers_rymer, this->minimizer_index);
-seeds = move(seeds_filtered);
-seeds_rymer = move(seeds_rymer_filtered);
+//auto [seeds_filtered, seeds_rymer_filtered] = apply_rymer_filter(seeds, seeds_rymer, minimizers, minimizers_rymer, this->minimizer_index);
+//seeds = move(seeds_filtered);
+//seeds_rymer = move(seeds_rymer_filtered);
 #endif
 
+clusters = clusterer.cluster_seeds(seeds, get_distance_limit(aln.sequence().size()));
+//cerr << "NUMBER OF MINIMIZER CLUSTERS: " << clusters.size() << endl;
+//throw runtime_error("CHECK");
 
- clusters = clusterer.cluster_seeds(seeds, get_distance_limit(aln.sequence().size()));
- clusters_rymer = clusterer.cluster_seeds(seeds_rymer, get_distance_limit(aln.sequence().size()));
+//clusters = clusterer.cluster_seeds(seeds_rymer, get_distance_limit(aln.sequence().size()));
+//cerr << "NUMBER OF RYMER CLUSTERS: " << clusters.size() << endl;
 
-   //cerr << "NUMBER OF RYMER CLUSTERS: " << clusters_rymer.size() << endl;
-   //cerr << "NUMBER OF MINIMIZER CLUSTERS: " << minimizers_rymer.size() << endl;
+//seeds.insert(seeds.end(), seeds_rymer.begin(), seeds_rymer.end());
+//clusters = clusterer.cluster_seeds(seeds, get_distance_limit(aln.sequence().size()));
+//cerr << "NUMBER OF BOTH CLUSTERS: " << clusters.size() << endl;
 
 #ifdef debug_validate_clusters
     vector<vector<Cluster>> all_clusters;
@@ -1030,37 +1025,37 @@ seeds_rymer = move(seeds_rymer_filtered);
         for (size_t i = 0; i < cluster_chains.size(); i++) {
             cluster_alignment_score_estimates[i] = cluster_chains[i].first;
         }
-        for (size_t i = 0; i < cluster_chains_rymer.size(); i++) {
-            cluster_alignment_score_estimates_rymer[i] = cluster_chains_rymer[i].first;
-        }
+        //for (size_t i = 0; i < cluster_chains_rymer.size(); i++) {
+          //  cluster_alignment_score_estimates_rymer[i] = cluster_chains_rymer[i].first;
+        //}
     } else {
         // Just score the extension groups, with a slightly simpler algorithm; don't chain them
         cluster_alignment_score_estimates = this->score_extensions(cluster_extensions, aln, funnel);
-        cluster_alignment_score_estimates_rymer = this->score_extensions(cluster_extensions_rymer, aln, funnel_rymer);
+        //cluster_alignment_score_estimates_rymer = this->score_extensions(cluster_extensions_rymer, aln, funnel_rymer);
     }
-    
+
     if (track_provenance) {
         funnel.stage("align");
     }
 
     //How many of each minimizer ends up in a cluster that actually gets turned into an alignment?
     vector<size_t> minimizer_kept_count(minimizers.size(), 0);
-    vector<size_t> minimizer_kept_count_rymer(minimizers_rymer.size(), 0);
+    //vector<size_t> minimizer_kept_count_rymer(minimizers_rymer.size(), 0);
 
     // Now start the alignment step. Everything has to become an alignment.
 
     // We will fill this with all computed alignments in estimated score order.
     vector<Alignment> alignments;
-    vector<Alignment> alignments_rymer;
+    //vector<Alignment> alignments_rymer;
     alignments.reserve(cluster_alignment_score_estimates.size());
-    alignments_rymer.reserve(cluster_alignment_score_estimates_rymer.size());
+    //alignments_rymer.reserve(cluster_alignment_score_estimates_rymer.size());
     // This maps from alignment index back to cluster extension index, for
     // tracing back to minimizers for MAPQ. Can hold
     // numeric_limits<size_t>::max() for an unaligned alignment.
     vector<size_t> alignments_to_source;
-    vector<size_t> alignments_to_source_rymer;
+    //vector<size_t> alignments_to_source_rymer;
     alignments_to_source.reserve(cluster_alignment_score_estimates.size());
-    alignments_to_source_rymer.reserve(cluster_alignment_score_estimates_rymer.size());
+    //alignments_to_source_rymer.reserve(cluster_alignment_score_estimates_rymer.size());
     // Create a new alignment object to get rid of old annotations.
     {
       Alignment temp;
@@ -1081,6 +1076,7 @@ seeds_rymer = move(seeds_rymer_filtered);
     // We need to be able to discard a processed cluster because its score isn't good enough.
     // We have more components to the score filter than process_until_threshold_b supports.
     auto discard_processed_cluster_by_score = [&](size_t processed_num) -> void {
+
         // This extension is not good enough.
         if (track_provenance) {
             funnel.fail("extension-set", processed_num, cluster_alignment_score_estimates[processed_num]);
@@ -1290,7 +1286,7 @@ seeds_rymer = move(seeds_rymer_filtered);
                 }
             }
         }, discard_processed_cluster_by_score);
-    
+
     if (alignments.size() == 0) {
         // Produce an unaligned Alignment
         alignments.emplace_back(aln);
@@ -1388,10 +1384,10 @@ seeds_rymer = move(seeds_rymer_filtered);
         }
     }
 
-    vector<size_t> explored_rymers;
+    //vector<size_t> explored_rymers;
     for (size_t i = 0; i < minimizers_rymer.size(); i++) {
         if (minimizer_explored_rymer.contains(i)) {
-            explored_rymers.push_back(i);
+      //      explored_rymers.push_back(i);
         }
     }
 
@@ -3544,7 +3540,7 @@ std::vector<MinimizerMapper::Minimizer> MinimizerMapper::find_rymers(const std::
 
         std::string rymer_sequence = get<0>(m).key.decode_rymer(this->rymer_index.k());
 
-        cerr << "RYMER SEQUENCE: " << rymer_sequence << endl;
+        //cerr << "RYMER SEQUENCE: " << rymer_sequence << endl;
 
         if (get<0>(m).is_reverse){
             //cerr << "REVERSE" << endl;

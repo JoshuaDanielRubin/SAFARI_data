@@ -156,6 +156,7 @@ struct Key128;
 
 struct Key64
 {
+
 public:
   // Internal representation.
   typedef std::uint64_t key_type;
@@ -262,6 +263,8 @@ void reverse_rymer(size_t k, unsigned char c)
 
 #ifdef RYMER
   std::string decode_rymer(size_t k) const;
+
+  key_type get_original_kmer_key(const std::string& rymerStr) const;
 #endif
 
   // Required numeric constants.
@@ -979,11 +982,11 @@ const std::vector<std::tuple<minimizer_type, size_t, size_t>> rymer_regions(std:
 
     std::cerr << std::endl << std::endl << std::endl;
 
+/*
      // Print out details of rymers
     std::cerr << "=== Rymers Found ===\n";
     for (const auto& rymer_tuple : rymers_found) {
         std::cerr << " Rymer Key: " << std::get<0>(rymer_tuple).key
-                  << " Decoded sequence: " << std::get<0>(rymer_tuple).key.decode(this->k())
                   << " Decode_rymer sequence: " << std::get<0>(rymer_tuple).key.decode_rymer(this->k())
                   << " Start: " << std::get<1>(rymer_tuple)
                   << " Hash: " << std::get<0>(rymer_tuple).hash
@@ -1001,7 +1004,7 @@ const std::vector<std::tuple<minimizer_type, size_t, size_t>> rymer_regions(std:
     }
 
     std::cerr << std::endl << std::endl << std::endl;
-
+*/
 
     std::vector<std::tuple<minimizer_type, size_t, size_t>> ret;
 
@@ -1023,7 +1026,7 @@ const std::vector<std::tuple<minimizer_type, size_t, size_t>> rymer_regions(std:
         auto range = minimizer_map.equal_range(std::get<1>(rymer_tuple));
 
         if(range.first == range.second) {
-            std::cerr << "Warning: No matching minimizer found for rymer starting at position " << std::get<1>(rymer_tuple) << "\n";
+            //std::cerr << "Warning: No matching minimizer found for rymer starting at position " << std::get<1>(rymer_tuple) << "\n";
             continue;
         }
 
