@@ -754,6 +754,9 @@ public:
   */
   std::vector<minimizer_type> minimizers(std::string::const_iterator begin, std::string::const_iterator end) const
   {
+
+   //std::cerr << "[DEBUG] Inside minimizers function. Sequence length: " << (end - begin) << std::endl;
+
     if(this->uses_syncmers()) { return this->syncmers(begin, end); }
     std::vector<minimizer_type> result;
     size_t window_length = this->window_bp(), total_length = end - begin;
@@ -816,6 +819,9 @@ public:
   */
   std::vector<minimizer_type> rymers(std::string::const_iterator begin, std::string::const_iterator end) const
   {
+
+   //std::cerr << "[DEBUG] Inside rymers function. Sequence length: " << (end - begin) << std::endl;
+
     if(this->uses_syncmers()) { return this->syncmers(begin, end); }
     std::vector<minimizer_type> result;
     size_t window_length = this->window_bp(), total_length = end - begin;
@@ -829,8 +835,10 @@ public:
     std::string::const_iterator iter = begin;
     while(iter != end)
     {
-      forward_key.forward_rymer(this->k(), *iter, valid_chars);
-      reverse_key.reverse_rymer(this->k(), *iter);
+     //std::cerr << "[DEBUG] Encoding character: " << *iter << std::endl;
+     forward_key.forward_rymer(this->k(), *iter, valid_chars);
+     reverse_key.reverse_rymer(this->k(), *iter);
+     //std::cerr << "[DEBUG] Forward key: " << forward_key << ", Reverse key: " << reverse_key << std::endl;
       if(valid_chars >= this->k()) { buffer.advance(start_pos, forward_key, reverse_key); }
       else                         { buffer.advance(start_pos); }
       ++iter;
@@ -850,6 +858,7 @@ public:
             if(buffer.at(i).offset >= next_read_offset)
             {
               result.emplace_back(buffer.at(i));
+              //std::cerr << "[DEBUG] Added minimizer with offset: " << buffer.at(i).offset << ", hash: " << buffer.at(i).hash << std::endl;
               next_read_offset = buffer.at(i).offset + 1;
             }
           }
@@ -864,6 +873,8 @@ public:
       if(minimizer.is_reverse) { minimizer.offset += this->k() - 1; }
     }
     std::sort(result.begin(), result.end());
+
+   //std::cerr << "[DEBUG] Total rymers found: " << result.size() << std::endl;
 
     return result;
   }
