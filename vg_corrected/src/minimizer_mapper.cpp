@@ -33,7 +33,7 @@
 // Dump fragment length distribution information
 //#define debug_fragment_distr
 //Do a brute force check that clusters are correct
-#define debug_validate_clusters
+//#define debug_validate_clusters
 //#define dump_debug_rymers
 
 namespace vg {
@@ -609,19 +609,27 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
 std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel);
 std::vector<Minimizer> minimizers_rymer = this->find_rymers(aln.sequence(), funnel);
 
+//for (auto & m : minimizers){
+ //  cerr << "KMER KEY: " << m.value.key << endl;
+//}
+
 gbwtgraph::Key64 thing;
 for (auto & m : minimizers_rymer){
     string rymer_seq = m.value.key.decode_rymer(m.length);
-    //cerr << "SEED RYMER SEQ: " << rymer_seq << endl;
+    //string kmer_seq = m.value.key.decode(m.length);
+
+    //cerr << "RYMER SEQ: " << rymer_seq << endl;
+    //cerr << "KMER SEQ: " << kmer_seq << endl;
+
     auto original_key = thing.get_original_kmer_key(rymer_seq);
+
+    //cerr << "RYMER KEY: " << original_key << endl;
+
     m.value.key = original_key;
+    m.value.hash = m.value.key.hash();
 }
 
-// Insert the rymers to the end of the minimizers
-//minimizers.insert(minimizers.end(), minimizers_rymer.begin(), minimizers_rymer.end());
-
-    //std::cerr << "NUMBER OF MINIMIZERS FOUND: " << minimizers.size() << std::endl;
-    //std::cerr << "NUMBER OF RYMERS FOUND: " << minimizers_rymer.size() << std::endl;
+//throw runtime_error("CHECK");
 
     //Since there can be two different versions of a distance index, find seeds and clusters differently
 
@@ -631,21 +639,8 @@ for (auto & m : minimizers_rymer){
 
 
 minimizers.insert(minimizers.end(), minimizers_rymer.begin(), minimizers_rymer.end());
-//clusters = clusterer.cluster_seeds(seeds, get_distance_limit(aln.sequence().size()));
 
 vector<Seed> seeds = this->find_seeds<Seed>(minimizers, aln, funnel);
-//vector<Seed> seeds_rymer = this->find_seeds<Seed>(minimizers_rymer, aln, funnel_rymer);
-
-/*
-gbwtgraph::Key64 thing;
-for (auto & s : seeds_rymer){
-    string rymer_seq = minimizers_rymer[s.source].value.key.decode_rymer(this->rymer_index.k());
-    //cerr << "SEED RYMER SEQ: " << rymer_seq << endl;
-    auto original_key = thing.get_original_kmer_key(rymer_seq);
-    s.source = original_key;
-    s.minimizer_cache = MIPayload::NO_CODE;
-}
-*/
 
     // Cluster the seeds. Get sets of input seed indexes that go together.
     if (track_provenance) {
@@ -833,7 +828,7 @@ auto apply_rymer_filter = [&](
     // To compute the windows for explored minimizers, we need to get
     // all the minimizers that are explored.
     SmallBitset minimizer_explored(minimizers.size());
-    SmallBitset minimizer_explored_rymer(minimizers_rymer.size());
+    //SmallBitset minimizer_explored_rymer(minimizers_rymer.size());
 
     //How many hits of each minimizer ended up in each cluster we kept?
     vector<vector<size_t>> minimizer_kept_cluster_count;
@@ -1034,7 +1029,7 @@ auto apply_rymer_filter = [&](
 
     //How many of each minimizer ends up in a cluster that actually gets turned into an alignment?
     vector<size_t> minimizer_kept_count(minimizers.size(), 0);
-    vector<size_t> minimizer_kept_count_rymer(minimizers_rymer.size(), 0);
+    //vector<size_t> minimizer_kept_count_rymer(minimizers_rymer.size(), 0);
 
     // Now start the alignment step. Everything has to become an alignment.
 
@@ -1377,12 +1372,12 @@ auto apply_rymer_filter = [&](
         }
     }
 
-    vector<size_t> explored_rymers;
-    for (size_t i = 0; i < minimizers_rymer.size(); i++) {
-        if (minimizer_explored_rymer.contains(i)) {
-            explored_rymers.push_back(i);
-        }
-    }
+    //vector<size_t> explored_rymers;
+    //for (size_t i = 0; i < minimizers_rymer.size(); i++) {
+    //    if (minimizer_explored_rymer.contains(i)) {
+    //        explored_rymers.push_back(i);
+    //    }
+   // }
 
     // Compute caps on MAPQ. TODO: avoid needing to pass as much stuff along.
     double escape_bonus = mapq < std::numeric_limits<int32_t>::max() ? 1.0 : 2.0;

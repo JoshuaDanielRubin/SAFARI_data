@@ -1038,7 +1038,7 @@ const std::vector<std::tuple<minimizer_type, size_t, size_t>> rymer_regions(std:
     }
 
     if(matches_found == 0) {
-         std::cerr << "Warning: No matches found between rymers and minimizers" << std::endl;
+         //std::cerr << "Warning: No matches found between rymers and minimizers" << std::endl;
         //throw std::runtime_error("Error: No matches found between rymers and minimizers");
     }
 
