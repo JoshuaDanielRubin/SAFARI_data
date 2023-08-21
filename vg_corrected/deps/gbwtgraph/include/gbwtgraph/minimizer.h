@@ -216,38 +216,46 @@ public:
 
 #ifdef RYMER
 
-// Move the rymer forward, with c as the next character. Update the key, assuming that
-// it encodes the rymer in forward orientation.
+// Corrected forward_rymer function
 void forward_rymer(size_t k, unsigned char c, size_t& valid_chars)
 {
-  key_type packed = CHAR_TO_PACK_RYMER[c];
-  //std::cerr << "Input char: " << c << ", Packed: " << packed << std::endl;
+    static key_type KMER_MASK_RYMER[65] = { 0 }; // Initialize all values to 0
+    static bool is_initialized = false;
+    if (!is_initialized) {
+        for(size_t i = 1; i <= 32; i++) { // Assuming a maximum k of 32
+            KMER_MASK_RYMER[i] = (1UL << i) - 1;  // Only shifting by i bits
+        }
+        is_initialized = true;
+    }
 
-  if(packed > PACK_MASK_RYMER) { 
-    this->key = EMPTY_KEY; 
-    valid_chars = 0; 
-    //std::cerr << "Invalid char encountered. Key reset to EMPTY_KEY." << std::endl;
-  }
-  else
-  {
-    this->key = ((this->key << PACK_WIDTH_RYMER) | packed) & RYMER_MASK[k];
-    valid_chars++;
-    //std::cerr << "Valid char encountered. Key updated to: " << this->key << std::endl;
-  }
+    key_type packed = CHAR_TO_PACK_RYMER[c];
+    if(packed > PACK_MASK_RYMER)
+    {
+        this->key = EMPTY_KEY;
+        valid_chars = 0;
+    }
+    else
+    {
+        this->key = ((this->key << 1) | packed) & KMER_MASK_RYMER[k];  // Only shifting by 1 bit
+        valid_chars++;
+    }
 }
 
-// Move the rymer forward, with c as the next character. Update the key, assuming that
-// it encodes the rymer in reverse orientation.
+// Corrected reverse_rymer function
 void reverse_rymer(size_t k, unsigned char c)
 {
-  key_type packed = CHAR_TO_PACK_RYMER[c];
-  if(packed > PACK_MASK_RYMER) { this->key = EMPTY_KEY; }
-  else
-  {
-    packed ^= PACK_MASK_RYMER; // The complement of the base.
-    this->key = (packed << ((k - 1) * PACK_WIDTH_RYMER)) | (this->key >> PACK_WIDTH_RYMER);
-  }
+    key_type packed = CHAR_TO_PACK_RYMER[c];
+    if(packed > PACK_MASK_RYMER)
+    {
+        this->key = EMPTY_KEY;
+    }
+    else
+    {
+        packed ^= PACK_MASK_RYMER;  // The complement of the base.
+        this->key = (packed << (k - 1)) | (this->key >> 1);  // Only shifting by 1 bit
+    }
 }
+
 
 #endif
 
@@ -798,6 +806,69 @@ public:
     return result;
   }
 
+   /*
+    Returns all minimizers in the string specified by the iterators. The return
+    value is a vector of minimizers sorted by their offsets. If there are multiple
+    occurrences of one or more minimizer keys with the same hash in a window,
+    return all of them.
+
+    Calls syncmers() if the index uses closed syncmers.
+  */
+  std::vector<minimizer_type> rymers(std::string::const_iterator begin, std::string::const_iterator end) const
+  {
+    if(this->uses_syncmers()) { return this->syncmers(begin, end); }
+    std::vector<minimizer_type> result;
+    size_t window_length = this->window_bp(), total_length = end - begin;
+    if(total_length < window_length) { return result; }
+
+    // Find the minimizers.
+    CircularBuffer buffer(this->w());
+    size_t valid_chars = 0, start_pos = 0;
+    size_t next_read_offset = 0;  // The first read offset that may contain a new minimizer.
+    key_type forward_key, reverse_key;
+    std::string::const_iterator iter = begin;
+    while(iter != end)
+    {
+      forward_key.forward_rymer(this->k(), *iter, valid_chars);
+      reverse_key.reverse_rymer(this->k(), *iter);
+      if(valid_chars >= this->k()) { buffer.advance(start_pos, forward_key, reverse_key); }
+      else                         { buffer.advance(start_pos); }
+      ++iter;
+      if(static_cast<size_t>(iter - begin) >= this->k()) { start_pos++; }
+      // We have a full window with a minimizer.
+      if(static_cast<size_t>(iter - begin) >= window_length && !buffer.empty())
+      {
+        // Insert the candidates if:
+        // 1) this is the first minimizer we encounter;
+        // 2) the last reported minimizer had the same hash (we may have new occurrences); or
+        // 3) the first candidate is located after the last reported minimizer.
+        if(result.empty() || result.back().hash == buffer.front().hash || result.back().offset < buffer.front().offset)
+        {
+          // Insert all new occurrences of the minimizer in the window.
+          for(size_t i = buffer.begin(); i < buffer.end() && buffer.at(i).hash == buffer.front().hash; i++)
+          {
+            if(buffer.at(i).offset >= next_read_offset)
+            {
+              result.emplace_back(buffer.at(i));
+              next_read_offset = buffer.at(i).offset + 1;
+            }
+          }
+        }
+      }
+    }
+
+    // It was more convenient to use the first offset of the kmer, regardless of the orientation.
+    // If the minimizer is a reverse complement, we must return the last offset instead.
+    for(minimizer_type& minimizer : result)
+    {
+      if(minimizer.is_reverse) { minimizer.offset += this->k() - 1; }
+    }
+    std::sort(result.begin(), result.end());
+
+    return result;
+  }
+
+
   /*
     Returns all minimizers in the string. The return value is a vector of
     minimizers sorted by their offsets.
@@ -850,7 +921,7 @@ public:
     size_t next_read_offset = 0;  // The first read offset that may contain a new minimizer.
     // All results before this are finished and have their lengths filled in.
     // All results after are current winning minimizers of the current window.
-    size_t finished_through = 0; 
+    size_t finished_through = 0;
     key_type forward_key, reverse_key;
     std::string::const_iterator iter = begin;
     while(iter != end)

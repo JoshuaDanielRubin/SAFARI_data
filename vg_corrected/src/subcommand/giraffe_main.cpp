@@ -665,18 +665,20 @@ int main_giraffe(int argc, char** argv) {
                 break;
 
             case 'q':
+
                 if (!optarg || !*optarg) {
-                    cerr << "error:[vg giraffe] Must provide rymer file with -m." << endl;
+                   throw runtime_error("error:[vg giraffe] Must provide rymer file with -m.");
                     exit(1);
                 }
                 if (!std::ifstream(optarg).is_open()) {
-                    cerr << "error:[vg giraffe] Couldn't open rymer file " << optarg << endl;
+                    throw runtime_error("error:[vg giraffe] Couldn't open rymer file ");
                     exit(1);
                 }
                 registry.provide("Rymers", optarg);
                 break;
                 
             case 'd':
+
                 if (!optarg || !*optarg) {
                     cerr << "error:[vg giraffe] Must provide distance index file with -d." << endl;
                     exit(1);

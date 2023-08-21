@@ -158,36 +158,31 @@ index_haplotypes_rymer(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
     {
         // Use the rymer transform on the input sequence.
         std::string rymer_seq = gbwtgraph::convertToRymerSpace(seq);
-        std::vector<minimizer_type> minimizers = index.minimizers(rymer_seq); 
+        std::vector<minimizer_type> rymers = index.rymers(rymer_seq);
 
         auto iter = traversal.begin();
         size_t node_start = 0;
         int thread_id = omp_get_thread_num();
 
-        for(minimizer_type& minimizer : minimizers)
+        for(minimizer_type& rymer : rymers)
         {
-            if(minimizer.empty()) { continue; }
+            if(rymer.empty()) { continue; }
 
-            // Obtain the rymer sequence instead of the original kmer sequence.
-            std::string minimizer_sequence = minimizer.key.decode_rymer(k);
+            //string str = ;
+            //auto original_key = gbwtgraph::Key64::get_original_kmer_key(str);
 
-            auto encoded_key = Key64::encode(minimizer_sequence);
-
-            if (encoded_key.decode_rymer(k) != minimizer_sequence)
-            {
-                throw runtime_error("THERES A PROBLEM WITH THE ENCODING OR DECODING");
-            }
+            //std::string minimizer_sequence = minimizer.key.decode_rymer(k);
 
             // Find the node covering minimizer starting position.
             size_t node_length = graph.get_length(*iter);
-            while(node_start + node_length <= minimizer.offset)
+            while(node_start + node_length <= rymer.offset)
             {
                 node_start += node_length;
                 ++iter;
                 node_length = graph.get_length(*iter);
             }
-            pos_t pos { graph.get_id(*iter), graph.get_is_reverse(*iter), minimizer.offset - node_start };
-            if(minimizer.is_reverse) { pos = reverse_base_pos(pos, node_length); }
+            pos_t pos { graph.get_id(*iter), graph.get_is_reverse(*iter), rymer.offset - node_start };
+            if(rymer.is_reverse) { pos = reverse_base_pos(pos, node_length); }
             if(!Position::valid_offset(pos))
             {
                 #pragma omp critical (cerr)
@@ -196,7 +191,7 @@ index_haplotypes_rymer(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
                 }
                 std::exit(EXIT_FAILURE);
             }
-            cache[thread_id].emplace_back(minimizer, pos);
+            cache[thread_id].emplace_back(rymer, pos);
         }
 
         if(cache[thread_id].size() >= MINIMIZER_CACHE_SIZE) { flush_cache(thread_id); }
