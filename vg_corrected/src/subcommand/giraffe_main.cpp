@@ -321,7 +321,6 @@ void help_giraffe(char** argv) {
     << "input options:" << endl
     << "  -G, --gam-in FILE             read and realign GAM-format reads from FILE" << endl
     << "  -f, --fastq-in FILE           read and align FASTQ-format reads from FILE (two are allowed, one for each mate)" << endl
-    //<< "  -k, --kmer-freq-in FILE       read kmer frequency from text file FILE" << endl
     << "  -i, --interleaved             GAM/FASTQ input is interleaved pairs, for paired-end alignment" << endl
     << "alternate indexes:" << endl
     << "  -x, --xg-name FILE            use this xg index or graph" << endl
@@ -422,8 +421,6 @@ int main_giraffe(int argc, char** argv) {
     // Note: multiple FASTQs are not interpreted as paired.
     string fastq_filename_1;
     string fastq_filename_2;
-    // What kmer stats file to read in
-    //string kmer_freq_filename;
     // Is the input interleaved/are we in paired-end mode?
     bool interleaved = false;
     // True if fastq_filename_2 or interleaved is set.
@@ -538,7 +535,6 @@ int main_giraffe(int argc, char** argv) {
             {"progress", no_argument, 0, 'p'},
             {"gam-in", required_argument, 0, 'G'},
             {"fastq-in", required_argument, 0, 'f'},
-            {"kmer-freq-in", required_argument, 0, 'k'},
             {"interleaved", no_argument, 0, 'i'},
             {"max-multimaps", required_argument, 0, 'M'},
             {"sample", required_argument, 0, 'N'},
@@ -583,7 +579,7 @@ int main_giraffe(int argc, char** argv) {
         };
 
         int option_index = 0;
-        c = getopt_long (argc, argv, "hZ:x:g:H:m:q:s:d:pG:f:k:iM:N:R:o:Pnb:c:C:D:F:e:a:S:u:U:v:w:Ot:r:A:L:",
+        c = getopt_long (argc, argv, "hZ:x:g:H:m:q:s:d:pG:f:iM:N:R:o:Pnb:c:C:D:F:e:a:S:u:U:v:w:Ot:r:A:L:",
                          long_options, &option_index);
 
 
@@ -724,15 +720,6 @@ int main_giraffe(int argc, char** argv) {
                     exit(1);
                 }
                 break;
-/*
-            case 'k':
-                kmer_freq_filename = optarg;
-                if (kmer_freq_filename.empty()) {
-                    cerr << "error:[vg giraffe] Must provide Kmer frequency file with -k." << endl;
-                    exit(1);
-                                                }
-    break;
-*/
 
             case 'i':
                 interleaved = true;
