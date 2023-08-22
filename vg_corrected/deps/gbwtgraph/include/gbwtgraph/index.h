@@ -37,8 +37,13 @@ index_haplotypes(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
   // Minimizer caching. We only generate the payloads after we have removed duplicate positions.
   std::vector<std::vector<std::pair<minimizer_type, pos_t>>> cache(threads);
   constexpr size_t MINIMIZER_CACHE_SIZE = 1024;
+
+      // Introduce a shared counter to track the number of indexed rymers.
+  std::atomic<size_t> minimizer_count(0);
+
   auto flush_cache = [&](int thread_id)
   {
+
     std::vector<std::pair<minimizer_type, pos_t>>& current_cache = cache[thread_id];
     gbwt::removeDuplicates(current_cache, false);
     std::vector<payload_type> payload;
@@ -48,6 +53,7 @@ index_haplotypes(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
     {
       for(size_t i = 0; i < current_cache.size(); i++)
       {
+        minimizer_count++;
         index.insert(current_cache[i].first, current_cache[i].second, payload[i]);
       }
     }
@@ -71,7 +77,8 @@ index_haplotypes(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
     for(minimizer_type& minimizer : minimizers)
     {
        if(minimizer.empty()) { continue; }
-       //continue;
+
+       //cerr << "MINIMIZER KEY: " << minimizer.key << endl;
 
        std::string minimizer_sequence = minimizer.key.decode(k); // TO CORRECT
        //cerr << "MINIMIZER SEQUENCE (IN MINIMIZER INDEXING)  " << minimizer_sequence << endl;
@@ -117,6 +124,9 @@ index_haplotypes(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
   */
   for_each_haplotype_window(graph, index.window_bp(), find_minimizers, (threads > 1), false);
   for(int thread_id = 0; thread_id < threads; thread_id++) { flush_cache(thread_id); }
+
+   // Print or return the counter after the function completes its execution.
+  std::cout << "Total minimizers indexed: " << minimizer_count << std::endl;
 }
 
 
@@ -141,6 +151,10 @@ index_haplotypes_rymer(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
   // Minimizer caching. We only generate the payloads after we have removed duplicate positions.
   std::vector<std::vector<std::pair<minimizer_type, pos_t>>> cache(threads);
   constexpr size_t MINIMIZER_CACHE_SIZE = 1024;
+
+     // Introduce a shared counter to track the number of indexed rymers.
+  std::atomic<size_t> rymer_count(0);
+
   auto flush_cache = [&](int thread_id)
   {
     std::vector<std::pair<minimizer_type, pos_t>>& current_cache = cache[thread_id];
@@ -152,7 +166,9 @@ index_haplotypes_rymer(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
     {
       for(size_t i = 0; i < current_cache.size(); i++)
       {
+        rymer_count++;
         index.insert(current_cache[i].first, current_cache[i].second, payload[i]);
+        //cerr << "RYMER INDEX SIZE: " << index.size() << endl;
       }
     }
     cache[thread_id].clear();
@@ -165,32 +181,24 @@ index_haplotypes_rymer(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
     //std::cerr << "SEQ SIZE: " << seq.size() << std::endl;
 
     std::string rymer_seq = gbwtgraph::convertToRymerSpace(seq);
-    std::vector<minimizer_type> minimizers = index.rymers(rymer_seq); // Calls syncmers() when appropriate.
+    //std::vector<minimizer_type> minimizers = index.minimizers(seq); // Calls syncmers() when appropriate.
+    std::vector<minimizer_type> minimizers = index.rymers(rymer_seq);
+
     auto iter = traversal.begin();
     size_t node_start = 0;
     int thread_id = omp_get_thread_num();
 
-//        if (std::all_of(minimizers.begin(), minimizers.end(), [](const minimizer_type& minimizer){ return minimizer.empty(); }))
-//{
- //   throw std::runtime_error("All minimizers are empty!");
-//}
-
-
     for(minimizer_type& minimizer : minimizers)
     {
-       if(minimizer.empty()) { continue; }
-       //continue;
 
-       std::string minimizer_sequence = minimizer.key.decode(k); // TO CORRECT
-       //cerr << "MINIMIZER SEQUENCE (IN MINIMIZER INDEXING)  " << minimizer_sequence << endl;
+       if(minimizer.empty()){continue;}
 
+      std::string minimizer_sequence = minimizer.key.decode(k); // TO CORRECT
 
-       auto encoded_key = Key64::encode(minimizer_sequence);
-
-      if (encoded_key.decode(k) != minimizer_sequence){
-         throw runtime_error("THERES A PROBLEM WITH THE ENCODING OR DECODING");
-      }
-
+      auto encoded_key = Key64::encode(minimizer_sequence);
+      minimizer.key = encoded_key;
+      //cerr << "RYMER KEY: " << minimizer.key << endl;
+      minimizer.hash = encoded_key.hash();
 
       // Find the node covering minimizer starting position.
       size_t node_length = graph.get_length(*iter);
@@ -210,6 +218,7 @@ index_haplotypes_rymer(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
         }
         std::exit(EXIT_FAILURE);
       }
+
       cache[thread_id].emplace_back(minimizer, pos);
     }
 
@@ -225,6 +234,10 @@ index_haplotypes_rymer(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
   */
   for_each_haplotype_window(graph, index.window_bp(), find_minimizers, (threads > 1), false);
   for(int thread_id = 0; thread_id < threads; thread_id++) { flush_cache(thread_id); }
+
+  // Print or return the counter after the function completes its execution.
+  std::cout << "Total rymers indexed: " << rymer_count << std::endl;
+
 }
 
 

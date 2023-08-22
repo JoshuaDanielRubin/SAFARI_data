@@ -25,7 +25,7 @@ char convertBaseToRymer(const char base) {
     }
 }
 
-
+/*
 const std::string convertToRymerSpace(const std::string& input) {
     //std::cerr << "KMER: " << input << std::endl;
     std::string output;
@@ -53,7 +53,7 @@ const std::string convertToRymerSpace(const std::string& input) {
     //std::cerr << "RYMER: " << output << std::endl;
     return output;
 }
-
+*/
 
 //------------------------------------------------------------------------------
 

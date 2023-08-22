@@ -29,7 +29,38 @@ namespace gbwtgraph
 {
 
 #ifdef RYMER
-const std::string convertToRymerSpace(const std::string& input);
+
+inline const std::string convertToRymerSpace(const std::string& input) {
+        static std::array<char, 256> translationTable = [] {
+        std::array<char, 256> table;
+        for (auto& entry : table) {
+            entry = '?';  // Default value for unknown characters
+        }
+        table['A'] = 'A';
+        table['G'] = 'A';
+        table['C'] = 'C';
+        table['T'] = 'C';
+        table['N'] = 'N';
+        return table;
+    }();
+
+    std::string output;
+    output.reserve(input.size());
+
+    for (const char c : input) {
+        char translatedChar = translationTable[static_cast<unsigned char>(c)];
+        
+        if (translatedChar == '?') {
+            std::cerr << "Invalid character: " << c << std::endl;
+            continue;  // Skip the invalid character
+        }
+        
+        output.push_back(translatedChar);
+    }
+
+    return output;
+}
+
 #endif
 
 const std::vector<std::string> convertPartialToRymerSpace(const std::string& input, int percentage, int iterations);

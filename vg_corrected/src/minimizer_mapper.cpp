@@ -24,7 +24,8 @@
 #define RYMER
 
 // Turn on debugging prints
-#define debug
+//#define debug
+//#define debug_explored
 // Turn on printing of minimizer fact tables
 //#define print_minimizer_table
 //#define print_minimizer_table_rymer
@@ -33,7 +34,7 @@
 // Dump fragment length distribution information
 //#define debug_fragment_distr
 //Do a brute force check that clusters are correct
-#define debug_validate_clusters
+//#define debug_validate_clusters
 //#define dump_debug_rymers
 
 namespace vg {
@@ -318,7 +319,7 @@ void MinimizerMapper::dump_debug_minimizers(const vector<MinimizerMapper::Minimi
             auto print_minimizer = [&](size_t i) {
                 cerr << log_name() << "Minimizer " << i << ": " << minimizers[i].forward_sequence() << "@" << minimizers[i].forward_offset() << " with " << minimizers[i].hits << " hits" << endl;
             };
-            
+
             if (to_include) {
                 for (auto& i : *to_include) {
                     print_minimizer(i);
@@ -361,7 +362,7 @@ void MinimizerMapper::dump_debug_minimizers(const vector<MinimizerMapper::Minimi
                 // Space until its agglomeration starts
                 cerr << ' ';
             }
-            
+
             for (size_t i = m.agglomeration_start; i < m.forward_offset(); i++) {
                 // Do the beginnign of the agglomeration
                 cerr << '-';
@@ -614,10 +615,6 @@ std::vector<Minimizer> minimizers_rymer = this->find_rymers(aln.sequence(), funn
 //cerr << "NUMBER OF MINIMIZERS: " << minimizers.size() << endl;
 //cerr << "NUMBER OF RYMERS: " << minimizers_rymer.size() << endl;
 
-//for (auto & m : minimizers){
- //  cerr << "KMER KEY: " << m.value.key << endl;
-//}
-
 gbwtgraph::Key64 thing;
 for (auto & m : minimizers_rymer){
     string rymer_seq = m.value.key.decode_rymer(m.length);
@@ -628,13 +625,15 @@ for (auto & m : minimizers_rymer){
 
     auto original_key = thing.get_original_kmer_key(rymer_seq);
 
-    //cerr << "RYMER KEY: " << original_key << endl;
-
     m.value.key = original_key;
     m.value.hash = m.value.key.hash();
+    m.value.offset = 0;
 }
 
-//throw runtime_error("CHECK");
+minimizers_rymer.erase(
+    std::remove_if(minimizers_rymer.begin(), minimizers_rymer.end(),
+                   [](const Minimizer &m) { return m.value.is_reverse; }),
+    minimizers_rymer.end());
 
     //Since there can be two different versions of a distance index, find seeds and clusters differently
 
@@ -3052,7 +3051,7 @@ double MinimizerMapper::faster_cap(const vector<Minimizer>& minimizers, vector<s
     cerr << "Sorted " << minimizers_explored.size() << " minimizers" << endl;
 #endif
 
-#ifdef debug
+#ifdef debug_explored
     cerr << "Explored minimizers:" << endl;
     dump_debug_minimizers(minimizers, sequence, &minimizers_explored);
 #endif

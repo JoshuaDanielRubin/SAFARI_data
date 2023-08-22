@@ -752,133 +752,146 @@ public:
 
     Calls syncmers() if the index uses closed syncmers.
   */
-  std::vector<minimizer_type> minimizers(std::string::const_iterator begin, std::string::const_iterator end) const
-  {
 
-   //std::cerr << "[DEBUG] Inside minimizers function. Sequence length: " << (end - begin) << std::endl;
 
-    if(this->uses_syncmers()) { return this->syncmers(begin, end); }
+std::vector<minimizer_type> minimizers(std::string::const_iterator begin, std::string::const_iterator end) const
+{
+    //std::cout << "[DEBUG] Starting minimizers function. Sequence length: " << (end - begin) << std::endl;
+
+    if(this->uses_syncmers()) { 
+        //std::cout << "[DEBUG] Using syncmers." << std::endl;
+        return this->syncmers(begin, end); 
+    }
+
     std::vector<minimizer_type> result;
     size_t window_length = this->window_bp(), total_length = end - begin;
-    if(total_length < window_length) { return result; }
+    //std::cout << "[DEBUG] Window length: " << window_length << std::endl;
+    if(total_length < window_length) { 
+        //std::cout << "[DEBUG] Sequence length is shorter than window length." << std::endl;
+        return result; 
+    }
 
-    // Find the minimizers.
     CircularBuffer buffer(this->w());
     size_t valid_chars = 0, start_pos = 0;
-    size_t next_read_offset = 0;  // The first read offset that may contain a new minimizer.
+    size_t next_read_offset = 0;
     key_type forward_key, reverse_key;
     std::string::const_iterator iter = begin;
     while(iter != end)
     {
-      forward_key.forward(this->k(), *iter, valid_chars);
-      reverse_key.reverse(this->k(), *iter);
-      if(valid_chars >= this->k()) { buffer.advance(start_pos, forward_key, reverse_key); }
-      else                         { buffer.advance(start_pos); }
-      ++iter;
-      if(static_cast<size_t>(iter - begin) >= this->k()) { start_pos++; }
-      // We have a full window with a minimizer.
-      if(static_cast<size_t>(iter - begin) >= window_length && !buffer.empty())
-      {
-        // Insert the candidates if:
-        // 1) this is the first minimizer we encounter;
-        // 2) the last reported minimizer had the same key (we may have new occurrences); or
-        // 3) the first candidate is located after the last reported minimizer.
-        if(result.empty() || result.back().hash == buffer.front().hash || result.back().offset < buffer.front().offset)
+        forward_key.forward(this->k(), *iter, valid_chars);
+        reverse_key.reverse(this->k(), *iter);
+        //std::cout << "[DEBUG] Processed character (minimizers): " << *iter << ". Valid chars: " << valid_chars << std::endl;
+
+        if(valid_chars >= this->k()) { buffer.advance(start_pos, forward_key, reverse_key); }
+        else                         { buffer.advance(start_pos); }
+
+        ++iter;
+        if(static_cast<size_t>(iter - begin) >= this->k()) { start_pos++; }
+
+        if(static_cast<size_t>(iter - begin) >= window_length && !buffer.empty())
         {
-          // Insert all new occurrences of the minimizer in the window.
-          for(size_t i = buffer.begin(); i < buffer.end() && buffer.at(i).hash == buffer.front().hash; i++)
-          {
-            if(buffer.at(i).offset >= next_read_offset)
+            if(result.empty() || result.back().hash == buffer.front().hash || result.back().offset < buffer.front().offset)
             {
-              result.emplace_back(buffer.at(i));
-              next_read_offset = buffer.at(i).offset + 1;
+                for(size_t i = buffer.begin(); i < buffer.end() && buffer.at(i).hash == buffer.front().hash; i++)
+                {
+                    if(buffer.at(i).offset >= next_read_offset)
+                    {
+                        result.emplace_back(buffer.at(i));
+                        //std::cout << "[DEBUG] Added minimizer (minimizers) with offset: " << buffer.at(i).offset << ", hash: " << buffer.at(i).hash << std::endl;
+                        next_read_offset = buffer.at(i).offset + 1;
+                    }
+                }
             }
-          }
         }
-      }
     }
 
-    // It was more convenient to use the first offset of the kmer, regardless of the orientation.
-    // If the minimizer is a reverse complement, we must return the last offset instead.
     for(minimizer_type& minimizer : result)
     {
-      if(minimizer.is_reverse) { minimizer.offset += this->k() - 1; }
+        if(minimizer.is_reverse) { minimizer.offset += this->k() - 1; }
     }
     std::sort(result.begin(), result.end());
 
+    //std::cout << "[DEBUG] Total minimizers found: " << result.size() << std::endl;
+
     return result;
-  }
+}
 
-   /*
-    Returns all minimizers in the string specified by the iterators. The return
-    value is a vector of minimizers sorted by their offsets. If there are multiple
-    occurrences of one or more minimizer keys with the same hash in a window,
-    return all of them.
 
-    Calls syncmers() if the index uses closed syncmers.
-  */
-  std::vector<minimizer_type> rymers(std::string::const_iterator begin, std::string::const_iterator end) const
-  {
+std::vector<minimizer_type> rymers(std::string::const_iterator begin, std::string::const_iterator end) const
+{
+    //std::cout << "[DEBUG] Starting rymers function. Sequence length: " << (end - begin) << std::endl;
 
-   //std::cerr << "[DEBUG] Inside rymers function. Sequence length: " << (end - begin) << std::endl;
+    if(this->uses_syncmers()) { 
+        //std::cout << "[DEBUG] Using syncmers." << std::endl;
+        return this->syncmers(begin, end); 
+    }
 
-    if(this->uses_syncmers()) { return this->syncmers(begin, end); }
     std::vector<minimizer_type> result;
     size_t window_length = this->window_bp(), total_length = end - begin;
-    if(total_length < window_length) { return result; }
+    //std::cout << "[DEBUG] Window length: " << window_length << std::endl;
+    if(total_length < window_length) { 
+        //std::cout << "[DEBUG] Sequence length is shorter than window length." << std::endl;
+        return result; 
+    }
 
-    // Find the minimizers.
     CircularBuffer buffer(this->w());
     size_t valid_chars = 0, start_pos = 0;
-    size_t next_read_offset = 0;  // The first read offset that may contain a new minimizer.
+    size_t next_read_offset = 0;
     key_type forward_key, reverse_key;
     std::string::const_iterator iter = begin;
     while(iter != end)
     {
-     //std::cerr << "[DEBUG] Encoding character: " << *iter << std::endl;
-     forward_key.forward_rymer(this->k(), *iter, valid_chars);
-     reverse_key.reverse_rymer(this->k(), *iter);
-     //std::cerr << "[DEBUG] Forward key: " << forward_key << ", Reverse key: " << reverse_key << std::endl;
-      if(valid_chars >= this->k()) { buffer.advance(start_pos, forward_key, reverse_key); }
-      else                         { buffer.advance(start_pos); }
-      ++iter;
-      if(static_cast<size_t>(iter - begin) >= this->k()) { start_pos++; }
-      // We have a full window with a minimizer.
-      if(static_cast<size_t>(iter - begin) >= window_length && !buffer.empty())
-      {
-        // Insert the candidates if:
-        // 1) this is the first minimizer we encounter;
-        // 2) the last reported minimizer had the same hash (we may have new occurrences); or
-        // 3) the first candidate is located after the last reported minimizer.
-        if(result.empty() || result.back().hash == buffer.front().hash || result.back().offset < buffer.front().offset)
+        forward_key.forward_rymer(this->k(), *iter, valid_chars);
+        reverse_key.reverse_rymer(this->k(), *iter);
+        //std::cout << "[DEBUG] Processed character: " << *iter << ". Valid chars: " << valid_chars << std::endl;
+
+        if(valid_chars >= this->k()) { buffer.advance(start_pos, forward_key, reverse_key); }
+        else                         { buffer.advance(start_pos); }
+
+        ++iter;
+        if(static_cast<size_t>(iter - begin) >= this->k()) { start_pos++; }
+
+        if(static_cast<size_t>(iter - begin) >= window_length && !buffer.empty())
         {
-          // Insert all new occurrences of the minimizer in the window.
-          for(size_t i = buffer.begin(); i < buffer.end() && buffer.at(i).hash == buffer.front().hash; i++)
-          {
-            if(buffer.at(i).offset >= next_read_offset)
+            if(result.empty() || result.back().hash == buffer.front().hash || result.back().offset < buffer.front().offset)
             {
-              result.emplace_back(buffer.at(i));
-              //std::cerr << "[DEBUG] Added minimizer with offset: " << buffer.at(i).offset << ", hash: " << buffer.at(i).hash << std::endl;
-              next_read_offset = buffer.at(i).offset + 1;
+                for(size_t i = buffer.begin(); i < buffer.end() && buffer.at(i).hash == buffer.front().hash; i++)
+                {
+                    if(buffer.at(i).offset >= next_read_offset)
+                    {
+                        result.emplace_back(buffer.at(i));
+                        //std::cout << "[DEBUG] Added minimizer with offset: " << buffer.at(i).offset << ", hash: " << buffer.at(i).hash << std::endl;
+                        next_read_offset = buffer.at(i).offset + 1;
+                    }
+                    else
+                    {
+                        //std::cout << "[DEBUG] Skipped minimizer with offset: " << buffer.at(i).offset << " as it's less than next read offset: " << next_read_offset << std::endl;
+                    }
+                }
             }
-          }
+            else
+            {
+                //std::cout << "[DEBUG] Skipped window. Reasons:" << std::endl;
+                if(result.back().hash != buffer.front().hash) {
+                    //std::cout << "- Last reported minimizer hash is different from buffer front hash." << std::endl;
+                }
+                if(result.back().offset >= buffer.front().offset) {
+                    //std::cout << "- Last reported minimizer offset is greater than or equal to buffer front offset." << std::endl;
+                }
+            }
         }
-      }
     }
 
-    // It was more convenient to use the first offset of the kmer, regardless of the orientation.
-    // If the minimizer is a reverse complement, we must return the last offset instead.
     for(minimizer_type& minimizer : result)
     {
-      if(minimizer.is_reverse) { minimizer.offset += this->k() - 1; }
+        if(minimizer.is_reverse) { minimizer.offset += this->k() - 1; }
     }
     std::sort(result.begin(), result.end());
 
-   //std::cerr << "[DEBUG] Total rymers found: " << result.size() << std::endl;
+    //std::cout << "[DEBUG] Total rymers found: " << result.size() << std::endl;
 
     return result;
-  }
-
+}
 
   /*
     Returns all minimizers in the string. The return value is a vector of
@@ -1238,6 +1251,7 @@ const std::vector<std::tuple<minimizer_type, size_t, size_t>> rymer_regions(std:
     graph positions.
     Use minimizer() or minimizers() to get the minimizer.
   */
+
   void insert(const minimizer_type& minimizer, code_type value, payload_type payload = DEFAULT_PAYLOAD)
   {
     if(minimizer.empty() || value == NO_VALUE) { return; }
@@ -1252,6 +1266,36 @@ const std::vector<std::tuple<minimizer_type, size_t, size_t>> rymer_regions(std:
       this->append({ value, payload }, offset);
     }
   }
+/*
+void insert(const minimizer_type& minimizer, code_type value, payload_type payload = DEFAULT_PAYLOAD)
+{
+    std::cout << "Entering insert() with value: " << value << std::endl;
+
+    if(minimizer.empty() || value == NO_VALUE) 
+    {
+        std::cout << "Exiting insert() early due to empty minimizer or value == NO_VALUE" << std::endl;
+        return; 
+    }
+
+    size_t offset = this->find_offset(minimizer.key, minimizer.hash);
+    std::cout << "Found offset: " << offset << " for minimizer key: " << minimizer.key << " and hash: " << minimizer.hash << std::endl;
+
+    if(this->hash_table[offset].first == key_type::no_key())
+    {
+        std::cout << "Inserting new key-value pair at offset: " << offset << std::endl;
+        this->insert(minimizer.key, { value, payload }, offset);
+    }
+    else if(this->hash_table[offset].first == minimizer.key)
+    {
+        std::cout << "Appending to existing key at offset: " << offset << std::endl;
+        this->append({ value, payload }, offset);
+    }
+    else
+    {
+        std::cout << "No action taken for minimizer key: " << minimizer.key << std::endl;
+    }
+}
+*/
 
   /*
     Inserts the position and the payload into the index, using minimizer.key as
