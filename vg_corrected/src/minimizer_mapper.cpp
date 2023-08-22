@@ -24,7 +24,7 @@
 #define RYMER
 
 // Turn on debugging prints
-//#define debug
+#define debug
 // Turn on printing of minimizer fact tables
 //#define print_minimizer_table
 //#define print_minimizer_table_rymer
@@ -33,7 +33,7 @@
 // Dump fragment length distribution information
 //#define debug_fragment_distr
 //Do a brute force check that clusters are correct
-//#define debug_validate_clusters
+#define debug_validate_clusters
 //#define dump_debug_rymers
 
 namespace vg {
@@ -588,6 +588,8 @@ void MinimizerMapper::map(Alignment& aln, AlignmentEmitter& alignment_emitter) {
 
 vector<Alignment> MinimizerMapper::map(Alignment& aln) {
 
+    //cerr << "MAPPING..." << endl;
+
     if (show_work) {
         #pragma omp critical (cerr)
         dump_debug_query(aln);
@@ -608,6 +610,9 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
 // Get minimizers
 std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel);
 std::vector<Minimizer> minimizers_rymer = this->find_rymers(aln.sequence(), funnel);
+
+//cerr << "NUMBER OF MINIMIZERS: " << minimizers.size() << endl;
+//cerr << "NUMBER OF RYMERS: " << minimizers_rymer.size() << endl;
 
 //for (auto & m : minimizers){
  //  cerr << "KMER KEY: " << m.value.key << endl;
