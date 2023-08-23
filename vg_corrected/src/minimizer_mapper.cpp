@@ -99,7 +99,7 @@ struct seed_traits<SnarlDistanceIndexClusterer::Seed> {
     inline static chain_info_t no_chain_info() {
         return MIPayload::NO_CODE;
     } 
-    
+
     /// How do we convert chain info to an actual seed of the type we are using?
     /// Also needs to know the hit position, and the minimizer number.
     inline static SnarlDistanceIndexClusterer::Seed chain_info_to_seed(const pos_t& hit, size_t minimizer, const chain_info_t& chain_info, const string seq="") {
@@ -109,9 +109,60 @@ struct seed_traits<SnarlDistanceIndexClusterer::Seed> {
 
 //-----------------------------------------------------------------------------
 
-inline double calculate_posterior_odds(std::string &kmer_seq, std::string &seed_seq) {
-    return 0.42;
+// Function to calculate the number of mismatches between two strings
+inline int count_mismatches(const std::string &str1, const std::string &str2) {
+    int mismatches = 0;
+    for (size_t i = 0; i < str1.size() && i < str2.size(); ++i) {
+        if (str1[i] != str2[i]) {
+            mismatches++;
+        }
+    }
+    return mismatches;
 }
+
+// Model 1: Exponential decay with number of mismatches
+double compute_likelihood_model1(int mismatches) {
+    double decay_factor = 0.7; // Example value, adjust as needed
+    return std::exp(-decay_factor * mismatches);
+}
+
+// Model 2: Exponential increase with number of mismatches
+double compute_likelihood_model2(int mismatches) {
+    double increase_factor = 0.3; // Example value, adjust as needed
+    return 1 - std::exp(-increase_factor * mismatches);
+}
+
+// The function to calculate posterior odds
+inline double calculate_posterior_odds(std::string &kmer_seq, std::string &seed_seq) {
+
+    int mismatches = count_mismatches(kmer_seq, seed_seq);
+
+    // Calculate the likelihoods of the models based on the sequences
+    double likelihood_model1 = compute_likelihood_model1(mismatches);
+    double likelihood_model2 = compute_likelihood_model2(mismatches);
+    
+    // Define the priors for the models
+    double prior_model1 = 0.5; // Example value
+    double prior_model2 = 0.5; // Example value
+
+    // Calculate the posteriors
+    double posterior_model1 = likelihood_model1 * prior_model1;
+    double posterior_model2 = likelihood_model2 * prior_model2;
+
+    // Calculate the odds for each model
+    double odds_model1 = posterior_model1 / (1.0 - posterior_model1);
+    double odds_model2 = posterior_model2 / (1.0 - posterior_model2);
+
+    // Calculate the odds ratio
+    double odds_ratio = odds_model1 / odds_model2;
+
+   // Transform the odds ratio into a posterior probability for Model 1
+    double posterior_probability_model1 = odds_ratio / (1.0 + odds_ratio);
+
+    return posterior_probability_model1;
+
+}
+
 
 
 string MinimizerMapper::log_name() {
@@ -124,7 +175,7 @@ string MinimizerMapper::log_alignment(const Alignment& aln) {
         return pb2json(aln);
     } else {
         // Log as a long alignment
-        
+
         stringstream ss;
         ss << log_alignment(aln.path(), true);
         ss << " score " << aln.score();
@@ -653,17 +704,20 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds,
                 throw runtime_error("Failed to get sequence for seed source: " + std::to_string(seed.source));
             }
 
-            double posterior_odds = 0.42; //calculate_posterior_odds_ptr(rymer_seq, seed_seq);
+            double posterior_odds = calculate_posterior_odds_ptr(rymer_seq, seed_seq);
 
-            // Let all seeds pass, regardless of the deam_prob value.
-            filtered_seeds.push_back(seed);
+            if (posterior_odds > 0.6){
+                filtered_seeds.push_back(seed);
+                                   }
+
+            //throw runtime_error("POSTERIOR ODDS: " + to_string(posterior_odds));
 
         } catch (const std::exception &e) {
             throw runtime_error("Error processing seed source: " + std::to_string(seed.source) + ". Details: " + e.what());
         }
     }
 
-    //throw runtime_error("MADE IT TO END OF THE LAMBDA");
+    //throw runtime_error("POSTERIOR ODDS: " + to_string(posterior_odds));
 
     return filtered_seeds;
 };
