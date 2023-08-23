@@ -109,44 +109,10 @@ struct seed_traits<SnarlDistanceIndexClusterer::Seed> {
 
 //-----------------------------------------------------------------------------
 
-inline double calculate_deam_prob(std::string &kmer_seq, std::string &seed_seq) {
-    const double delta = 0.1;  // given probability for specific mismatches
-    double prob_data_given_C = 1.0;  // likelihood for Model 2
-    
-    int mismatches = 0;  // to count the number of mismatches
-
-    for (size_t i = 0; i < kmer_seq.size(); i++) {
-        if (kmer_seq[i] != seed_seq[i]) {
-            mismatches++;
-
-            // check the specific mismatches for model 2
-            if ((seed_seq[i] == 'C' && kmer_seq[i] == 'T') || 
-                (seed_seq[i] == 'G' && kmer_seq[i] == 'A')) {
-                prob_data_given_C *= delta;
-            } else {
-                prob_data_given_C = 0.0;
-                break;  // no need to continue if any mismatch does not follow the given condition
-            }
-        }
-    }
-
-    const double k = 1.0;  // a constant for our placeholder exponential model
-    double prob_data_given_M = std::exp(-k * mismatches);  // likelihood for Model 1
-
-    // Prior probabilities
-    double prior_M = 0.5;
-    double prior_C = 0.5;
-
-    // Overall probability of observing the data
-    double prob_data = prob_data_given_M * prior_M + prob_data_given_C * prior_C;
-
-    // Posterior probabilities using Bayes' theorem
-    double post_prob_M = (prob_data_given_M * prior_M) / prob_data;
-    double post_prob_C = (prob_data_given_C * prior_C) / prob_data;
-
-    // For now, let's return the posterior probability of Model 2 (correct alignment)
-    return post_prob_C;
+inline double calculate_posterior_odds(std::string &kmer_seq, std::string &seed_seq) {
+    return 0.42;
 }
+
 
 string MinimizerMapper::log_name() {
     return "T" + to_string(omp_get_thread_num()) + ":\t";
@@ -642,6 +608,8 @@ minimizers_rymer.erase(
     std::vector<Cluster> clusters_rymer;
 
 
+size_t N_rymers = minimizers_rymer.size();
+
 minimizers.insert(minimizers.end(), minimizers_rymer.begin(), minimizers_rymer.end());
 
 vector<Seed> seeds = this->find_seeds<Seed>(minimizers, aln, funnel);
@@ -652,82 +620,59 @@ vector<Seed> seeds = this->find_seeds<Seed>(minimizers, aln, funnel);
         funnel_rymer.stage("cluster");
     }
 
-FuncType calculate_deam_prob_ptr = calculate_deam_prob;
+FuncType calculate_posterior_odds_ptr = calculate_posterior_odds;
 
-auto apply_rymer_filter = [&](
-    const vector<Seed>& seeds, const vector<Seed>& seeds_rymer,
-    const auto& minimizers, const auto& rymers, auto &minimizer_index){
+auto apply_rymer_filter = [&](const vector<Seed>& seeds,
+                              const auto& minimizers,
+                              const size_t N_rymers,
+                              auto &minimizer_index){
 
-    if (seeds.size() != seeds_rymer.size()) {
-        std::ostringstream errMsg;
-        errMsg << "Mismatch in sizes of seeds and seeds_rymer: seeds size = "
-               << seeds.size() << ", seeds_rymer size = " << seeds_rymer.size();
-        throw std::runtime_error(errMsg.str());
+
+    // Check if N_rymers is not greater than the size of the minimizers vector
+    if (N_rymers > minimizers.size()) {
+        throw runtime_error("N_rymers is greater than the size of the minimizers vector.");
     }
+
+    // Extract the last N_rymers elements
+    //auto rymers(std::make_move_iterator(minimizers.end() - N_rymers),
+    //                    std::make_move_iterator(minimizers.end()));
+
+    using MinimizerVectorType = std::remove_reference_t<decltype(minimizers)>;
+    MinimizerVectorType rymers(minimizers.end() - N_rymers, minimizers.end());
+
+
+    cerr << "NUMBER OF MINIMIZERS: " << minimizers.size() << endl;
+    cerr << "NUMBER OF RYMERS: " << rymers.size() << endl;
+    cerr << "NUMBER OF SEEDS: " << seeds.size() << endl;
 
     vector<Seed> filtered_seeds;
-    vector<Seed> filtered_seeds_rymer;
 
     // Preallocate space based on the maximum possible size.
-    filtered_seeds.reserve(seeds_rymer.size());
-    filtered_seeds_rymer.reserve(seeds_rymer.size());
+    filtered_seeds.reserve(seeds.size());
 
-    // Collect the results from all threads.
-    vector<vector<Seed>> thread_seeds(omp_get_max_threads());
-    vector<vector<Seed>> thread_seeds_rymer(omp_get_max_threads());
+    for (size_t i = 0; i < seeds.size(); ++i) {
+        const auto& seed = seeds[i];
 
-    #pragma omp parallel
-    {
-        int tid = omp_get_thread_num();
-        vector<Seed>& local_filtered_seeds = thread_seeds[tid];
-        vector<Seed>& local_filtered_seeds_rymer = thread_seeds_rymer[tid];
+        string kmer_seq = minimizers[seed.source].value.key.decode(minimizers[seed.source].length);
 
-        #pragma omp for
-        for (size_t i = 0; i < seeds_rymer.size(); ++i) {
-            const auto& seed_rymer = seeds_rymer[i];
-            const auto& seed = seeds[i];
+        std::string seed_seq = "GATTACA";
 
-            string rymer_seq = rymers[seed_rymer.source].value.key.decode_rymer(rymers[seed_rymer.source].length);
-            string kmer_seq = minimizers[seed.source].value.key.decode(minimizers[seed.source].length);
+        double posterior_odds = calculate_posterior_odds_ptr(kmer_seq, seed_seq);
+        cerr << "minimizer seq: " << kmer_seq << endl;
+        cerr << "seed seq: " << seed_seq << endl;
+        cerr << "POSTERIOR ODDS: " << posterior_odds << endl;
 
-            //if (rymer_seq != gbwtgraph::convertToRymerSpace(kmer_seq)) {
-            //   throw runtime_error("ERROR IN THE ENCODING SCHEME");
-           // }
-
-            auto hits = rymer_index.find(rymers[seed.source].value);
-
-                if (hits.size() > 0) {
-                    std::string seed_seq = "GATTACA"; //minimizer_index.first.seq;
-                    const double deam_prob = (*calculate_deam_prob_ptr)(kmer_seq, seed_seq);
-                    cerr << "minimizer seq: " << kmer_seq << endl;
-                    cerr << "seed seq: " << seed_seq << endl;
-                    cerr << "Thread: " << tid << " Iteration: " << i << " DEAM PROB: " << deam_prob << endl;
-                    local_filtered_seeds.push_back(seeds[i]);
-                    local_filtered_seeds_rymer.push_back(seed);
-                }
-               else {
-                local_filtered_seeds.push_back(seeds[i]);
-                local_filtered_seeds_rymer.push_back(seed);
-            }
-        }
+        // Let all seeds pass, regardless of the deam_prob value.
+        filtered_seeds.push_back(seed);
     }
 
-    // Merge the results from all threads.
-    for (int i = 0; i < omp_get_max_threads(); ++i) {
-        filtered_seeds.insert(filtered_seeds.end(), thread_seeds[i].begin(), thread_seeds[i].end());
-        filtered_seeds_rymer.insert(filtered_seeds_rymer.end(), thread_seeds_rymer[i].begin(), thread_seeds_rymer[i].end());
-    }
-
-    return make_pair(filtered_seeds, filtered_seeds_rymer);
+    return filtered_seeds;
 };
 
 #ifdef RYMER
-// Use the lambda function
-//auto [seeds_filtered, seeds_rymer_filtered] = apply_rymer_filter(seeds, seeds_rymer, minimizers, minimizers_rymer, this->minimizer_index);
-//seeds = move(seeds_filtered);
-//seeds_rymer = move(seeds_rymer_filtered);
+//Use the lambda function
+seeds = move(apply_rymer_filter(seeds, minimizers, N_rymers, this->minimizer_index));
 #endif
-
 
  clusters = clusterer.cluster_seeds(seeds, get_distance_limit(aln.sequence().size()));
 
