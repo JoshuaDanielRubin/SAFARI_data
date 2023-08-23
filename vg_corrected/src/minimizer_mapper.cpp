@@ -47,7 +47,7 @@ using Seed = SnarlDistanceIndexClusterer::Seed;
 MinimizerMapper::MinimizerMapper(const gbwtgraph::GBWTGraph& graph,
     const gbwtgraph::DefaultMinimizerIndex& minimizer_index,
     const gbwtgraph::DefaultMinimizerIndex& rymer_index,
-    SnarlDistanceIndex* distance_index, 
+    SnarlDistanceIndex* distance_index,
     const PathPositionHandleGraph* path_graph) :
     path_graph(path_graph), minimizer_index(minimizer_index),
     rymer_index(rymer_index),
@@ -577,6 +577,8 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
 // Get minimizers
 std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel);
 std::vector<Minimizer> minimizers_rymer = this->find_rymers(aln.sequence(), funnel);
+std::vector<Minimizer> rymer_copy = minimizers_rymer;
+
 
 //cerr << "NUMBER OF MINIMIZERS: " << minimizers.size() << endl;
 //cerr << "NUMBER OF RYMERS: " << minimizers_rymer.size() << endl;
@@ -623,27 +625,7 @@ vector<Seed> seeds = this->find_seeds<Seed>(minimizers, aln, funnel);
 FuncType calculate_posterior_odds_ptr = calculate_posterior_odds;
 
 auto apply_rymer_filter = [&](const vector<Seed>& seeds,
-                              const auto& minimizers,
-                              const size_t N_rymers,
-                              auto &minimizer_index){
-
-
-    // Check if N_rymers is not greater than the size of the minimizers vector
-    if (N_rymers > minimizers.size()) {
-        throw runtime_error("N_rymers is greater than the size of the minimizers vector.");
-    }
-
-    // Extract the last N_rymers elements
-    //auto rymers(std::make_move_iterator(minimizers.end() - N_rymers),
-    //                    std::make_move_iterator(minimizers.end()));
-
-    using MinimizerVectorType = std::remove_reference_t<decltype(minimizers)>;
-    MinimizerVectorType rymers(minimizers.end() - N_rymers, minimizers.end());
-
-
-    cerr << "NUMBER OF MINIMIZERS: " << minimizers.size() << endl;
-    cerr << "NUMBER OF RYMERS: " << rymers.size() << endl;
-    cerr << "NUMBER OF SEEDS: " << seeds.size() << endl;
+                              auto &minimizer_index, auto &graph, auto &rymers){
 
     vector<Seed> filtered_seeds;
 
@@ -653,25 +635,47 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds,
     for (size_t i = 0; i < seeds.size(); ++i) {
         const auto& seed = seeds[i];
 
-        string kmer_seq = minimizers[seed.source].value.key.decode(minimizers[seed.source].length);
+        try {
+            // Get rymer_seq and check for potential errors
+            string rymer_seq = "GATTACA";
+            //string rymer_seq = rymers[seed.source].value.key.decode_rymer(rymers[seed.source].length);
+            if (rymer_seq.empty()) {
+                throw runtime_error("Failed to decode rymer for seed source: " + std::to_string(seed.source));
+            }
 
-        std::string seed_seq = "GATTACA";
+            // Get seed_seq and check for potential errors
 
-        double posterior_odds = calculate_posterior_odds_ptr(kmer_seq, seed_seq);
-        cerr << "minimizer seq: " << kmer_seq << endl;
-        cerr << "seed seq: " << seed_seq << endl;
-        cerr << "POSTERIOR ODDS: " << posterior_odds << endl;
+            auto node_handle = graph.get_handle(42);
 
-        // Let all seeds pass, regardless of the deam_prob value.
-        filtered_seeds.push_back(seed);
+            string seed_seq = graph.get_sequence(node_handle);
+
+            if (seed_seq.empty()) {
+                throw runtime_error("Failed to get sequence for seed source: " + std::to_string(seed.source));
+            }
+
+            double posterior_odds = 0.42; //calculate_posterior_odds_ptr(rymer_seq, seed_seq);
+
+            // Let all seeds pass, regardless of the deam_prob value.
+            filtered_seeds.push_back(seed);
+
+        } catch (const std::exception &e) {
+            throw runtime_error("Error processing seed source: " + std::to_string(seed.source) + ". Details: " + e.what());
+        }
     }
+
+    //throw runtime_error("MADE IT TO END OF THE LAMBDA");
 
     return filtered_seeds;
 };
 
 #ifdef RYMER
 //Use the lambda function
-seeds = move(apply_rymer_filter(seeds, minimizers, N_rymers, this->minimizer_index));
+auto filtered_seeds = apply_rymer_filter(seeds, this->minimizer_index, this->gbwt_graph, rymer_copy);
+seeds = filtered_seeds;
+filtered_seeds.clear();
+
+//throw runtime_error("SIZE OF FILTERED SEEDS: " + std::to_string(filtered_seeds.size()) + ", SIZE OF ORIGINAL SEEDS: " + std::to_string(seeds.size()));
+
 #endif
 
  clusters = clusterer.cluster_seeds(seeds, get_distance_limit(aln.sequence().size()));
