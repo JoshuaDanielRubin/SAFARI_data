@@ -85,6 +85,8 @@ public:
     // Mapping settings.
     // TODO: document each
 
+    size_t rymers_start_index = -1;
+
     /// Use all minimizers with at most hit_cap hits
     size_t hit_cap = 10;
 

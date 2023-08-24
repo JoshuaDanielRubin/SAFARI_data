@@ -59,6 +59,7 @@ class SnarlDistanceIndexClusterer {
             size_t source; // Source minimizer.
             gbwtgraph::payload_type minimizer_cache = MIPayload::NO_CODE; //minimizer payload
             string seq="";
+            bool from_rymer = false; // add this field
         };
 
         /// Seed information used for clustering
