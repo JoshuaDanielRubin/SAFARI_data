@@ -641,36 +641,6 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
 std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel);
 std::vector<Minimizer> minimizers_rymer = this->find_rymers(aln.sequence(), funnel);
 
-gbwtgraph::Key64 thing;
-for (auto & m : minimizers_rymer){
-    //string rymer_seq = m.value.key.decode_rymer(m.length);
-    //string kmer_seq = m.value.key.decode(m.length);
-
-    //cerr << "RYMER SEQ: " << rymer_seq << endl;
-    //cerr << "KMER SEQ: " << kmer_seq << endl;
-
-    //gbwtgraph::Key64::key_type original_key = thing.get_original_kmer_key(rymer_seq);
-
-    //string minimizer_seq = m.value.key.decode(m.length);
-
-    //cerr << "MINIMIZER SEQ: " << minimizer_seq << endl;
-
-    //cerr << "RYMER SEQ: " << rymer_seq << endl;
-
-    //string original_seq = thing.decode(this->minimizer_index.k());
-
-   // cerr << "ORIGINAL SEQ: " << thing.decode(this->minimizer_index.k()) << endl;
-
-    //if (gbwtgraph::convertToRymerSpace(original_seq) != rymer_seq){
-    //    throw runtime_error("DID NOT RECOVER ORIGINAL MINIMIZER SEQUENCE");
-   // }
-
-    //m.value.key = original_key;
-    //m.value.hash = m.value.key.hash();
-    //m.value.offset = 0;
-}
-
-//throw runtime_error("QUICK TEST");
 
 //minimizers_rymer.erase(
 //    std::remove_if(minimizers_rymer.begin(), minimizers_rymer.end(),
