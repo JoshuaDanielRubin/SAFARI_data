@@ -1,7 +1,7 @@
 hcfiles="/home/projects/MAAG/Magpie/Magpie/vgan_corrected/share/vgan/hcfiles"
 
 ./vgan_corrected/dep/vg/bin/vg giraffe -f  test_data/human/D1j_damaged.fq -t 60 -m $hcfiles/graph.min -q $hcfiles/graph.ry \
-                              -b fast -d $hcfiles/graph.dist -Z $hcfiles/graph.giraffe.gbz  > corrected.gam && echo -e "\n\n"
+                              -b fast -d $hcfiles/graph.dist -Z $hcfiles/graph.giraffe.gbz > corrected.gam && echo -e "\n\n"
 
 
 ./vg_uncorrected/bin/vg giraffe -f  test_data/human/D1j_damaged.fq -t 60 -m $hcfiles/graph.min \
@@ -17,6 +17,6 @@ hcfiles="/home/projects/MAAG/Magpie/Magpie/vgan_corrected/share/vgan/hcfiles"
 #                              -b fast -d ../euka_dir/euka_db.dist -Z ../euka_dir/euka_db.giraffe.gbz > uncorrected.gam && echo -e "\n\n"
 
 
-#vg stats -a corrected.gam
-#echo -e "\n\n"
-#vg stats -a uncorrected.gam
+vg stats -a corrected.gam
+echo -e "\n\n"
+vg stats -a uncorrected.gam

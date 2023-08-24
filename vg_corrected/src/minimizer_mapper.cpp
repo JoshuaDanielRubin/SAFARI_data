@@ -672,10 +672,10 @@ for (auto & m : minimizers_rymer){
 
 //throw runtime_error("QUICK TEST");
 
-minimizers_rymer.erase(
-    std::remove_if(minimizers_rymer.begin(), minimizers_rymer.end(),
-                   [](const Minimizer &m) { return m.value.is_reverse; }),
-    minimizers_rymer.end());
+//minimizers_rymer.erase(
+//    std::remove_if(minimizers_rymer.begin(), minimizers_rymer.end(),
+//                   [](const Minimizer &m) { return m.value.is_reverse; }),
+//    minimizers_rymer.end());
 
     //Since there can be two different versions of a distance index, find seeds and clusters differently
 
@@ -715,7 +715,7 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds,
 
         try {
 
-            if (!seed.from_rymer) {filtered_seeds.emplace_back(seed);continue;}
+            if (!seed.from_rymer) {continue;}//{filtered_seeds.emplace_back(seed);continue;}
 
             string rymer_seq = minimizers[seed.source].value.key.decode_rymer(minimizers[seed.source].length);
             if (rymer_seq.empty()) {
@@ -724,7 +724,7 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds,
 
             if (get<1>(seed.pos)){
                 rymer_seq = reverse_complement(rymer_seq);
-                //continue; //throw runtime_error("NOT HANDLING REVERSE YET");
+                continue; //throw runtime_error("NOT HANDLING REVERSE YET");
             }
 
             string seed_seq = seed.seq;
@@ -738,10 +738,10 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds,
 
             double posterior_odds = calculate_posterior_odds_ptr(rymer_seq, seed_seq);
 
-            if (posterior_odds > 0.5){
-             cerr << "POSTERIOR ODDS: " << posterior_odds << endl;
-              cerr << "RYMER SEQ: " << rymer_seq << endl;
-             cerr << "SEED SEQ: " << seed_seq << endl;
+            if (posterior_odds > 0.6){
+             //cerr << "POSTERIOR ODDS: " << posterior_odds << endl;
+             // cerr << "RYMER SEQ: " << rymer_seq << endl;
+             //cerr << "SEED SEQ: " << seed_seq << endl;
            filtered_seeds.push_back(seed);
                                      }
 
@@ -760,9 +760,10 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds,
 //Use the lambda function
 vector<Seed> filtered_seeds;
 //if (aln.path().mapping_size()){
-    filtered_seeds = apply_rymer_filter(seeds, this->minimizer_index, minimizers, this->gbwt_graph);
 
-//cerr << "AFTER LAMBDA FILTERED SEEDS SIZE: " << filtered_seeds.size() << endl;
+//cerr << "BEFORE LAMBDA FILTERED SEEDS SIZE: " << seeds.size() << endl;
+
+filtered_seeds = apply_rymer_filter(seeds, this->minimizer_index, minimizers, this->gbwt_graph);
 
 //                              }
 seeds = filtered_seeds;
