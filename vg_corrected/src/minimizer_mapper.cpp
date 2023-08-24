@@ -110,13 +110,13 @@ struct seed_traits<SnarlDistanceIndexClusterer::Seed> {
 
 //-----------------------------------------------------------------------------
 
-
-// Function to calculate the number of mismatches between two strings
-inline int count_mismatches(const std::string &str1, const std::string &str2) {
-    int mismatches = 0;
+inline size_t count_mismatches(const std::string &str1, const std::string &str2) {
+    size_t mismatches = 0;
     for (size_t i = 0; i < str1.size() && i < str2.size(); ++i) {
         if (str1[i] != str2[i]) {
-            mismatches++;
+            if (!((str1[i] == 'C' && str2[i] == 'T') || (str1[i] == 'G' && str2[i] == 'A'))) {
+               mismatches++;
+             }
         }
     }
     return mismatches;
@@ -641,31 +641,41 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
 std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel);
 std::vector<Minimizer> minimizers_rymer = this->find_rymers(aln.sequence(), funnel);
 
-
-//cerr << "NUMBER OF MINIMIZERS: " << minimizers.size() << endl;
-//cerr << "NUMBER OF RYMERS: " << minimizers_rymer.size() << endl;
-
 gbwtgraph::Key64 thing;
 for (auto & m : minimizers_rymer){
-    string rymer_seq = m.value.key.decode_rymer(m.length);
+    //string rymer_seq = m.value.key.decode_rymer(m.length);
     //string kmer_seq = m.value.key.decode(m.length);
 
     //cerr << "RYMER SEQ: " << rymer_seq << endl;
     //cerr << "KMER SEQ: " << kmer_seq << endl;
 
-    auto original_key = thing.get_original_kmer_key(rymer_seq);
+    //gbwtgraph::Key64::key_type original_key = thing.get_original_kmer_key(rymer_seq);
 
-    m.value.key = original_key;
-    m.value.hash = m.value.key.hash();
-    m.value.offset = 0;
+    //string minimizer_seq = m.value.key.decode(m.length);
+
+    //cerr << "MINIMIZER SEQ: " << minimizer_seq << endl;
+
+    //cerr << "RYMER SEQ: " << rymer_seq << endl;
+
+    //string original_seq = thing.decode(this->minimizer_index.k());
+
+   // cerr << "ORIGINAL SEQ: " << thing.decode(this->minimizer_index.k()) << endl;
+
+    //if (gbwtgraph::convertToRymerSpace(original_seq) != rymer_seq){
+    //    throw runtime_error("DID NOT RECOVER ORIGINAL MINIMIZER SEQUENCE");
+   // }
+
+    //m.value.key = original_key;
+    //m.value.hash = m.value.key.hash();
+    //m.value.offset = 0;
 }
 
-/*
+//throw runtime_error("QUICK TEST");
+
 minimizers_rymer.erase(
     std::remove_if(minimizers_rymer.begin(), minimizers_rymer.end(),
                    [](const Minimizer &m) { return m.value.is_reverse; }),
     minimizers_rymer.end());
-*/
 
     //Since there can be two different versions of a distance index, find seeds and clusters differently
 
@@ -691,7 +701,7 @@ vector<Seed> seeds = this->find_seeds<Seed>(minimizers, aln, funnel);
 FuncType calculate_posterior_odds_ptr = calculate_posterior_odds;
 
 auto apply_rymer_filter = [&](const vector<Seed>& seeds,
-                              auto &minimizer_index, auto &minimizers, auto &graph, auto &path){
+                              auto &minimizer_index, auto &minimizers, auto &graph){
 
     vector<Seed> filtered_seeds;
 
@@ -705,7 +715,7 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds,
 
         try {
 
-            if (!seed.from_rymer) {continue;}//{filtered_seeds.emplace_back(seed);continue;}
+            if (!seed.from_rymer) {filtered_seeds.emplace_back(seed);continue;}
 
             string rymer_seq = minimizers[seed.source].value.key.decode_rymer(minimizers[seed.source].length);
             if (rymer_seq.empty()) {
@@ -713,24 +723,25 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds,
             }
 
             if (get<1>(seed.pos)){
-                continue; //throw runtime_error("NOT HANDLING REVERSE YET");
+                rymer_seq = reverse_complement(rymer_seq);
+                //continue; //throw runtime_error("NOT HANDLING REVERSE YET");
             }
 
             string seed_seq = seed.seq;
-
 
             if (seed_seq.empty()) {
                 throw runtime_error("Failed to get sequence for seed source: " + std::to_string(seed.source));
             }
 
-            cerr << "RYMER SEQ: " << rymer_seq << endl;
-             cerr << "SEED SEQ: " << seed_seq << endl;
+            //cerr << "RYMER SEQ: " << rymer_seq << endl;
+            // cerr << "SEED SEQ: " << seed_seq << endl;
 
             double posterior_odds = calculate_posterior_odds_ptr(rymer_seq, seed_seq);
 
-           cerr << "POSTERIOR ODDS: " << posterior_odds << endl;
-
-            if (posterior_odds > 0.0){
+            if (posterior_odds > 0.5){
+             cerr << "POSTERIOR ODDS: " << posterior_odds << endl;
+              cerr << "RYMER SEQ: " << rymer_seq << endl;
+             cerr << "SEED SEQ: " << seed_seq << endl;
            filtered_seeds.push_back(seed);
                                      }
 
@@ -749,7 +760,7 @@ auto apply_rymer_filter = [&](const vector<Seed>& seeds,
 //Use the lambda function
 vector<Seed> filtered_seeds;
 //if (aln.path().mapping_size()){
-    filtered_seeds = apply_rymer_filter(seeds, this->minimizer_index, minimizers, this->gbwt_graph, aln.path());
+    filtered_seeds = apply_rymer_filter(seeds, this->minimizer_index, minimizers, this->gbwt_graph);
 
 //cerr << "AFTER LAMBDA FILTERED SEEDS SIZE: " << filtered_seeds.size() << endl;
 
@@ -763,7 +774,7 @@ if (!seeds.empty()){
  clusters = clusterer.cluster_seeds(seeds, get_distance_limit(aln.sequence().size()));
                    }
 
-cerr << "NUMBER OF CLUSTERS: " << clusters.size() << endl;
+//cerr << "NUMBER OF CLUSTERS: " << clusters.size() << endl;
 
 #ifdef debug_validate_clusters
     vector<vector<Cluster>> all_clusters;
