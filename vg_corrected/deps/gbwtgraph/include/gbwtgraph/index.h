@@ -8,6 +8,7 @@
 
 #include <gbwtgraph/gbwtgraph.h>
 #include <gbwtgraph/minimizer.h>
+
 #define RYMER
 
 /*
@@ -16,6 +17,7 @@
 
 namespace gbwtgraph
 {
+
 
 //------------------------------------------------------------------------------
 
@@ -126,7 +128,10 @@ index_haplotypes(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
   for(int thread_id = 0; thread_id < threads; thread_id++) { flush_cache(thread_id); }
 
    // Print or return the counter after the function completes its execution.
-  std::cout << "Total minimizers indexed: " << minimizer_count << std::endl;
+  std::cerr << "Total minimizers indexed: " << minimizer_count << std::endl;
+
+  index.print_hash_table();
+
 }
 
 
@@ -185,9 +190,9 @@ index_haplotypes_rymer(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
     //std::vector<minimizer_type> minimizers = index.minimizers(seq); // Calls syncmers() when appropriate.
     std::vector<minimizer_type> rymers = index.rymers(rymer_seq);
 
-    for (auto & r : rymers){
-      cerr << "RYMER KEY: " << r.key.get_key() << endl;
-    }
+    //for (auto & r : rymers){
+    //  cerr << "RYMER KEY: " << r.key.get_key() << endl;
+   // }
 
     auto iter = traversal.begin();
     size_t node_start = 0;
@@ -241,7 +246,9 @@ index_haplotypes_rymer(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
   for(int thread_id = 0; thread_id < threads; thread_id++) { flush_cache(thread_id); }
 
   // Print or return the counter after the function completes its execution.
-  std::cout << "Total rymers indexed: " << rymer_count << std::endl;
+  std::cerr << "Total rymers indexed: " << rymer_count << std::endl;
+
+index.print_hash_table();
 
 }
 
