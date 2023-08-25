@@ -168,7 +168,7 @@ inline double calculate_posterior_odds(std::string &kmer_seq, std::string &seed_
     double odds_model2 = posterior_model2 / (1.0 - posterior_model2);
 
     // Calculate the odds ratio
-    double odds_ratio = odds_model1 / odds_model2;
+    double odds_ratio = (odds_model2 != 0) ? odds_model1 / odds_model2 : 99999999;
 
     // Transform the odds ratio into a posterior probability for Model 1
     double posterior_probability_model1 = odds_ratio / (1.0 + odds_ratio);
@@ -616,6 +616,9 @@ void MinimizerMapper::map(Alignment& aln, AlignmentEmitter& alignment_emitter) {
     alignment_emitter.emit_mapped_single(map(aln));
 }
 
+size_t rymer_count = 0;
+size_t minimizer_count = 0;
+
 vector<Alignment> MinimizerMapper::map(Alignment& aln) {
 
     //cerr << "MAPPING..." << endl;
@@ -638,14 +641,34 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
 
 
 // Get minimizers
-std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel);
+std::vector<Minimizer> minimizers; //this->find_minimizers(aln.sequence(), funnel);
 std::vector<Minimizer> minimizers_rymer = this->find_rymers(aln.sequence(), funnel);
 
+//cerr << "NUMBER OF RYMERS: " << minimizers_rymer.size() << endl;
 
-//minimizers_rymer.erase(
-//    std::remove_if(minimizers_rymer.begin(), minimizers_rymer.end(),
-//                   [](const Minimizer &m) { return m.value.is_reverse; }),
-//    minimizers_rymer.end());
+gbwtgraph::Key64 thing;
+for (auto & m : minimizers_rymer){
+
+    auto rymer_seq = m.value.key.decode_rymer(m.length);
+    m.value.key = thing.get_original_kmer_key(rymer_seq);
+    auto seq = m.value.key.decode(m.length);
+    m.value.hash = m.value.key.hash();
+
+    if (gbwtgraph::convertToRymerSpace(seq) != rymer_seq){
+        throw runtime_error("[MAGPIE] Conversion error");
+    }
+
+}
+
+rymers_start_index = minimizers.size();
+minimizers.insert(minimizers.end(), minimizers_rymer.begin(), minimizers_rymer.end());
+
+/*
+minimizers_rymer.erase(
+    std::remove_if(minimizers_rymer.begin(), minimizers_rymer.end(),
+                   [](const Minimizer &m) { return m.value.is_reverse; }),
+    minimizers_rymer.end());
+*/
 
     //Since there can be two different versions of a distance index, find seeds and clusters differently
 
@@ -654,13 +677,12 @@ std::vector<Minimizer> minimizers_rymer = this->find_rymers(aln.sequence(), funn
     std::vector<Cluster> clusters_rymer;
 
 
-size_t N_rymers = minimizers_rymer.size();
+//vector<Seed> seeds = this->find_seeds<Seed>(minimizers, aln, funnel);
+vector<Seed> seeds = this->find_seeds<Seed>(minimizers_rymer, aln, funnel);
 
-rymers_start_index = minimizers.size();
-minimizers.insert(minimizers.end(), minimizers_rymer.begin(), minimizers_rymer.end());
-
-vector<Seed> seeds = this->find_seeds<Seed>(minimizers, aln, funnel);
-
+if (seeds.size() > 0){
+    cerr << "NUMBER OF RYMER SEEDS: " << seeds.size() << endl;
+                     }
     // Cluster the seeds. Get sets of input seed indexes that go together.
     if (track_provenance) {
         funnel.stage("cluster");
@@ -670,90 +692,59 @@ vector<Seed> seeds = this->find_seeds<Seed>(minimizers, aln, funnel);
 
 FuncType calculate_posterior_odds_ptr = calculate_posterior_odds;
 
-auto apply_rymer_filter = [&](const vector<Seed>& seeds,
-                              auto &minimizer_index, auto &minimizers, auto &graph){
+std::unordered_map<size_t, std::pair<std::vector<Seed>, std::vector<Seed>>> minimizer_rymer_map;
 
+for (const auto &seed : seeds) {
+    if (seed.from_rymer) {
+        minimizer_rymer_map[seed.source].first.push_back(seed); // Rymers
+    } else {
+        minimizer_rymer_map[seed.source].second.push_back(seed); // Minimizers
+    }
+}
+
+auto apply_rymer_filter = [&](vector<Seed>& seeds, auto &minimizers) {
     vector<Seed> filtered_seeds;
-
-    // Preallocate space based on the maximum possible size.
     filtered_seeds.reserve(seeds.size());
 
-    for (size_t i = 0; i < seeds.size(); ++i) {
-        const auto& seed = seeds[i];
+    for (const auto& seed : seeds) {
+        //if (!seed.from_rymer || get<1>(seed.pos)) continue; // Process only rymers
 
-        //cerr << "FILTERED SEEDS SIZE: " << filtered_seeds.size() << endl;
+        // Get corresponding minimizer seeds
+        const auto& minimizer_seeds = minimizer_rymer_map[seed.source].second;
 
-        try {
-
-            if (!seed.from_rymer) {continue;}//{filtered_seeds.emplace_back(seed);continue;}
-
-            string rymer_seq = minimizers[seed.source].value.key.decode_rymer(minimizers[seed.source].length);
-            if (rymer_seq.empty()) {
-                throw runtime_error("Failed to decode rymer for seed source: " + std::to_string(seed.source));
-            }
-
-            if (get<1>(seed.pos)){
-                rymer_seq = reverse_complement(rymer_seq);
-                continue; //throw runtime_error("NOT HANDLING REVERSE YET");
-            }
-
+        for (const auto& minimizer_seed : minimizer_seeds) {
+            size_t idx = minimizer_seed.source; // Assuming source is the index of the minimizer
+            string rymer_seq = minimizers[idx].value.key.decode_rymer(minimizers[idx].length);
             string seed_seq = seed.seq;
 
-            if (seed_seq.empty()) {
-                throw runtime_error("Failed to get sequence for seed source: " + std::to_string(seed.source));
-            }
-
-            //cerr << "RYMER SEQ: " << rymer_seq << endl;
-            // cerr << "SEED SEQ: " << seed_seq << endl;
-
             double posterior_odds = calculate_posterior_odds_ptr(rymer_seq, seed_seq);
+            if (posterior_odds > 0.0) {
+                // Add the rymer
+                filtered_seeds.push_back(seed);
 
-            if (posterior_odds > 0.6){
-             //cerr << "POSTERIOR ODDS: " << posterior_odds << endl;
-             // cerr << "RYMER SEQ: " << rymer_seq << endl;
-             //cerr << "SEED SEQ: " << seed_seq << endl;
-           filtered_seeds.push_back(seed);
-                                     }
-
-        } catch (const std::exception &e) {
-            throw runtime_error("Error processing seed source: " + std::to_string(seed.source) + ". Details: " + e.what());
+                // Add corresponding minimizers
+                filtered_seeds.insert(filtered_seeds.end(), minimizer_seeds.begin(), minimizer_seeds.end());
+                //break; // Exit the loop if a match is found
+            }
         }
     }
-
-    //throw runtime_error("POSTERIOR ODDS: " + to_string(posterior_odds));
-
     return filtered_seeds;
 };
 
-
 #ifdef RYMER
-//Use the lambda function
-vector<Seed> filtered_seeds;
-//if (aln.path().mapping_size()){
-
-//cerr << "BEFORE LAMBDA FILTERED SEEDS SIZE: " << seeds.size() << endl;
-
-filtered_seeds = apply_rymer_filter(seeds, this->minimizer_index, minimizers, this->gbwt_graph);
-
-//                              }
-seeds = filtered_seeds;
-filtered_seeds.clear();
-
+//seeds = apply_rymer_filter(seeds, minimizers);
 #endif
 
-if (!seeds.empty()){
+ if (!seeds.empty()){
  clusters = clusterer.cluster_seeds(seeds, get_distance_limit(aln.sequence().size()));
-                   }
+                    }
 
 //cerr << "NUMBER OF CLUSTERS: " << clusters.size() << endl;
 
 #ifdef debug_validate_clusters
     vector<vector<Cluster>> all_clusters;
-    vector<vector<Cluster>> all_clusters_rymer;
     all_clusters.emplace_back(clusters);
-    all_clusters_rymer.emplace_back(clusters_rymer);
     vector<vector<Seed>> all_seeds;
-    vector<vector<Seed>> all_seeds_rymer;
     all_seeds.emplace_back(seeds);
     //all_seeds_rymer.emplace_back(seeds_rymer);
     validate_clusters(all_clusters, all_seeds, get_distance_limit(aln.sequence().size()), 0);
@@ -1507,11 +1498,11 @@ cerr << endl << endl;
              << minimizer_rymer.forward_offset() << "\t"
              << minimizer_rymer.agglomeration_start << "\t"
              << minimizer_rymer.agglomeration_length << "\t"
-             << minimizer_rymer.hits
-             << minimizer_kept_count_rymer[i];
-         if (minimizer_kept_count_rymer[i]>0) {
-             assert(minimizer_rymer.hits<=hard_hit_cap_rymer) ;
-         }
+             << minimizer_rymer.hits;
+             //<< minimizer_kept_count_rymer[i];
+         //if (minimizer_kept_count_rymer[i]>0) {
+          //   assert(minimizer_rymer.hits<=hard_hit_cap_rymer) ;
+         //}
     }
     //cerr << "\t" << uncapped_mapq << "\t" << mapq_explored_cap << "\t"  << mappings.front().mapping_quality() << "\t";
     //cerr << "\t";
@@ -3532,7 +3523,7 @@ std::vector<MinimizerMapper::Minimizer> MinimizerMapper::find_rymers(const std::
     // Get minimizers and their window agglomeration starts and lengths
     // Starts and lengths are all 0 if we are using syncmers.
     vector<tuple<gbwtgraph::DefaultMinimizerIndex::minimizer_type, size_t, size_t>> minimizers =
-        this->minimizer_index.rymer_regions(sequence, this->rymer_index);
+        this->rymer_index.rymer_regions(sequence, this->rymer_index);
 
 
     //if (minimizers.empty()){throw runtime_error("RYMER REGIONS FAIL");}
@@ -3540,11 +3531,19 @@ std::vector<MinimizerMapper::Minimizer> MinimizerMapper::find_rymers(const std::
 
     for (auto& m : minimizers) {
 
-        //cerr << "RYMER K VALUE: " << this->rymer_index.k() << endl;
+        gbwtgraph::Key64 thing;
+        std::string rymer_seq = get<0>(m).key.decode_rymer(this->rymer_index.k());
 
-        std::string rymer_sequence = get<0>(m).key.decode_rymer(this->rymer_index.k());
+        auto new_key = thing.encode_rymer(rymer_seq);
+        get<0>(m).key = new_key;
 
-        //cerr << "RYMER SEQUENCE: " << rymer_sequence << endl;
+        //auto original_key = thing.get_original_kmer_key(rymer_seq);
+        //get<0>(m).key = original_key;
+
+        //cerr << "RYMER SEQUENCE: " << rymer_seq << endl;
+
+        //std::string kmer_sequence = get<0>(m).key.decode(this->rymer_index.k());
+
 
         if (get<0>(m).is_reverse){
             //cerr << "REVERSE" << endl;
@@ -3557,9 +3556,15 @@ std::vector<MinimizerMapper::Minimizer> MinimizerMapper::find_rymers(const std::
             }
 
         double score = 0.0;
-        auto hits = this->minimizer_index.count_and_find(get<0>(m));
+
+        //if (get<0>(m).key.length != this->rymer_index.k()){
+        //    throw runtime_error("WRONG LENGTH!!");
+       // }
+
+        auto hits = this->rymer_index.count_and_find_rymer(get<0>(m));
 
         //cerr << "NUMBER OF RYMER HITS AFTER COUNT AND FIND: " << hits.first << endl;
+        //if (hits.first > 0){throw runtime_error("YES WE HAVE A RYMER HIT!!");}
 
         if (hits.first > 0) {
             if (hits.first <= this->hard_hit_cap) {
@@ -3620,7 +3625,7 @@ std::vector<MinimizerMapper::Minimizer> MinimizerMapper::find_minimizers(const s
         //cerr << "FOUND THIS MINIMIZER" << endl;
 
         double score = 0.0;
-        auto hits = this->minimizer_index.count_and_find(get<0>(m));
+        auto hits = this->minimizer_index.count_and_find_rymer(get<0>(m));
 
         //cerr << "NUMBER OF MINIMIZER HITS AFTER COUNT AND FIND: " << hits.first << endl;
 
@@ -3742,6 +3747,8 @@ std::vector<SeedType> MinimizerMapper::find_seeds(const std::vector<Minimizer>& 
         // of the selected minimizers is not high enough.
         const Minimizer& minimizer = minimizers[i];
 
+        //std::cerr << "Seed " << i << ": hits=" << minimizer.hits << ", score=" << minimizer.score << std::endl;
+
         // minimizer information
         size_t min_start_index = minimizer.forward_offset();
         size_t min_len = minimizer.length;
@@ -3753,13 +3760,16 @@ std::vector<SeedType> MinimizerMapper::find_seeds(const std::vector<Minimizer>& 
         }
 
         if (minimizer.hits == 0) {
+            //std::cerr << "Rejected seed " << i << ": no hits." << std::endl;
             // A minimizer with no hits can't go on.
             took_last = false;
             // We do not treat it as located for MAPQ capping purposes.
             if (this->track_provenance) {
                 funnel.fail("any-hits", i);
             }
-        } else if (  // passes reads
+        } else if
+/*
+           (  // passes reads
               // cap minimizer at max of specified minimizers and minimizers calculated by read length
               ((minimizer.hits <= this->hit_cap) ||
               (run_hits <= this->hard_hit_cap && selected_score + minimizer.score <= target_score) ||
@@ -3767,6 +3777,11 @@ std::vector<SeedType> MinimizerMapper::find_seeds(const std::vector<Minimizer>& 
               (num_minimizers < ( max(this->max_unique_min, num_min_by_read_len) )) &&
               (overlapping == false)
             ) {
+*/
+(true){
+
+            cerr << "WE KEEP THIS ONE!!!" << endl;
+            cerr << "IT HAS: " << minimizer.hits << " HITS" << endl;
 
             // set minimizer overlap as a reads
             num_minimizers += 1;    // tracking number of minimizers selected
@@ -3834,6 +3849,7 @@ std::vector<SeedType> MinimizerMapper::find_seeds(const std::vector<Minimizer>& 
             target_score = selected_score; 
         } else {
             // Failed hard hit cap
+            std::cerr << "Rejected seed " << i << ": failed hard hit cap, run_hits=" << run_hits << ", hard_hit_cap=" << this->hard_hit_cap << std::endl;
             took_last = false;
             rejected_count++;
             if (this->track_provenance) {
@@ -3875,8 +3891,8 @@ std::vector<SeedType> MinimizerMapper::find_seeds(const std::vector<Minimizer>& 
         }
     }
 
-    if (show_work) {
-        #pragma omp critical (cerr)
+    if (seeds.size() > 0){//if (show_work) {
+       #pragma omp critical (cerr)
         {
             std::cerr << log_name() << "Found " << seeds.size() << " seeds from "
                 << (minimizers.size() - rejected_count) << " minimizers, rejected "

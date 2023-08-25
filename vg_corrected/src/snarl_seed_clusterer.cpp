@@ -129,6 +129,7 @@ tuple<vector<structures::UnionFind>, structures::UnionFind> SnarlDistanceIndexCl
      * seeds that are closer than the limit cluster together.
      * Returns a vector of clusters
      */
+
 #ifdef DEBUG_CLUSTER
 cerr << endl << endl << endl << endl << "New cluster calculation:" << endl;
 cerr << "\tread distance limit: " << read_distance_limit << " and fragment distance limit: " << fragment_distance_limit << endl;

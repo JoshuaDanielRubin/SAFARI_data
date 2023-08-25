@@ -845,6 +845,10 @@ std::vector<minimizer_type> rymers(std::string::const_iterator begin, std::strin
         reverse_key.reverse_rymer(this->k(), *iter);
         //std::cout << "[DEBUG] Processed character: " << *iter << ". Valid chars: " << valid_chars << std::endl;
 
+        if (forward_key.get_key() < 0 || forward_key.get_key() > 0xFFFFFFFF || reverse_key.get_key() < 0 || reverse_key.get_key() > 0xFFFFFFFF) {
+              throw std::runtime_error("Invalid rymer key detected. Expected value in the range [0, 4294967295].");
+                                                                                                      }
+
         if(valid_chars >= this->k()) { buffer.advance(start_pos, forward_key, reverse_key); }
         else                         { buffer.advance(start_pos); }
 
@@ -1359,6 +1363,19 @@ void insert(const minimizer_type& minimizer, code_type value, payload_type paylo
     return 0;
   }
 
+void print_hash_table() const {
+    std::cerr << "Hash Table Contents:\n";
+    for (size_t i = 0; i < this->capacity(); i++) {
+        if (this->hash_table[i].first != key_type::no_key()) {
+            std::cerr << "Offset: " << i << ", Key: " << this->hash_table[i].first;
+            // You can also print the value or other associated data here
+            std::cerr << "\n";
+        }
+    }
+    // Throw a runtime error for testing purposes
+    throw std::runtime_error("test");
+}
+
   /*
     Returns the occurrence count of the minimizer and a pointer to the internal
     representation of the occurrences (which are in sorted order) and their payloads.
@@ -1371,7 +1388,7 @@ void insert(const minimizer_type& minimizer, code_type value, payload_type paylo
 
   std::pair<size_t, const hit_type*> count_and_find(const minimizer_type& minimizer) const
   {
-
+    print_hash_table();
     std::pair<size_t, const hit_type*> result(0, nullptr);
     if(minimizer.empty()) {
          return result;
@@ -1393,6 +1410,98 @@ void insert(const minimizer_type& minimizer, code_type value, payload_type paylo
     }
     return result;
   }
+
+
+/*
+std::pair<size_t, const hit_type*> count_and_find(const minimizer_type& minimizer) const
+{
+
+  //std::cerr << "Minimizer key: " << minimizer.key << std::endl;
+
+  std::pair<size_t, const hit_type*> result(0, nullptr);
+
+  if(minimizer.empty()) {
+    std::cerr << "Minimizer is empty, returning result with no hits.\n";
+    return result;
+  }
+
+  size_t offset = this->find_offset(minimizer.key, minimizer.hash);
+
+  if(this->hash_table[offset].first == minimizer.key)
+  {
+    //std::cerr << "FOUND!" << std::endl;
+    const cell_type& cell = this->hash_table[offset];
+
+    if(cell.first.is_pointer())
+    {
+      result.first = cell.second.pointer->size();
+      result.second = cell.second.pointer->data();
+    }
+    else
+    {
+      result.first = 1;
+      result.second = &(cell.second.value);
+    }
+  }
+  else
+  {
+    //std::cerr << "NOT FOUND!" << std::endl;
+  }
+
+  return result;
+}
+*/
+
+/*
+std::pair<size_t, const hit_type*> count_and_find_rymer(const minimizer_type& rymer) const {
+    std::pair<size_t, const hit_type*> result(0, nullptr);
+    if(rymer.empty()) {
+        return result;
+    }
+
+    size_t offset = this->find_offset(rymer.key, rymer.hash);
+
+    if(this->hash_table[offset].first == rymer.key) {
+        const cell_type& cell = this->hash_table[offset];
+        if(cell.first.is_pointer()) {
+            result.first = cell.second.pointer->size();
+            result.second = cell.second.pointer->data();
+        } else {
+            result.first = 1; result.second = &(cell.second.value);
+        }
+    }
+    return result;
+}
+*/
+
+std::pair<size_t, const hit_type*> count_and_find_rymer(const minimizer_type& rymer) const {
+    print_hash_table();
+
+    std::pair<size_t, const hit_type*> result(0, nullptr);
+    if(rymer.empty()) {
+        std::cerr << "count_and_find_rymer: Rymer is empty\n";
+        return result;
+    }
+
+    std::cerr << "count_and_find_rymer: Rymer key: " << rymer.key << ", hash: " << rymer.hash << "\n";
+    size_t offset = this->find_offset(rymer.key, rymer.hash);
+    std::cerr << "count_and_find_rymer: Calculated offset: " << offset << "\n";
+
+    if(this->hash_table[offset].first == rymer.key) {
+        std::cerr << "count_and_find_rymer: Key found in hash table at offset: " << offset << "\n";
+        const cell_type& cell = this->hash_table[offset];
+        if(cell.first.is_pointer()) {
+            result.first = cell.second.pointer->size();
+            result.second = cell.second.pointer->data();
+        } else {
+            result.first = 1; result.second = &(cell.second.value);
+        }
+    } else {
+        std::cerr << "count_and_find_rymer: Key not found in hash table. Offset key: " << this->hash_table[offset].first << "\n";
+    }
+
+    return result;
+}
 
 //------------------------------------------------------------------------------
 
