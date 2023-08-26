@@ -612,6 +612,7 @@ void MinimizerMapper::dump_debug_query(const Alignment& aln1, const Alignment& a
 
 void MinimizerMapper::map(Alignment& aln, AlignmentEmitter& alignment_emitter) {
 
+
     // Ship out all the aligned alignments
     alignment_emitter.emit_mapped_single(map(aln));
 }
@@ -620,8 +621,6 @@ size_t rymer_count = 0;
 size_t minimizer_count = 0;
 
 vector<Alignment> MinimizerMapper::map(Alignment& aln) {
-
-    //cerr << "MAPPING..." << endl;
 
     if (show_work) {
         #pragma omp critical (cerr)
@@ -641,23 +640,24 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
 
 
 // Get minimizers
-std::vector<Minimizer> minimizers; //this->find_minimizers(aln.sequence(), funnel);
+std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel);
 std::vector<Minimizer> minimizers_rymer = this->find_rymers(aln.sequence(), funnel);
 
+//cerr << "NUMBER OF MINIMIZERS: " << minimizers.size() << endl;
 //cerr << "NUMBER OF RYMERS: " << minimizers_rymer.size() << endl;
 
 gbwtgraph::Key64 thing;
 for (auto & m : minimizers_rymer){
 
-    auto rymer_seq = m.value.key.decode_rymer(m.length);
-    m.value.key = thing.get_original_kmer_key(rymer_seq);
-    auto seq = m.value.key.decode(m.length);
-    m.value.hash = m.value.key.hash();
-    m.value.offset = 0;
+    //auto rymer_seq = m.value.key.decode_rymer(m.length);
+    //m.value.key = thing.get_original_kmer_key(rymer_seq);
+   // auto seq = m.value.key.decode(m.length);
+    //m.value.hash = m.value.key.hash();
+    //m.value.offset = 0;
 
-    if (gbwtgraph::convertToRymerSpace(seq) != rymer_seq){
-        throw runtime_error("[MAGPIE] Conversion error");
-    }
+    //if (gbwtgraph::convertToRymerSpace(seq) != rymer_seq){
+    //    throw runtime_error("[MAGPIE] Conversion error");
+   // }
 
 }
 
@@ -681,9 +681,9 @@ minimizers_rymer.erase(
 //vector<Seed> seeds = this->find_seeds<Seed>(minimizers, aln, funnel);
 vector<Seed> seeds = this->find_seeds<Seed>(minimizers_rymer, aln, funnel);
 
-if (seeds.size() > 0){
-    cerr << "NUMBER OF RYMER SEEDS: " << seeds.size() << endl;
-                     }
+
+    cerr << "NUMBER OF SEEDS: " << seeds.size() << endl;
+
     // Cluster the seeds. Get sets of input seed indexes that go together.
     if (track_provenance) {
         funnel.stage("cluster");
@@ -740,7 +740,7 @@ auto apply_rymer_filter = [&](vector<Seed>& seeds, auto &minimizers) {
  clusters = clusterer.cluster_seeds(seeds, get_distance_limit(aln.sequence().size()));
                     }
 
-//cerr << "NUMBER OF CLUSTERS: " << clusters.size() << endl;
+cerr << "NUMBER OF CLUSTERS: " << clusters.size() << endl;
 
 #ifdef debug_validate_clusters
     vector<vector<Cluster>> all_clusters;
@@ -3563,6 +3563,7 @@ std::vector<MinimizerMapper::Minimizer> MinimizerMapper::find_rymers(const std::
        // }
 
         auto hits = this->rymer_index.count_and_find_rymer(get<0>(m));
+        //auto hits = this->rymer_index.count_and_find(get<0>(m));
 
         //cerr << "NUMBER OF RYMER HITS AFTER COUNT AND FIND: " << hits.first << endl;
         //if (hits.first > 0){throw runtime_error("YES WE HAVE A RYMER HIT!!");}
@@ -3781,8 +3782,8 @@ std::vector<SeedType> MinimizerMapper::find_seeds(const std::vector<Minimizer>& 
 */
 (true){
 
-            cerr << "WE KEEP THIS ONE!!!" << endl;
-            cerr << "IT HAS: " << minimizer.hits << " HITS" << endl;
+            //cerr << "WE KEEP THIS ONE!!!" << endl;
+            //cerr << "IT HAS: " << minimizer.hits << " HITS" << endl;
 
             // set minimizer overlap as a reads
             num_minimizers += 1;    // tracking number of minimizers selected

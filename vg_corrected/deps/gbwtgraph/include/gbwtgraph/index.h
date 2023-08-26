@@ -180,9 +180,10 @@ index_haplotypes_rymer(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
         auto original_key = thing.get_original_kmer_key(rymer_seq);
         //minimizer_to_place_back.key = original_key;
 
-        std::cerr << "PLACING BACK RYMER KEY: " << minimizer_to_place_back.key << std::endl;
+        //std::cerr << "PLACING BACK RYMER KEY: " << minimizer_to_place_back.key << std::endl;
 
         index.insert_rymer(minimizer_to_place_back, current_cache[i].second, payload[i]);
+        //index.insert_rymer(minimizer_to_place_back, current_cache[i].second, payload[i]);
         //cerr << "RYMER INDEX SIZE: " << index.size() << endl;
       }
     }
@@ -260,7 +261,7 @@ index_haplotypes_rymer(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
   // Print or return the counter after the function completes its execution.
   std::cerr << "Total rymers indexed: " << rymer_count << std::endl;
 
-index.print_hash_table_rymer();
+//index.print_hash_table_rymer();
 
 }
 

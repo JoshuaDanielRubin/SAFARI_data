@@ -543,8 +543,7 @@ public:
   explicit MinimizerIndex(bool use_syncmers = false) :
     header(KeyType::KMER_LENGTH, (use_syncmers ? KeyType::SMER_LENGTH : KeyType::WINDOW_LENGTH),
            INITIAL_CAPACITY, MAX_LOAD_FACTOR, KeyType::KEY_BITS),
-    hash_table(this->header.capacity, empty_cell()),
-    hash_table_rymer(this->header.capacity, empty_cell())
+    hash_table(this->header.capacity, empty_cell())
   {
     if(use_syncmers) { this->header.set(MinimizerHeader::FLAG_SYNCMERS); }
     this->header.sanitize(KeyType::KMER_MAX_LENGTH);
@@ -552,8 +551,7 @@ public:
 
   MinimizerIndex(size_t kmer_length, size_t window_or_smer_length, bool use_syncmers = false) :
     header(kmer_length, window_or_smer_length, INITIAL_CAPACITY, MAX_LOAD_FACTOR, KeyType::KEY_BITS),
-    hash_table(this->header.capacity, empty_cell()),
-    hash_table_rymer(this->header.capacity, empty_cell())  // Added this line
+    hash_table(this->header.capacity, empty_cell())
   {
     if(use_syncmers) { this->header.set(MinimizerHeader::FLAG_SYNCMERS); }
     this->header.sanitize(KeyType::KMER_MAX_LENGTH);
@@ -596,32 +594,6 @@ public:
     }
     return *this;
   }
-
-void print_hash_table() const {
-    std::cerr << "Hash Table Contents:\n";
-    for (size_t i = 0; i < this->capacity(); i++) {
-        if (this->hash_table[i].first != key_type::no_key()) {
-            std::cerr << "Offset: " << i << ", Key: " << this->hash_table[i].first;
-            // You can also print the value or other associated data here
-            std::cerr << "\n";
-        }
-    }
-    // Throw a runtime error for testing purposes
-    //throw std::runtime_error("test hash table minimizer");
-}
-
-void print_hash_table_rymer() const {
-    std::cerr << "Hash Table Contents:\n";
-    for (size_t i = 0; i < this->hash_table_rymer.size(); i++) {
-        if (this->hash_table_rymer[i].first != key_type::no_key()) {
-            std::cerr << "Offset: " << i << ", Key: " << this->hash_table_rymer[i].first;
-            // You can also print the value or other associated data here
-            std::cerr << "\n";
-        }
-    }
-    // Throw a runtime error for testing purposes
-    //throw std::runtime_error("test hash table rymer");
-}
 
   // Serialize the index to the ostream. Returns the number of bytes written and
   // true if the serialization was successful.
@@ -1314,7 +1286,6 @@ const std::vector<std::tuple<minimizer_type, size_t, size_t>> rymer_regions(std:
     }
   }
 
-
   /*
     Inserts the position and the payload into the index, using minimizer.key as
     the key and minimizer.hash as its hash. Does not insert empty minimizers or
@@ -1333,7 +1304,7 @@ const std::vector<std::tuple<minimizer_type, size_t, size_t>> rymer_regions(std:
     this->insert(minimizer, code, payload);
   }
 
-  void insert_rymer(const minimizer_type& minimizer, const pos_t& pos, payload_type payload = DEFAULT_PAYLOAD)
+ void insert_rymer(const minimizer_type& minimizer, const pos_t& pos, payload_type payload = DEFAULT_PAYLOAD)
   {
     if(is_empty(pos)) { return; }
     code_type code = Position::encode(pos);
@@ -1384,6 +1355,20 @@ const std::vector<std::tuple<minimizer_type, size_t, size_t>> rymer_regions(std:
     return 0;
   }
 
+void print_hash_table() const {
+    return;
+    std::cerr << "Hash Table Contents:\n";
+    for (size_t i = 0; i < this->capacity(); i++) {
+        if (this->hash_table[i].first != key_type::no_key()) {
+            std::cerr << "Offset: " << i << ", Key: " << this->hash_table[i].first;
+            // You can also print the value or other associated data here
+            std::cerr << "\n";
+        }
+    }
+    // Throw a runtime error for testing purposes
+    throw std::runtime_error("test");
+}
+
   /*
     Returns the occurrence count of the minimizer and a pointer to the internal
     representation of the occurrences (which are in sorted order) and their payloads.
@@ -1396,7 +1381,7 @@ const std::vector<std::tuple<minimizer_type, size_t, size_t>> rymer_regions(std:
 
   std::pair<size_t, const hit_type*> count_and_find(const minimizer_type& minimizer) const
   {
-    //print_hash_table();
+    print_hash_table();
     std::pair<size_t, const hit_type*> result(0, nullptr);
     if(minimizer.empty()) {
          return result;
@@ -1460,18 +1445,40 @@ std::pair<size_t, const hit_type*> count_and_find(const minimizer_type& minimize
 }
 */
 
+/*
+std::pair<size_t, const hit_type*> count_and_find_rymer(const minimizer_type& rymer) const {
+    std::pair<size_t, const hit_type*> result(0, nullptr);
+    if(rymer.empty()) {
+        return result;
+    }
+
+    size_t offset = this->find_offset(rymer.key, rymer.hash);
+
+    if(this->hash_table[offset].first == rymer.key) {
+        const cell_type& cell = this->hash_table[offset];
+        if(cell.first.is_pointer()) {
+            result.first = cell.second.pointer->size();
+            result.second = cell.second.pointer->data();
+        } else {
+            result.first = 1; result.second = &(cell.second.value);
+        }
+    }
+    return result;
+}
+*/
 
 std::pair<size_t, const hit_type*> count_and_find_rymer(const minimizer_type& rymer) const {
     print_hash_table();
+    return count_and_find(rymer);
 
     std::pair<size_t, const hit_type*> result(0, nullptr);
     if(rymer.empty()) {
-        std::cerr << "count_and_find_rymer: Rymer is empty\n";
+        //std::cerr << "count_and_find_rymer: Rymer is empty\n";
         return result;
     }
 
     //std::cerr << "count_and_find_rymer: Rymer key: " << rymer.key << ", hash: " << rymer.hash << "\n";
-    size_t offset = this->find_offset_rymer(rymer.key, rymer.hash);
+    size_t offset = this->find_offset(rymer.key, rymer.hash);
     //std::cerr << "count_and_find_rymer: Calculated offset: " << offset << "\n";
 
     if(this->hash_table_rymer[offset].first == rymer.key) {
@@ -1484,7 +1491,7 @@ std::pair<size_t, const hit_type*> count_and_find_rymer(const minimizer_type& ry
             result.first = 1; result.second = &(cell.second.value);
         }
     } else {
-        std::cerr << "count_and_find_rymer: Key not found in hash table. Offset key: " << this->hash_table_rymer[offset].first << "\n";
+        //std::cerr << "count_and_find_rymer: Key not found in hash table. Offset key: " << this->hash_table[offset].first << "\n";
     }
 
     return result;
@@ -1547,6 +1554,7 @@ private:
     this->clear();
     this->header = source.header;
     this->hash_table = source.hash_table;
+    this->hash_table_rymer = source.hash_table_rymer;
   }
 
   // Delete all pointers in the hash table.
@@ -1567,9 +1575,9 @@ private:
   // Delete all pointers in the hash table.
   void clear_rymer()
   {
-    for(size_t i = 0; i < this->hash_table.size(); i++)
+    for(size_t i = 0; i < this->hash_table_rymer.size(); i++)
     {
-      cell_type& cell = this->hash_table[i];
+      cell_type& cell = this->hash_table_rymer[i];
       if(cell.first.is_pointer())
       {
         delete cell.second.pointer;
@@ -1596,7 +1604,6 @@ private:
     return 0;
   }
 
-
   size_t find_offset_rymer(key_type key, size_t hash) const
   {
     size_t offset = hash & (this->capacity() - 1);
@@ -1616,39 +1623,6 @@ private:
     throw std::runtime_error("PROBLEM");
     return 0;
   }
-
-/*
-size_t find_offset_rymer(key_type key, size_t hash) const
-{
-  size_t offset = hash & (this->capacity() - 1);
-  for(size_t attempt = 0; attempt < this->capacity(); attempt++)
-  {
-    // Debug print statements
-    std::cout << "Attempt: " << attempt << std::endl;
-    std::cout << "Hash: " << hash << ", Calculated Offset: " << offset << std::endl;
-    std::cout << "Table State at Offset: " << this->hash_table_rymer[offset].first << std::endl;
-    std::cout << "Capacity: " << this->capacity() << std::endl;
-    std::cout << "Size: " << this->size() << std::endl;
-
-    if(this->hash_table_rymer[offset].first == key_type::no_key() || this->hash_table_rymer[offset].first == key)
-    {
-      // Debug print statement
-      std::cout << "Key Match or Empty Slot Found at Offset: " << offset << std::endl;
-
-      return offset;
-    }
-
-    // Quadratic probing with triangular numbers.
-    offset = (offset + attempt + 1) & (this->capacity() - 1);
-  }
-
-  // This should not happen.
-  std::cerr << "MinimizerIndex::find_offset(): Cannot find the offset for key " << key << std::endl;
-  std::cerr << "RYMER SEQUENCE: " << key.decode_rymer(this->k()) << std::endl;
-  throw std::runtime_error("PROBLEM");
-  return 0;
-}
-*/
 
   // Insert (key, hit) to hash_table[offset], which is assumed to be empty.
   // Rehashing may be necessary.
@@ -1706,6 +1680,35 @@ size_t find_offset_rymer(key_type key, size_t hash) const
     this->header.values++;
   }
 
+ void append_rymer(hit_type hit, size_t offset)
+{
+  if(this->contains_rymer(offset, hit)) { return; }
+
+  cell_type& cell = this->hash_table_rymer[offset];
+  if(cell.first.is_pointer())
+  {
+    std::vector<hit_type>* occs = cell.second.pointer;
+    occs->push_back(hit);
+    size_t offset = occs->size() - 1;
+    while(offset > 0 && occs->at(offset - 1) > occs->at(offset))
+    {
+      std::swap(occs->at(offset - 1), occs->at(offset));
+      offset--;
+    }
+  }
+  else
+  {
+    std::vector<hit_type>* occs = new std::vector<hit_type>(2);
+    occs->at(0) = cell.second.value;
+    occs->at(1) = hit;
+    if(occs->at(0) > occs->at(1)) { std::swap(occs->at(0), occs->at(1)); }
+    cell.second.pointer = occs;
+    cell.first.set_pointer();
+    this->header.unique--;
+  }
+  this->header.values++;
+}
+
   // Does the list of occurrences at hash_table[offset] contain the hit?
   bool contains(size_t offset, hit_type hit) const
   {
@@ -1720,6 +1723,21 @@ size_t find_offset_rymer(key_type key, size_t hash) const
       return (cell.second.value == hit);
     }
   }
+
+// Does the list of occurrences at rymer_hash_table[offset] contain the hit?
+bool contains_rymer(size_t offset, hit_type hit) const
+{
+  const cell_type& cell = this->hash_table_rymer[offset];
+  if(cell.first.is_pointer())
+  {
+    const std::vector<hit_type>* occs = cell.second.pointer;
+    return std::binary_search(occs->begin(), occs->end(), hit);
+  }
+  else
+  {
+    return (cell.second.value == hit);
+  }
+}
 
   // Double the size of the hash table.
   void rehash()
@@ -1762,7 +1780,6 @@ size_t find_offset_rymer(key_type key, size_t hash) const
   }
 
 };
-
 
 template<class KeyType>
 std::ostream&
