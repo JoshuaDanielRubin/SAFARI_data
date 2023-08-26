@@ -173,7 +173,16 @@ index_haplotypes_rymer(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
       for(size_t i = 0; i < current_cache.size(); i++)
       {
         rymer_count++;
-        index.insert(current_cache[i].first, current_cache[i].second, payload[i]);
+
+        auto minimizer_to_place_back = current_cache[i].first;
+        Key64 thing;
+        std::string rymer_seq = minimizer_to_place_back.key.decode_rymer(index.k());
+        auto original_key = thing.get_original_kmer_key(rymer_seq);
+        //minimizer_to_place_back.key = original_key;
+
+        std::cerr << "PLACING BACK RYMER KEY: " << minimizer_to_place_back.key << std::endl;
+
+        index.insert_rymer(minimizer_to_place_back, current_cache[i].second, payload[i]);
         //cerr << "RYMER INDEX SIZE: " << index.size() << endl;
       }
     }
@@ -212,6 +221,7 @@ index_haplotypes_rymer(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
 
       // Find the node covering minimizer starting position.
       size_t node_length = graph.get_length(*iter);
+
       while(node_start + node_length <= rymer.offset)
       {
         node_start += node_length;
@@ -219,6 +229,7 @@ index_haplotypes_rymer(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
         node_length = graph.get_length(*iter);
       }
       pos_t pos { graph.get_id(*iter), graph.get_is_reverse(*iter), rymer.offset - node_start };
+
       if(rymer.is_reverse) { pos = reverse_base_pos(pos, node_length); }
       if(!Position::valid_offset(pos))
       {
@@ -229,6 +240,7 @@ index_haplotypes_rymer(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
         std::exit(EXIT_FAILURE);
       }
 
+      //cerr << "PLACING BACK RYMER KEY: " << rymer.key << endl;
       cache[thread_id].emplace_back(rymer, pos);
     }
 
@@ -248,7 +260,7 @@ index_haplotypes_rymer(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
   // Print or return the counter after the function completes its execution.
   std::cerr << "Total rymers indexed: " << rymer_count << std::endl;
 
-index.print_hash_table();
+index.print_hash_table_rymer();
 
 }
 

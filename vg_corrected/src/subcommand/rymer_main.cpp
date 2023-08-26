@@ -37,6 +37,7 @@
 #include "../snarl_distance_index.hpp"
 
 #include <gbwtgraph/index.h>
+#include <gbwtgraph/minimizer.h>
 
 using namespace vg;
 

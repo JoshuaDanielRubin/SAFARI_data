@@ -653,6 +653,7 @@ for (auto & m : minimizers_rymer){
     m.value.key = thing.get_original_kmer_key(rymer_seq);
     auto seq = m.value.key.decode(m.length);
     m.value.hash = m.value.key.hash();
+    m.value.offset = 0;
 
     if (gbwtgraph::convertToRymerSpace(seq) != rymer_seq){
         throw runtime_error("[MAGPIE] Conversion error");

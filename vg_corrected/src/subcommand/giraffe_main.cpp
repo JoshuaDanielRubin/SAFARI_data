@@ -1175,7 +1175,7 @@ int main_giraffe(int argc, char** argv) {
         }
     }
 #endif
-    
+
     // Grab the minimizer index
     auto minimizer_index = vg::io::VPKG::load_one<gbwtgraph::DefaultMinimizerIndex>(registry.require("Minimizers").at(0));
 
@@ -1217,6 +1217,9 @@ int main_giraffe(int argc, char** argv) {
         cerr << "Initializing MinimizerMapper" << endl;
     }
     MinimizerMapper minimizer_mapper(gbz->graph, *minimizer_index, *rymer_index, &*distance_index, path_position_graph);
+
+    //minimizer_mapper.rymer_index.print_hash_table();
+
     if (forced_mean && forced_stdev) {
         minimizer_mapper.force_fragment_length_distr(fragment_mean, fragment_stdev);
     }

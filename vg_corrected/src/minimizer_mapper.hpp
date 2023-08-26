@@ -244,6 +244,9 @@ public:
     size_t get_distance_limit(size_t read_length) const {
         return max(distance_limit, read_length + 50);
     }
+
+    const gbwtgraph::DefaultMinimizerIndex& rymer_index;
+
 protected:
 
     /**
@@ -310,7 +313,6 @@ protected:
     const PathPositionHandleGraph* path_graph; // Can be nullptr; only needed for correctness tracking.
 
     const gbwtgraph::DefaultMinimizerIndex& minimizer_index;
-    const gbwtgraph::DefaultMinimizerIndex& rymer_index;
 
     SnarlDistanceIndex* distance_index;
     /// This is our primary graph.
