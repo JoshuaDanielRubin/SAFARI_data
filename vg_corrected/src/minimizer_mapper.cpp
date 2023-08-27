@@ -622,6 +622,7 @@ size_t minimizer_count = 0;
 
 vector<Alignment> MinimizerMapper::map(Alignment& aln) {
 
+
     if (show_work) {
         #pragma omp critical (cerr)
         dump_debug_query(aln);
@@ -650,10 +651,10 @@ gbwtgraph::Key64 thing;
 for (auto & m : minimizers_rymer){
 
     //auto rymer_seq = m.value.key.decode_rymer(m.length);
+    //cerr << "RYMER IN THE READ: " << rymer_seq << endl;
     //m.value.key = thing.get_original_kmer_key(rymer_seq);
-   // auto seq = m.value.key.decode(m.length);
+    //auto seq = m.value.key.decode(m.length);
     //m.value.hash = m.value.key.hash();
-    //m.value.offset = 0;
 
     //if (gbwtgraph::convertToRymerSpace(seq) != rymer_seq){
     //    throw runtime_error("[MAGPIE] Conversion error");
@@ -677,10 +678,7 @@ minimizers_rymer.erase(
     std::vector<Cluster> clusters;
     std::vector<Cluster> clusters_rymer;
 
-
-//vector<Seed> seeds = this->find_seeds<Seed>(minimizers, aln, funnel);
-vector<Seed> seeds = this->find_seeds<Seed>(minimizers_rymer, aln, funnel);
-
+vector<Seed> seeds = this->find_seeds<Seed>(minimizers, aln, funnel);
 
     cerr << "NUMBER OF SEEDS: " << seeds.size() << endl;
 
@@ -3526,17 +3524,18 @@ std::vector<MinimizerMapper::Minimizer> MinimizerMapper::find_rymers(const std::
     vector<tuple<gbwtgraph::DefaultMinimizerIndex::minimizer_type, size_t, size_t>> minimizers =
         this->rymer_index.rymer_regions(sequence, this->rymer_index);
 
+     cerr << "RYMER REGIONS SIZE: " << minimizers.size() << endl;
 
     //if (minimizers.empty()){throw runtime_error("RYMER REGIONS FAIL");}
 
 
     for (auto& m : minimizers) {
 
-        gbwtgraph::Key64 thing;
-        std::string rymer_seq = get<0>(m).key.decode_rymer(this->rymer_index.k());
+        //gbwtgraph::Key64 thing;
+        //std::string rymer_seq = get<0>(m).key.decode_rymer(this->rymer_index.k());
 
-        auto new_key = thing.encode_rymer(rymer_seq);
-        get<0>(m).key = new_key;
+        //auto new_key = thing.encode_rymer(rymer_seq);
+        //get<0>(m).key = new_key;
 
         //auto original_key = thing.get_original_kmer_key(rymer_seq);
         //get<0>(m).key = original_key;
@@ -3558,14 +3557,14 @@ std::vector<MinimizerMapper::Minimizer> MinimizerMapper::find_rymers(const std::
 
         double score = 0.0;
 
-        //if (get<0>(m).key.length != this->rymer_index.k()){
-        //    throw runtime_error("WRONG LENGTH!!");
-       // }
+        //string kmer_seq = get<0>(m).key.decode(this->minimizer_index.k());
+        //string new_rymer_seq = gbwtgraph::convertToRymerSpace(kmer_seq);
+        //get<0>(m).key = gbwtgraph::Key64::encode_rymer(new_rymer_seq);
 
         auto hits = this->rymer_index.count_and_find_rymer(get<0>(m));
-        //auto hits = this->rymer_index.count_and_find(get<0>(m));
+        //auto hits = this->minimizer_index.count_and_find(get<0>(m));
 
-        //cerr << "NUMBER OF RYMER HITS AFTER COUNT AND FIND: " << hits.first << endl;
+        cerr << "NUMBER OF RYMER HITS AFTER COUNT AND FIND: " << hits.first << endl;
         //if (hits.first > 0){throw runtime_error("YES WE HAVE A RYMER HIT!!");}
 
         if (hits.first > 0) {
@@ -3608,13 +3607,12 @@ std::vector<MinimizerMapper::Minimizer> MinimizerMapper::find_rymers(const std::
 
 std::vector<MinimizerMapper::Minimizer> MinimizerMapper::find_minimizers(const std::string& sequence, Funnel& funnel) const {
 
+
     if (this->track_provenance) {
         // Start the minimizer finding stage
         funnel.stage("minimizer");
     }
 
-    //cerr << "MINIMIZER K VALUE: " << (int32_t) minimizer_index.k() << endl;
-    //cerr << "MINIMIZER WINDOW VALUE: " << (int32_t) minimizer_index.w() << endl;
 
     std::vector<Minimizer> result;
     double base_score = 1.0 + std::log(this->hard_hit_cap);
@@ -3624,12 +3622,22 @@ std::vector<MinimizerMapper::Minimizer> MinimizerMapper::find_minimizers(const s
         this->minimizer_index.minimizer_regions(sequence);
     for (auto& m : minimizers) {
 
-        //cerr << "FOUND THIS MINIMIZER" << endl;
+        cerr << "KMER SEQ: " << get<0>(m).key.decode(minimizer_index.k()) << endl;
 
         double score = 0.0;
-        auto hits = this->minimizer_index.count_and_find_rymer(get<0>(m));
 
-        //cerr << "NUMBER OF MINIMIZER HITS AFTER COUNT AND FIND: " << hits.first << endl;
+        gbwtgraph::Key64 thing;
+        int old_key = get<0>(m).key.get_key();
+        auto new_key = thing.minimizerToRymer(old_key, minimizer_index.k());
+        get<0>(m).key = new_key;
+        get<0>(m).hash = get<0>(m).key.hash();
+
+        cerr << "NEW RYMER SEQ: " << get<0>(m).key.decode_rymer(minimizer_index.k()) << endl;
+
+       auto hits = this->rymer_index.count_and_find_rymer(get<0>(m));
+       //auto hits = this->minimizer_index.count_and_find(get<0>(m));
+
+        cerr << "NUMBER OF MINIMIZER HITS AFTER COUNT AND FIND: " << hits.first << endl;
 
         if (hits.first > 0) {
             if (hits.first <= this->hard_hit_cap) {
@@ -3762,7 +3770,7 @@ std::vector<SeedType> MinimizerMapper::find_seeds(const std::vector<Minimizer>& 
         }
 
         if (minimizer.hits == 0) {
-            //std::cerr << "Rejected seed " << i << ": no hits." << std::endl;
+            std::cerr << "Rejected seed " << i << ": no hits." << std::endl;
             // A minimizer with no hits can't go on.
             took_last = false;
             // We do not treat it as located for MAPQ capping purposes.
@@ -3782,8 +3790,7 @@ std::vector<SeedType> MinimizerMapper::find_seeds(const std::vector<Minimizer>& 
 */
 (true){
 
-            //cerr << "WE KEEP THIS ONE!!!" << endl;
-            //cerr << "IT HAS: " << minimizer.hits << " HITS" << endl;
+            cerr << "KEEP THIS ONE! IT HAS: " << minimizer.hits << " HITS" << endl;
 
             // set minimizer overlap as a reads
             num_minimizers += 1;    // tracking number of minimizers selected
@@ -3799,6 +3806,7 @@ std::vector<SeedType> MinimizerMapper::find_seeds(const std::vector<Minimizer>& 
 
             // Locate the hits.
             for (size_t j = 0; j < minimizer.hits; j++) {
+
                 pos_t hit = gbwtgraph::Position::decode(minimizer.occs[j].pos);
                 // Reverse the hits for a reverse minimizer
                 if (minimizer.value.is_reverse) {

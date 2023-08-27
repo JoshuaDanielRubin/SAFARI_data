@@ -489,7 +489,7 @@ Key64::decode(size_t k) const
   return result.str();
 }
 
-
+/*
 Key64
 Key64::encode_rymer(const std::string& sequence)
 {
@@ -518,8 +518,34 @@ Key64::encode_rymer(const std::string& sequence)
     //std::cerr << "Final encoded value: " << packed << std::endl;
     return Key64(packed);
 }
+*/
 
+Key64
+Key64::encode_rymer(const std::string& sequence)
+{
+    key_type packed = 0;  // Initialize the packed key as 0
 
+    for(auto c : sequence)
+    {
+        unsigned char packed_char;
+
+        // Convert the character to its Rymer equivalent
+        if(c == 'A' || c == 'G') {
+            packed_char = 0;
+        } else if(c == 'C' || c == 'T') {
+            packed_char = 1;
+        } else {
+            throw std::runtime_error("[ENCODE_RYMER] Key64::encode_rymer(): Unexpected character in input sequence: " + std::string(1, c));
+        }
+
+        // Left-shift the current packed key and add the new packed_char
+        packed = (packed << 1) | packed_char;
+    }
+
+    return Key64(packed);
+}
+
+/*
 std::string
 Key64::decode_rymer(size_t k) const
 {
@@ -529,7 +555,7 @@ Key64::decode_rymer(size_t k) const
     // Decode using the kmer scheme
     for(size_t i = 0; i < k; i++)
     {
-        char decoded_char = PACK_TO_CHAR[(this->key >> ((k - i - 1) * PACK_WIDTH)) & PACK_MASK];
+        char decoded_char = PACK_TO_CHAR_RYMER[(this->key >> ((k - i - 1) * PACK_WIDTH_RYMER)) & PACK_MASK_RYMER];
         //std::cerr << "Decoded character using kmer scheme: " << decoded_char << std::endl;
 
         // Convert the decoded character to its Rymer equivalent
@@ -567,6 +593,37 @@ Key64::decode_rymer(size_t k) const
 
     return decodedStr;
 }
+*/
+
+std::string
+Key64::decode_rymer(size_t k) const
+{
+    std::stringstream result;
+    key_type temp_key = this->key;  // Copy the current key to a temporary variable
+
+    for(size_t i = 0; i < k; i++)
+    {
+        // Extract the least significant bit
+        unsigned char base_bit = temp_key & 0x1;
+
+        // Convert the bit to its Rymer equivalent
+        if(base_bit == 0) {
+            result << 'A';
+        } else if(base_bit == 1) {
+            result << 'C';
+        }
+
+        // Right-shift the temporary key to get the next bit
+        temp_key >>= 1;
+    }
+
+    // Reverse the resulting string
+    std::string decodedStr = result.str();
+    std::reverse(decodedStr.begin(), decodedStr.end());
+
+    return decodedStr;
+}
+
 
 Key64::key_type
 Key64::get_original_kmer_key(const std::string& rymerStr) const

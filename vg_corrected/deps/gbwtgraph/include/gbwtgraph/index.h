@@ -177,13 +177,15 @@ index_haplotypes_rymer(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
         auto minimizer_to_place_back = current_cache[i].first;
         Key64 thing;
         std::string rymer_seq = minimizer_to_place_back.key.decode_rymer(index.k());
-        auto original_key = thing.get_original_kmer_key(rymer_seq);
+        //auto original_key = thing.get_original_kmer_key(rymer_seq);
         //minimizer_to_place_back.key = original_key;
+       // rymer_seq = minimizer_to_place_back.key.decode_rymer(index.k());
 
         //std::cerr << "PLACING BACK RYMER KEY: " << minimizer_to_place_back.key << std::endl;
+        //std::cerr << "RYMER SEQ TO INDEX: " << rymer_seq << std::endl;
+        //std::cerr << "AND THE KMER SEQ: " << minimizer_to_place_back.key.decode(index.k()) << std::endl;
 
-        index.insert_rymer(minimizer_to_place_back, current_cache[i].second, payload[i]);
-        //index.insert_rymer(minimizer_to_place_back, current_cache[i].second, payload[i]);
+        index.insert(minimizer_to_place_back, current_cache[i].second, payload[i]);
         //cerr << "RYMER INDEX SIZE: " << index.size() << endl;
       }
     }
@@ -194,10 +196,9 @@ index_haplotypes_rymer(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
   auto find_minimizers = [&](const std::vector<handle_t>& traversal, const std::string& seq)
   {
 
-    //std::cerr << "SEQ SIZE: " << seq.size() << std::endl;
-
     std::string rymer_seq = gbwtgraph::convertToRymerSpace(seq);
-    //std::vector<minimizer_type> minimizers = index.minimizers(seq); // Calls syncmers() when appropriate.
+    //std::cerr << "RYMER SEQ: " << rymer_seq << std::endl;
+
     std::vector<minimizer_type> rymers = index.rymers(rymer_seq);
 
     //for (auto & r : rymers){

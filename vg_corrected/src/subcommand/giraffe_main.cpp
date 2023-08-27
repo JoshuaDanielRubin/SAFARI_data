@@ -1182,6 +1182,7 @@ int main_giraffe(int argc, char** argv) {
     // Grab rymer index
     auto rymer_index = vg::io::VPKG::load_one<gbwtgraph::DefaultMinimizerIndex>(registry.require("Rymers").at(0));
 
+
     // Grab the GBZ
     auto gbz = vg::io::VPKG::load_one<gbwtgraph::GBZ>(registry.require("Giraffe GBZ").at(0));
 
