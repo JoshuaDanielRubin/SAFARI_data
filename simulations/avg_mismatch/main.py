@@ -102,7 +102,7 @@ for k in k_values:
     w = k + 2
     minimizer_table = create_index_table(sequence, k, w)
     rymer_table = create_index_table(rymer_transform(sequence), k, w)
-    fragments = fragment_genome(sequence, 150, 0, 100)
+    fragments = fragment_genome(sequence, 150, 0, 2000)
     all_reads = []
     for fragment in fragments:
         reads_from_fragment = generate_circular_reads(fragment, 75, 1)
@@ -132,5 +132,5 @@ plt.title('Exact Match Fraction as a Function of k (Deamination)')
 plt.grid(True)
 
 plt.tight_layout()
-plt.show()
+plt.savefig("mismatch.png")
 
