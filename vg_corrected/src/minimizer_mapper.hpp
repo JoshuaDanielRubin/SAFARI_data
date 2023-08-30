@@ -262,6 +262,7 @@ protected:
         int32_t length; // How long is the minimizer (index's k)
         int32_t candidates_per_window; // How many minimizers compete to be the best (index's w), or 1 for syncmers.  
         double score; // Scores as 1 + ln(hard_hit_cap) - ln(hits).
+        string kmer_seq;
 
         // Sort the minimizers in descending order by score and group identical minimizers together.
         inline bool operator< (const Minimizer& another) const {
@@ -296,6 +297,19 @@ protected:
             string sequence = value.key.decode(length);
             return value.is_reverse ? reverse_complement(sequence) : sequence;
         }
+
+        inline string reverse_complement_rymer(const string &str) const{
+      string reversed = str;
+      reverse(reversed.begin(), reversed.end());
+       return reversed;
+     }
+
+        /// What is the minimizer sequence, in read orientation?
+        inline string forward_sequence_rymer() const {
+            string sequence = value.key.decode_rymer(length);
+            return value.is_reverse ? reverse_complement_rymer(sequence) : sequence;
+        }
+
     };
     
     /// Convert an integer distance, with limits standing for no distance, to a
@@ -340,7 +354,7 @@ protected:
      * Find the minimizers in the sequence using all minimizer indexes and
      * return them sorted in descending order by score.
      */
-    std::vector<Minimizer> find_minimizers(const std::string& sequence, Funnel& funnel) const;
+    std::vector<Minimizer> find_minimizers(const std::string& sequence, Funnel& funnel, bool rymer=false) const;
     std::vector<Minimizer> find_rymers(const std::string& sequence, Funnel& funnel) const;
 
     /**

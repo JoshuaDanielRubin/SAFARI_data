@@ -299,6 +299,7 @@ minimizerToRymer(key_type minimizer_key, size_t k)
   std::string decode_rymer(size_t k) const;
 
   key_type get_original_kmer_key(const std::string& rymerStr) const;
+  std::string rymer_key_to_minimizer_string(key_type rymer_key, size_t k) const;
 #endif
 
   // Required numeric constants.
@@ -318,7 +319,7 @@ private:
   // Constants for the encoding between std::string and the key.
   constexpr static size_t   PACK_WIDTH = 2;
   constexpr static key_type PACK_MASK  = 0x3;
-  constexpr static size_t  PACK_WIDTH_RYMER = 2;
+  constexpr static size_t  PACK_WIDTH_RYMER = 1;//2;
   constexpr static key_type PACK_MASK_RYMER  = 0x1;
 
   // Arrays for the encoding between std::string and the key.
@@ -541,6 +542,7 @@ public:
     size_t      hash;       // Hash of the minimizer.
     offset_type offset;     // Sequence offset.
     bool        is_reverse; // The minimizer is the reverse complement of the kmer.
+    std::string kmer_seq = "";
 
     // Is the minimizer empty?
     bool empty() const { return (this->key == key_type::no_key()); }
@@ -782,7 +784,6 @@ public:
 
 std::vector<minimizer_type> minimizers(std::string::const_iterator begin, std::string::const_iterator end) const
 {
-    //std::cout << "[DEBUG] Starting minimizers function. Sequence length: " << (end - begin) << std::endl;
 
     if(this->uses_syncmers()) { 
         //std::cout << "[DEBUG] Using syncmers." << std::endl;
@@ -806,7 +807,6 @@ std::vector<minimizer_type> minimizers(std::string::const_iterator begin, std::s
     {
         forward_key.forward(this->k(), *iter, valid_chars);
         reverse_key.reverse(this->k(), *iter);
-        //std::cout << "[DEBUG] Processed character (minimizers): " << *iter << ". Valid chars: " << valid_chars << std::endl;
 
         if(valid_chars >= this->k()) { buffer.advance(start_pos, forward_key, reverse_key); }
         else                         { buffer.advance(start_pos); }
@@ -823,7 +823,6 @@ std::vector<minimizer_type> minimizers(std::string::const_iterator begin, std::s
                     if(buffer.at(i).offset >= next_read_offset)
                     {
                         result.emplace_back(buffer.at(i));
-                        std::cerr << "[DEBUG] Added minimizer: " << buffer.at(i).key.decode(this->k()) << " with key: " << buffer.at(i).key << std::endl;
                         next_read_offset = buffer.at(i).offset + 1;
                     }
                 }
@@ -845,18 +844,14 @@ std::vector<minimizer_type> minimizers(std::string::const_iterator begin, std::s
 
 std::vector<minimizer_type> rymers(std::string::const_iterator begin, std::string::const_iterator end) const
 {
-    //std::cout << "[DEBUG] Starting rymers function. Sequence length: " << (end - begin) << std::endl;
 
     if(this->uses_syncmers()) { 
-        //std::cout << "[DEBUG] Using syncmers." << std::endl;
         return this->syncmers(begin, end); 
     }
 
     std::vector<minimizer_type> result;
     size_t window_length = this->window_bp(), total_length = end - begin;
-    //std::cout << "[DEBUG] Window length: " << window_length << std::endl;
     if(total_length < window_length) { 
-        //std::cout << "[DEBUG] Sequence length is shorter than window length." << std::endl;
         return result; 
     }
 
@@ -869,12 +864,6 @@ std::vector<minimizer_type> rymers(std::string::const_iterator begin, std::strin
     {
         forward_key.forward_rymer(this->k(), *iter, valid_chars);
         reverse_key.reverse_rymer(this->k(), *iter);
-        //std::cerr << "FORWARD KEY RYMER: " << forward_key << std::endl;
-        //std::cerr << "REVERSE KEY RYMER: " << reverse_key << std::endl;
-
-        if (forward_key.get_key() < 0 || forward_key.get_key() > 0xFFFFFFFF || reverse_key.get_key() < 0 || reverse_key.get_key() > 0xFFFFFFFF) {
-              throw std::runtime_error("Invalid rymer key detected. Expected value in the range [0, 4294967295].");
-                                                                                                      }
 
         if(valid_chars >= this->k()) { buffer.advance(start_pos, forward_key, reverse_key); }
         else                         { buffer.advance(start_pos); }
@@ -891,7 +880,6 @@ std::vector<minimizer_type> rymers(std::string::const_iterator begin, std::strin
                     if(buffer.at(i).offset >= next_read_offset)
                     {
                         result.emplace_back(buffer.at(i));
-                        std::cerr << "[DEBUG] Added rymer: " << buffer.at(i).key.decode_rymer(this->k()) << " with key: " << buffer.at(i).key << std::endl;
                         next_read_offset = buffer.at(i).offset + 1;
                     }
                     else
@@ -918,8 +906,6 @@ std::vector<minimizer_type> rymers(std::string::const_iterator begin, std::strin
         if(minimizer.is_reverse) { minimizer.offset += this->k() - 1; }
     }
     std::sort(result.begin(), result.end());
-
-    //std::cout << "[DEBUG] Total rymers found: " << result.size() << std::endl;
 
     return result;
 }
@@ -1418,7 +1404,7 @@ void print_hash_table() const {
 
 std::pair<size_t, const hit_type*> count_and_find_rymer(const minimizer_type& rymer) const {
     //print_hash_table();
-    //return count_and_find(rymer);
+    return count_and_find(rymer);
 
     std::pair<size_t, const hit_type*> result(0, nullptr);
 
@@ -1541,7 +1527,7 @@ private:
   // Find the hash table offset for the key with the given hash value.
   size_t find_offset(key_type key, size_t hash) const
   {
-    std::cerr << "Initial hash value: " << hash << "\n";
+    //std::cerr << "Initial hash value: " << hash << "\n";
     size_t offset = hash & (this->capacity() - 1);
     for(size_t attempt = 0; attempt < this->capacity(); attempt++)
     {
@@ -1549,7 +1535,7 @@ private:
 
       // Quadratic probing with triangular numbers.
       offset = (offset + attempt + 1) & (this->capacity() - 1);
-     std::cerr << "New offset after probing: " << offset << "\n";
+     //std::cerr << "New offset after probing: " << offset << "\n";
     }
 
     // This should not happen.
@@ -1600,35 +1586,6 @@ private:
     this->header.values++;
   }
 
- void append_rymer(hit_type hit, size_t offset)
-{
-  if(this->contains_rymer(offset, hit)) { return; }
-
-  cell_type& cell = this->hash_table[offset];
-  if(cell.first.is_pointer())
-  {
-    std::vector<hit_type>* occs = cell.second.pointer;
-    occs->push_back(hit);
-    size_t offset = occs->size() - 1;
-    while(offset > 0 && occs->at(offset - 1) > occs->at(offset))
-    {
-      std::swap(occs->at(offset - 1), occs->at(offset));
-      offset--;
-    }
-  }
-  else
-  {
-    std::vector<hit_type>* occs = new std::vector<hit_type>(2);
-    occs->at(0) = cell.second.value;
-    occs->at(1) = hit;
-    if(occs->at(0) > occs->at(1)) { std::swap(occs->at(0), occs->at(1)); }
-    cell.second.pointer = occs;
-    cell.first.set_pointer();
-    this->header.unique--;
-  }
-  this->header.values++;
-}
-
   // Does the list of occurrences at hash_table[offset] contain the hit?
   bool contains(size_t offset, hit_type hit) const
   {
@@ -1643,21 +1600,6 @@ private:
       return (cell.second.value == hit);
     }
   }
-
-// Does the list of occurrences at rymer_hash_table[offset] contain the hit?
-bool contains_rymer(size_t offset, hit_type hit) const
-{
-  const cell_type& cell = this->hash_table[offset];
-  if(cell.first.is_pointer())
-  {
-    const std::vector<hit_type>* occs = cell.second.pointer;
-    return std::binary_search(occs->begin(), occs->end(), hit);
-  }
-  else
-  {
-    return (cell.second.value == hit);
-  }
-}
 
   // Double the size of the hash table.
   void rehash()

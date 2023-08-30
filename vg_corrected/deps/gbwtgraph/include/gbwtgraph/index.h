@@ -70,28 +70,9 @@ index_haplotypes(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
     size_t node_start = 0;
     int thread_id = omp_get_thread_num();
 
-//        if (std::all_of(minimizers.begin(), minimizers.end(), [](const minimizer_type& minimizer){ return minimizer.empty(); }))
-//{
- //   throw std::runtime_error("All minimizers are empty!");
-//}
-
-
     for(minimizer_type& minimizer : minimizers)
     {
        if(minimizer.empty()) { continue; }
-
-       //cerr << "MINIMIZER KEY: " << minimizer.key << endl;
-
-       std::string minimizer_sequence = minimizer.key.decode(k); // TO CORRECT
-       //cerr << "MINIMIZER SEQUENCE (IN MINIMIZER INDEXING)  " << minimizer_sequence << endl;
-
-
-       auto encoded_key = Key64::encode(minimizer_sequence);
-
-      if (encoded_key.decode(k) != minimizer_sequence){
-         throw runtime_error("THERES A PROBLEM WITH THE ENCODING OR DECODING");
-      }
-
 
       // Find the node covering minimizer starting position.
       size_t node_length = graph.get_length(*iter);
@@ -173,20 +154,7 @@ index_haplotypes_rymer(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
       for(size_t i = 0; i < current_cache.size(); i++)
       {
         rymer_count++;
-
-        auto minimizer_to_place_back = current_cache[i].first;
-        Key64 thing;
-        std::string rymer_seq = minimizer_to_place_back.key.decode_rymer(index.k());
-        //auto original_key = thing.get_original_kmer_key(rymer_seq);
-        //minimizer_to_place_back.key = original_key;
-       // rymer_seq = minimizer_to_place_back.key.decode_rymer(index.k());
-
-        //std::cerr << "PLACING BACK RYMER KEY: " << minimizer_to_place_back.key << std::endl;
-        //std::cerr << "RYMER SEQ TO INDEX: " << rymer_seq << std::endl;
-        //std::cerr << "AND THE KMER SEQ: " << minimizer_to_place_back.key.decode(index.k()) << std::endl;
-
-        index.insert(minimizer_to_place_back, current_cache[i].second, payload[i]);
-        //cerr << "RYMER INDEX SIZE: " << index.size() << endl;
+        index.insert(current_cache[i].first, current_cache[i].second, payload[i]);
       }
     }
     cache[thread_id].clear();
@@ -197,29 +165,19 @@ index_haplotypes_rymer(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
   {
 
     std::string rymer_seq = gbwtgraph::convertToRymerSpace(seq);
-    //std::cerr << "RYMER SEQ: " << rymer_seq << std::endl;
 
     std::vector<minimizer_type> rymers = index.rymers(rymer_seq);
-
-    //for (auto & r : rymers){
-    //  cerr << "RYMER KEY: " << r.key.get_key() << endl;
-   // }
 
     auto iter = traversal.begin();
     size_t node_start = 0;
     int thread_id = omp_get_thread_num();
 
-    Key64 thing;
     for(minimizer_type& rymer : rymers)
     {
 
       if(rymer.empty()){continue;}
 
-      std::string rymer_sequence = rymer.key.decode_rymer(k); // TO CORRECT
-
-      //Key64::key_type original_key = thing.get_original_kmer_key(rymer_sequence);
-      //rymer.key = original_key;
-
+      std::string rymer_sequence = rymer.key.decode_rymer(k);
 
       // Find the node covering minimizer starting position.
       size_t node_length = graph.get_length(*iter);
@@ -258,11 +216,6 @@ index_haplotypes_rymer(const GBWTGraph& graph, MinimizerIndex<KeyType>& index,
   */
   for_each_haplotype_window(graph, index.window_bp(), find_minimizers, (threads > 1), true);
   for(int thread_id = 0; thread_id < threads; thread_id++) { flush_cache(thread_id); }
-
-  // Print or return the counter after the function completes its execution.
-  std::cerr << "Total rymers indexed: " << rymer_count << std::endl;
-
-//index.print_hash_table_rymer();
 
 }
 

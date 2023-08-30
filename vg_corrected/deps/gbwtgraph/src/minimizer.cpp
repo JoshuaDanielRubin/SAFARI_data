@@ -639,6 +639,43 @@ Key64::get_original_kmer_key(const std::string& rymerStr) const
     return original_encoded_rymer_key;
 }
 
+std::string
+Key64::rymer_key_to_minimizer_string(key_type rymer_key, size_t k) const
+{
+    std::stringstream result;
+    //std::cerr << "Rymer Key before decoding: " << rymer_key << std::endl;
+
+    // Decode using the Rymer scheme
+    for(size_t i = 0; i < k; i++)
+    {
+        // Debug: Show intermediate calculations
+        size_t shift_amount = (k - i - 1) * PACK_WIDTH_RYMER;
+        key_type shifted_key = rymer_key >> shift_amount;
+        key_type masked_key = shifted_key & PACK_MASK_RYMER;
+
+        //std::cerr << "Shift amount: " << shift_amount << std::endl;
+        //std::cerr << "Shifted key: " << shifted_key << std::endl;
+        //std::cerr << "Masked key: " << masked_key << std::endl;
+
+        char decoded_char = PACK_TO_CHAR_RYMER[masked_key];
+        //std::cerr << "Decoded character using Rymer scheme: " << decoded_char << std::endl;
+
+        // Convert the decoded character to its Minimizer equivalent
+        if(decoded_char == 'A') {
+            decoded_char = 'G';
+        } else if(decoded_char == 'C') {
+            decoded_char = 'T';
+        }
+
+        result << decoded_char;
+    }
+
+    std::string minimizerStr = result.str();
+    //std::cerr << "Converted to Minimizer string: " << minimizerStr << std::endl;
+
+    return minimizerStr;
+}
+
 std::ostream&
 operator<<(std::ostream& out, Key64 value)
 {
