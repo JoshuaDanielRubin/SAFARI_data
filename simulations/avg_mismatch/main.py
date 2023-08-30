@@ -102,7 +102,7 @@ for k in k_values:
     w = k + 2
     minimizer_table = create_index_table(sequence, k, w)
     rymer_table = create_index_table(rymer_transform(sequence), k, w)
-    fragments = fragment_genome(sequence, 150, 0, 2000)
+    fragments = fragment_genome(sequence, 150, 0, 5000)
     all_reads = []
     for fragment in fragments:
         reads_from_fragment = generate_circular_reads(fragment, 75, 1)
@@ -132,41 +132,27 @@ plt.title('Exact Match Fraction as a Function of k (Deamination)')
 plt.grid(True)
 
 plt.tight_layout()
-
-# Fitted exponential curve
-def exp_func(x, a, b):
-    return a * np.exp(-b * x)
-
-# Fitted parameters
-a = 0.2934
-b = 1.0408
-
-# Generate fitted data
-fitted_data = exp_func(np.array(k_values), a, b)
-
-# Plot fitted data
-plt.plot(k_values, fitted_data, label='Fitted Exponential', linestyle='--', color='blue')
-plt.legend()
-
-# --- Start of exponential fit ---
-# If this part appears in the wrong plot, feel free to remove it
-
-# Fitted exponential curve
-def exp_func(x, a, b):
-    return a * np.exp(-b * x)
-
-# Fitted parameters
-a = 0.2934
-b = 1.0408
-
-# Generate fitted data
-fitted_data = exp_func(np.array(k_values), a, b)
-
-# Plot fitted data
-plt.plot(k_values, fitted_data, label='Fitted Exponential', linestyle='--', color='blue')
-plt.legend()
-
-# --- End of exponential fit ---
 plt.savefig("mismatch.png")
 
 
+# Simpler Power-Law Decay Fitting and Plotting
+from scipy.optimize import curve_fit
+import numpy as np
+import matplotlib.pyplot as plt
+
+def simpler_power_law_decay(x, a, b):
+    return a * np.power(x, -b)
+
+params_simpler_power_law, _ = curve_fit(simpler_power_law_decay, k_values, average_mismatches)
+curve_x = np.linspace(min(k_values), max(k_values), 100)
+curve_y_simpler_power_law = simpler_power_law_decay(curve_x, *params_simpler_power_law)
+
+plt.figure(figsize=(5, 5))
+plt.scatter(k_values, average_mismatches, label='New Original Data', color='blue')
+plt.plot(curve_x, curve_y_simpler_power_law, label='Simpler Power-Law Decay', linestyle='--', color='orange')
+plt.xlabel('Value of k')
+plt.ylabel('Sequence Similarity')
+plt.title('Sequence Similarity as a Function of k (Deamination)')
+plt.grid(True)
+plt.legend()
+plt.savefig("mismatch.png")
