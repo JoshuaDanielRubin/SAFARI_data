@@ -132,5 +132,21 @@ plt.title('Exact Match Fraction as a Function of k (Deamination)')
 plt.grid(True)
 
 plt.tight_layout()
+
+# Fitted exponential curve
+def exp_func(x, a, b):
+    return a * np.exp(-b * x)
+
+# Fitted parameters
+a = 0.2934
+b = 1.0408
+
+# Generate fitted data
+fitted_data = exp_func(np.array(k_values), a, b)
+
+# Plot fitted data
+plt.plot(k_values, fitted_data, label='Fitted Exponential', linestyle='--', color='blue')
+plt.legend()
 plt.savefig("mismatch.png")
+
 
