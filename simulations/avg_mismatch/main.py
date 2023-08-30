@@ -147,6 +147,26 @@ fitted_data = exp_func(np.array(k_values), a, b)
 # Plot fitted data
 plt.plot(k_values, fitted_data, label='Fitted Exponential', linestyle='--', color='blue')
 plt.legend()
+
+# --- Start of exponential fit ---
+# If this part appears in the wrong plot, feel free to remove it
+
+# Fitted exponential curve
+def exp_func(x, a, b):
+    return a * np.exp(-b * x)
+
+# Fitted parameters
+a = 0.2934
+b = 1.0408
+
+# Generate fitted data
+fitted_data = exp_func(np.array(k_values), a, b)
+
+# Plot fitted data
+plt.plot(k_values, fitted_data, label='Fitted Exponential', linestyle='--', color='blue')
+plt.legend()
+
+# --- End of exponential fit ---
 plt.savefig("mismatch.png")
 
 
