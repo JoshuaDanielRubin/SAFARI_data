@@ -135,7 +135,7 @@ a, b = params
 
 # Annotate the plot with the fitted parameters
 annotation_text = f'a={a:.4f}, b={b:.4f}'
-plt.annotate(annotation_text, xy=(0.6, 0.2), xycoords='axes fraction')
+#plt.annotate(annotation_text, xy=(0.6, 0.2), xycoords='axes fraction')
 
 x_fit = np.linspace(min(k_values), max(k_values), 500)
 y_fit = power_law(x_fit, *params)
