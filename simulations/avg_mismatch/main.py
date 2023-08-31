@@ -131,6 +131,11 @@ def power_law(x, a, b):
     return a * np.power(x, b)
 
 params, _ = curve_fit(power_law, k_values, average_mismatches)
+a, b = params
+
+# Annotate the plot with the fitted parameters
+annotation_text = f'a={a:.4f}, b={b:.4f}'
+plt.annotate(annotation_text, xy=(0.6, 0.2), xycoords='axes fraction')
 
 x_fit = np.linspace(min(k_values), max(k_values), 500)
 y_fit = power_law(x_fit, *params)
@@ -149,4 +154,5 @@ plt.grid(True)
 plt.tight_layout()
 plt.savefig("mismatch.png")
 
-
+# Print the parameters
+print(f"Fitted parameters: a = {a}, b = {b}")
