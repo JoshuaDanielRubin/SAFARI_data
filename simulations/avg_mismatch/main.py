@@ -1,9 +1,9 @@
-
 import random
 from typing import List, Dict
 from collections import defaultdict
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.optimize import curve_fit
 
 # Functions for reading and preprocessing
 def read_fasta(file_path: str) -> str:
@@ -114,7 +114,10 @@ for k in k_values:
     average_mismatches.append(average_mismatch / k)
     exact_match_fractions.append(exact_matches / total_kmers if total_kmers else 0)
 
+
 plt.figure(figsize=(10, 5))
+
+# First subplot
 plt.subplot(1, 2, 1)
 plt.plot(k_values, average_mismatches, marker='o', linestyle='-')
 plt.xticks(k_values)
@@ -123,6 +126,18 @@ plt.ylabel('Sequence Similarity')
 plt.title('Sequence Similarity as a Function of k (Deamination)')
 plt.grid(True)
 
+# Curve fitting for first subplot
+def power_law(x, a, b):
+    return a * np.power(x, b)
+
+params, _ = curve_fit(power_law, k_values, average_mismatches)
+
+x_fit = np.linspace(min(k_values), max(k_values), 500)
+y_fit = power_law(x_fit, *params)
+plt.plot(x_fit, y_fit, label='Power-law fit', linestyle='--')
+plt.legend()
+
+# Second subplot
 plt.subplot(1, 2, 2)
 plt.plot(k_values, exact_match_fractions, marker='o', linestyle='-', color='red')
 plt.xticks(k_values)
@@ -134,26 +149,4 @@ plt.grid(True)
 plt.tight_layout()
 plt.savefig("mismatch.png")
 
-# Fit a power-law decay curve to the data in the first subplot
-import numpy as np
-axes = plt.gcf().get_axes()
-first_subplot = axes[0]
-lines = first_subplot.get_lines()
-x_data_first_subplot = lines[0].get_xdata()
-y_data_first_subplot = lines[0].get_ydata()
-
-# Fit a power-law decay curve to the data in the first subplot
-from scipy.optimize import curve_fit
-
-def power_law(x, a, b):
-    return a * np.power(x, b)
-
-params, _ = curve_fit(power_law, x_data_first_subplot, y_data_first_subplot)
-
-
-# Plot the fitted power-law curve on the left subplot
-x_fit = np.linspace(min(x_data_first_subplot), max(x_data_first_subplot), 500)
-y_fit = power_law(x_fit, *params)
-first_subplot.plot(x_fit, y_fit, label='Power-law fit', linestyle='--')
-first_subplot.legend()
 
