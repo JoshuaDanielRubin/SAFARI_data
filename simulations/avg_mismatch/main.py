@@ -94,7 +94,7 @@ def find_deamination_mismatches(reads: List[str], k: int, w: int, minimizer_tabl
 
 # Main code for generating the plot
 sequence = read_fasta("rCRS.fa")
-k_values = list(range(4, 15))
+k_values = list(range(4, 20))
 average_mismatches = []
 exact_match_fractions = []
 
@@ -102,7 +102,7 @@ for k in k_values:
     w = k + 2
     minimizer_table = create_index_table(sequence, k, w)
     rymer_table = create_index_table(rymer_transform(sequence), k, w)
-    fragments = fragment_genome(sequence, 150, 0, 200)
+    fragments = fragment_genome(sequence, 150, 0, 1000)
     all_reads = []
     for fragment in fragments:
         reads_from_fragment = generate_circular_reads(fragment, 75, 1)
