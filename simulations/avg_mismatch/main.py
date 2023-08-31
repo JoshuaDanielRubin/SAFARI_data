@@ -151,3 +151,9 @@ def power_law(x, a, b):
 params, _ = curve_fit(power_law, x_data_first_subplot, y_data_first_subplot)
 
 
+# Plot the fitted power-law curve on the left subplot
+x_fit = np.linspace(min(x_data_first_subplot), max(x_data_first_subplot), 500)
+y_fit = power_law(x_fit, *params)
+first_subplot.plot(x_fit, y_fit, label='Power-law fit', linestyle='--')
+first_subplot.legend()
+
