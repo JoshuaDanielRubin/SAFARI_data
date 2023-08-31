@@ -134,4 +134,20 @@ plt.grid(True)
 plt.tight_layout()
 plt.savefig("mismatch.png")
 
+# Fit a power-law decay curve to the data in the first subplot
+import numpy as np
+axes = plt.gcf().get_axes()
+first_subplot = axes[0]
+lines = first_subplot.get_lines()
+x_data_first_subplot = lines[0].get_xdata()
+y_data_first_subplot = lines[0].get_ydata()
+
+# Fit a power-law decay curve to the data in the first subplot
+from scipy.optimize import curve_fit
+
+def power_law(x, a, b):
+    return a * np.power(x, b)
+
+params, _ = curve_fit(power_law, x_data_first_subplot, y_data_first_subplot)
+
 
