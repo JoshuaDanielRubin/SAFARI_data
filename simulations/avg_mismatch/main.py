@@ -122,7 +122,7 @@ plt.subplot(1, 2, 1)
 plt.plot(k_values, average_mismatches, marker='o', linestyle='-')
 plt.xticks(k_values)
 plt.xlabel('Value of k')
-plt.ylabel('Sequence Similarity')
+plt.ylabel('Mismatch Proportion')
 plt.title('Sequence Similarity as a Function of k (Deamination)')
 plt.grid(True)
 
