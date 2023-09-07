@@ -197,8 +197,8 @@ inline double compute_likelihood_model2(int mismatches, const std::vector<size_t
         throw std::runtime_error("Number of mismatches cannot be negative.");
     }
 
-    double a = 0.6;
-    double b = -0.5;
+    double a = 0.7336;
+    double b = -0.6119;
 
     // Calculate likelihood using power law
     double likelihood = 1 - (a * std::pow(mismatches, b));
@@ -209,7 +209,7 @@ inline double compute_likelihood_model2(int mismatches, const std::vector<size_t
         throw std::runtime_error(ss.str());
     }
 
-    return likelihood;
+    return max(0.135, likelihood);
 }
 
 inline double calculate_posterior_odds(std::string &kmer_seq, std::string &seed_seq, size_t fragment_length, size_t substring_start, bool is_reverse) {
