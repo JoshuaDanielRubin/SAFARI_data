@@ -91,9 +91,10 @@ public:
     size_t hit_cap = 10;
 
     /// Ignore all minimizers with more than hard_hit_cap hits
-    size_t hard_hit_cap = 500;
+    size_t hard_hit_cap = 500000; //500;
 
-    size_t hard_hit_cap_rymer = 500000;
+    // For rymers, whats our posterior odds threshold?
+    double posterior_odds_threshold;
 
     /// Take minimizers between hit_cap and hard_hit_cap hits until this fraction
     /// of total score
@@ -362,7 +363,7 @@ protected:
      */
 
     template<typename SeedType>
-    std::vector<SeedType> find_seeds(const std::vector<Minimizer>& minimizers, const Alignment& aln, Funnel& funnel) const;
+    std::vector<SeedType> find_seeds(const std::vector<Minimizer>& minimizers, const Alignment& aln, Funnel& funnel, bool rymer=false) const;
 
     template<typename SeedType>
     std::vector<SeedType> find_seeds(const std::vector<Minimizer>& minimizers, std::vector<Minimizer>& rymers, const Alignment& aln, Funnel& funnel) const;

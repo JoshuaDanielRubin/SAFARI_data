@@ -42,7 +42,8 @@ namespace vg {
 
 using namespace std;
 // Declaration of your function as a function pointer type
-using FuncType = double (*)(std::string&, std::string&);
+using FuncType = double (*)(std::string&, std::string&, size_t, size_t, bool);
+//using FuncType = double (*)(std::string&, std::string&);
 using Seed = SnarlDistanceIndexClusterer::Seed;
 
 MinimizerMapper::MinimizerMapper(const gbwtgraph::GBWTGraph& graph,
@@ -110,72 +111,150 @@ struct seed_traits<SnarlDistanceIndexClusterer::Seed> {
 
 //-----------------------------------------------------------------------------
 
-inline size_t count_mismatches(const std::string &str1, const std::string &str2) {
-    size_t mismatches = 0;
-    for (size_t i = 0; i < str1.size() && i < str2.size(); ++i) {
-        if (str1[i] != str2[i]) {
-             if (!((str1[i] == 'C' && str2[i] == 'T') || (str1[i] == 'G' && str2[i] == 'A'))) {
-               mismatches++;
-             }
+inline bool entropy_too_high(const std::string& str) {
+    std::unordered_map<char, int> char_count;
+    int len = str.length();
+
+    for (char c : str) {
+        char_count[c]++;
+        if (char_count[c] > len / 2) {
+            return true;
         }
     }
-    return mismatches;
+
+    return false;
 }
 
-// Model 1: Exponential decay with number of mismatches
-double compute_likelihood_model1(int mismatches) {
-    double decay_factor = 0.7; // Example value, adjust as needed
-    return std::exp(-decay_factor * mismatches);
+// Updated count_mismatches to return positions of mismatches
+inline std::pair<size_t, std::vector<size_t>> count_mismatches(const std::string &str1, const std::string &str2) {
+    size_t mismatches = 0;
+    std::vector<size_t> mismatch_positions;
+    for (size_t i = 0; i < str1.size() && i < str2.size(); ++i) {
+        if (str1[i] != str2[i]) {
+            if (!((str1[i] == 'C' && str2[i] == 'T') || (str1[i] == 'G' && str2[i] == 'A'))) {
+                mismatches++;
+                mismatch_positions.push_back(i);
+            }
+        }
+    }
+    return {mismatches, mismatch_positions};
 }
 
-// Model 2: Exponential increase with number of mismatches
-double compute_likelihood_model2(int mismatches) {
-    double increase_factor = 0.3; // Example value, adjust as needed
-    return 1 - std::exp(-increase_factor * mismatches);
+double briggs_likelihood(size_t position, size_t fragment_length) {
+    if (fragment_length == 0) {
+        throw std::runtime_error("Fragment length cannot be zero.");
+    }
+
+    if (position < 0) {
+        throw std::runtime_error("Position cannot be negative.");
+    }
+
+    double argument = -static_cast<double>(position) / static_cast<double>(fragment_length);
+
+    if (std::isinf(argument) || std::isnan(argument)) {
+        throw std::runtime_error("Invalid argument for exp function.");
+    }
+
+    double likelihood = std::exp(argument);
+
+    if (std::isinf(likelihood) || std::isnan(likelihood) || likelihood < 0.0 || likelihood > 1.0) {
+        std::stringstream ss;
+        ss << "Briggs likelihood out of bounds: likelihood = " << likelihood
+           << ", position = " << position
+           << ", fragment_length = " << fragment_length;
+        throw std::runtime_error(ss.str());
+    }
+
+    return likelihood;
 }
 
-inline double calculate_posterior_odds(std::string &kmer_seq, std::string &seed_seq) {
+double compute_likelihood_model1(int mismatches, const std::vector<size_t>& mismatch_positions, size_t substring_start, size_t fragment_length, bool is_reverse) {
+    if (fragment_length == 0) {
+        throw std::runtime_error("Fragment length cannot be zero.");
+    }
+
+    if (mismatches < 0) {
+        throw std::runtime_error("Number of mismatches cannot be negative.");
+    }
+
+    double likelihood = 1.0;
+    for (size_t pos : mismatch_positions) {
+        size_t adjusted_pos = is_reverse ? fragment_length - (pos + substring_start) - 1 : pos + substring_start;
+
+        if (adjusted_pos >= fragment_length) {
+            std::stringstream ss;
+            ss << "Invalid adjusted position: " << adjusted_pos << ", fragment_length: " << fragment_length;
+            throw std::runtime_error(ss.str());
+        }
+
+        likelihood *= briggs_likelihood(adjusted_pos, fragment_length);
+    }
+    return likelihood;
+}
+
+inline double compute_likelihood_model2(int mismatches, const std::vector<size_t>& mismatch_positions, size_t substring_start, size_t fragment_length, bool is_reverse) {
+    if (mismatches < 0) {
+        throw std::runtime_error("Number of mismatches cannot be negative.");
+    }
+
+    double a = 0.6;
+    double b = -0.5;
+
+    // Calculate likelihood using power law
+    double likelihood = 1 - (a * std::pow(mismatches, b));
+
+    if (likelihood < 0.0 || likelihood > 1.0) {
+        std::stringstream ss;
+        ss << "Model 2 likelihood out of bounds: " << likelihood << ", mismatches: " << mismatches;
+        throw std::runtime_error(ss.str());
+    }
+
+    return likelihood;
+}
+
+inline double calculate_posterior_odds(std::string &kmer_seq, std::string &seed_seq, size_t fragment_length, size_t substring_start, bool is_reverse) {
 
     if (kmer_seq == seed_seq){return 1.0;}
 
-    int mismatches = count_mismatches(kmer_seq, seed_seq);
+    auto [mismatches, mismatch_positions] = count_mismatches(kmer_seq, seed_seq);
 
     // Calculate the likelihoods of the models based on the sequences
-    double likelihood_model1 = compute_likelihood_model1(mismatches);
-    double likelihood_model2 = compute_likelihood_model2(mismatches);
+    double likelihood_model1 = compute_likelihood_model1(mismatches, mismatch_positions, substring_start, fragment_length, is_reverse);
+    double likelihood_model2 = compute_likelihood_model2(mismatches, mismatch_positions, substring_start, fragment_length, is_reverse);
+
+    if (likelihood_model1 < 0.0 || likelihood_model1 > 1.0) {
+        throw std::runtime_error("Likelihood Model 1 out of bounds");
+    }
+
+    if (likelihood_model2 < 0.0 || likelihood_model2 > 1.0) {
+        throw std::runtime_error("Likelihood Model 2 out of bounds");
+    }
 
     // Define the priors for the models
-    double prior_model1 = 0.5; // Example value
-    double prior_model2 = 0.5; // Example value
+    double prior_model1 = 0.5;
+    double prior_model2 = 0.5;
 
-    // Calculate the posteriors
+    // Calculate the unnormalized posteriors
     double posterior_model1 = likelihood_model1 * prior_model1;
     double posterior_model2 = likelihood_model2 * prior_model2;
 
     // Calculate the total evidence
     double total_evidence = posterior_model1 + posterior_model2;
 
+    if (total_evidence == 0) {
+        return 0.0; // Handle zero total evidence
+    }
+
     // Normalize the posteriors
     posterior_model1 /= total_evidence;
     posterior_model2 /= total_evidence;
 
-    // Protect against potential division by zero in the odds computation
-    if (posterior_model1 == 1.0) posterior_model1 = 0.99999999;
-    if (posterior_model2 == 1.0) posterior_model2 = 0.99999999;
+    if (posterior_model1 < 0.0 || posterior_model1 > 1.0) {
+        throw std::runtime_error("Posterior Model 1 out of bounds");
+    }
 
-    // Calculate the odds for each model
-    double odds_model1 = posterior_model1 / (1.0 - posterior_model1);
-    double odds_model2 = posterior_model2 / (1.0 - posterior_model2);
-
-    // Calculate the odds ratio
-    double odds_ratio = (odds_model2 != 0) ? odds_model1 / odds_model2 : 99999999;
-
-    // Transform the odds ratio into a posterior probability for Model 1
-    double posterior_probability_model1 = odds_ratio / (1.0 + odds_ratio);
-
-    return posterior_probability_model1;
+    return posterior_model1;
 }
-
 
 string MinimizerMapper::log_name() {
     return "T" + to_string(omp_get_thread_num()) + ":\t";
@@ -645,15 +724,26 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
 std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel, false);
 std::vector<Minimizer> minimizers_rymer = this->find_minimizers(aln.sequence(), funnel, true);
 
+for (auto & el : minimizers_rymer){
+    if (el.kmer_seq == ""){
+      throw runtime_error("RYMER HAS NO KMER SEQ");
+    }
+}
+
+//cerr << "FOUND: " << minimizers.size() << " MINIMIZERS" << endl;
+//cerr << "FOUND: " << minimizers_rymer.size() << " RYMERS" << endl;
+
 rymers_start_index = minimizers.size();
-minimizers.insert(minimizers.end(), minimizers_rymer.begin(), minimizers_rymer.end());
 
 
 //Since there can be two different versions of a distance index, find seeds and clusters differently
  std::vector<Cluster> clusters;
 
 
-vector<Seed> seeds = this->find_seeds<Seed>(minimizers, aln, funnel);
+vector<Seed> seeds = this->find_seeds<Seed>(minimizers, aln, funnel, false);
+vector<Seed> seeds_rymer = this->find_seeds<Seed>(minimizers_rymer, aln, funnel, true);
+seeds.insert(seeds.end(), seeds_rymer.begin(), seeds_rymer.end());
+
 
     // Cluster the seeds. Get sets of input seed indexes that go together.
     if (track_provenance) {
@@ -661,22 +751,9 @@ vector<Seed> seeds = this->find_seeds<Seed>(minimizers, aln, funnel);
         funnel_rymer.stage("cluster");
     }
 
-
-/*
-std::unordered_map<size_t, std::pair<std::vector<Seed>, std::vector<Seed>>> minimizer_rymer_map;
-
-for (const auto &seed : seeds) {
-    if (seed.from_rymer) {
-        minimizer_rymer_map[seed.source].first.push_back(seed); // Rymers
-    } else {
-        minimizer_rymer_map[seed.source].second.push_back(seed); // Minimizers
-    }
-}
-*/
-
 FuncType calculate_posterior_odds_ptr = calculate_posterior_odds;
 
-auto apply_rymer_filter = [&](vector<Seed>& seeds, auto &minimizers) {
+auto apply_rymer_filter = [&](vector<Seed>& seeds, auto &minimizers, auto &rymers) {
     vector<Seed> filtered_seeds;
     filtered_seeds.reserve(seeds.size());  // Pre-allocation for efficiency
 
@@ -685,20 +762,26 @@ auto apply_rymer_filter = [&](vector<Seed>& seeds, auto &minimizers) {
 
         if (!seed.from_rymer) {filtered_seeds.push_back(seed); continue;}
 
-            double posterior_odds;
+            double posterior_odds = 0.0;
 
             string rymer_seq;
             string kmer_seq;
             for (int idx : seed.minimizer_source){
-               kmer_seq = minimizers[idx].value.key.decode(rymer_index.k());
-               rymer_seq = gbwtgraph::convertToRymerSpace(kmer_seq);
-               posterior_odds = max(posterior_odds, calculate_posterior_odds_ptr(rymer_seq, kmer_seq));
+               kmer_seq = rymers[idx].kmer_seq;
+               rymer_seq = rymers[idx].value.key.decode_rymer(rymer_index.k());
+               //if (entropy_too_high(rymer_seq)){continue;}
+               bool is_reverse = get<1>(seed.pos);
+               size_t substring_start = rymers[idx].value.offset;
+               posterior_odds = max(posterior_odds, calculate_posterior_odds_ptr(rymer_seq, kmer_seq, aln.sequence().size(), substring_start, is_reverse));
+               //posterior_odds = max(posterior_odds, calculate_posterior_odds_ptr(rymer_seq, kmer_seq));
                                                  }
 
-            if (posterior_odds > 0.5) {
+            if (posterior_odds > this->posterior_odds_threshold) {
+                #pragma omp critical
+                //cerr << "NODE: " << id(seed.pos) << endl;
                 cerr << "RYMER SEQ: " << rymer_seq << endl;
                 cerr << "KMER SEQ: " << kmer_seq << endl;
-                cerr << "REVERSE?: " << get<1>(seed.pos) << endl;
+                //cerr << "REVERSE?: " << get<1>(seed.pos) << endl;
                 cerr << "POSTERIOR ODDS: " << posterior_odds << endl;
                 // Add the rymer
                 filtered_seeds.push_back(seed);
@@ -710,7 +793,7 @@ auto apply_rymer_filter = [&](vector<Seed>& seeds, auto &minimizers) {
 };
 
 #ifdef RYMER
-seeds = apply_rymer_filter(seeds, minimizers);
+seeds = apply_rymer_filter(seeds, minimizers, minimizers_rymer);
 #endif
 
 //cerr << "FOUND: " << seeds.size() << " SEEDS" << endl;
@@ -718,7 +801,7 @@ seeds = apply_rymer_filter(seeds, minimizers);
 
  if (!seeds.empty()){
  clusters = clusterer.cluster_seeds(seeds, get_distance_limit(aln.sequence().size()));
- //cerr << "FOUND: " << clusters.size() << " CLUSTERS" << endl;
+// cerr << "FOUND: " << clusters.size() << " CLUSTERS" << endl;
                     }
 
 
@@ -3446,7 +3529,6 @@ void MinimizerMapper::wfa_alignment_to_alignment(const WFAAlignment& wfa_alignme
 
 std::vector<MinimizerMapper::Minimizer> MinimizerMapper::find_minimizers(const std::string& sequence, Funnel& funnel, bool rymer) const {
 
-
     if (this->track_provenance) {
         // Start the minimizer finding stage
         funnel.stage("minimizer");
@@ -3488,12 +3570,12 @@ std::vector<MinimizerMapper::Minimizer> MinimizerMapper::find_minimizers(const s
                 score = 1.0;
             }
         }
-        
+
         // Length of the match from this minimizer or syncmer
         int32_t match_length = (int32_t) minimizer_index.k();
         // Number of candidate kmers that this minimizer is minimal of
         int32_t candidate_count = this->minimizer_index.uses_syncmers() ? 1 : (int32_t) minimizer_index.w();
-        
+
         auto& value = std::get<0>(m);
         size_t agglomeration_start = std::get<1>(m);
         size_t agglomeration_length = std::get<2>(m);
@@ -3504,9 +3586,9 @@ std::vector<MinimizerMapper::Minimizer> MinimizerMapper::find_minimizers(const s
             // And run for the k-mer length
             agglomeration_length = match_length;
         }
-        
+
         result.push_back({ value, agglomeration_start, agglomeration_length, hits.first, hits.second,
-                            match_length, candidate_count, score });
+                            match_length, candidate_count, score, value.kmer_seq});
     }
     std::sort(result.begin(), result.end());
 
@@ -3519,7 +3601,7 @@ std::vector<MinimizerMapper::Minimizer> MinimizerMapper::find_minimizers(const s
 }
 
 template<typename SeedType>
-std::vector<SeedType> MinimizerMapper::find_seeds(const std::vector<Minimizer>& minimizers, const Alignment& aln, Funnel& funnel) const {
+std::vector<SeedType> MinimizerMapper::find_seeds(const std::vector<Minimizer>& minimizers, const Alignment& aln, Funnel& funnel, bool rymer) const {
 
     // Get the traits that we use to do things with seeds.
     using ST = seed_traits<SeedType>;
@@ -3549,15 +3631,12 @@ std::vector<SeedType> MinimizerMapper::find_seeds(const std::vector<Minimizer>& 
     if (show_work) {
         #pragma omp critical (cerr)
         {
+           if (!rymer){
             std::cerr << log_name() << "All minimizers:" << std::endl;
             dump_debug_minimizers(minimizers, aln.sequence());
+                      }
         }
     }
-
-    #ifdef dump_debug_rymers
-        std::cerr << log_name() << "All rymers:" << std::endl;
-        dump_debug_minimizers(minimizers, gbwtgraph::convertToRymerSpace(aln.sequence()));
-    #endif
 
     // bit vector length of read to check for overlaps
     size_t num_minimizers = 0;
@@ -3613,7 +3692,7 @@ std::vector<SeedType> MinimizerMapper::find_seeds(const std::vector<Minimizer>& 
                 funnel.fail("any-hits", i);
             }
         } else if
-       /*    (  // passes reads
+         (  // passes reads
               // cap minimizer at max of specified minimizers and minimizers calculated by read length
               ((minimizer.hits <= this->hit_cap) ||
               (run_hits <= this->hard_hit_cap && selected_score + minimizer.score <= target_score) ||
@@ -3621,8 +3700,6 @@ std::vector<SeedType> MinimizerMapper::find_seeds(const std::vector<Minimizer>& 
               (num_minimizers < ( max(this->max_unique_min, num_min_by_read_len) )) &&
               (overlapping == false)
             ) {
-       */
-        (true){
 
             // set minimizer overlap as a reads
             num_minimizers += 1;    // tracking number of minimizers selected
@@ -3656,23 +3733,19 @@ std::vector<SeedType> MinimizerMapper::find_seeds(const std::vector<Minimizer>& 
                 auto chain_info_to_push_back = ST::chain_info_to_seed(hit, i, chain_info, minimizer.forward_sequence());
 
                  // If this is a rymer, set the new field
-                 if (i >= rymers_start_index) {
+                 if (rymer) {
 
-                     string rymer_seq = minimizer.value.key.decode_rymer(minimizer.length);
-
-                     string kmer_seq = minimizer.kmer_seq;
-
-                     //gbwtgraph::Key64 thing;
-                     //string kmer_seq = thing.rymer_key_to_minimizer_string(minimizer.value.key.get_key(), minimizer.length);
+                     if (minimizer.kmer_seq == "") {
+                         throw std::runtime_error("KMER SEQ EMPTY. i = " + std::to_string(i) + " , rymers_start_index = " + std::to_string(rymers_start_index));
+                                                    }
 
                      chain_info_to_push_back.from_rymer = true;
-                     chain_info_to_push_back.rymer_seq = gbwtgraph::convertToRymerSpace(kmer_seq);
-                     chain_info_to_push_back.seq = kmer_seq;
-                     chain_info_to_push_back.minimizer_source.emplace_back(j);
+                     chain_info_to_push_back.rymer_seq = gbwtgraph::convertToRymerSpace(minimizer.kmer_seq);
+                     chain_info_to_push_back.seq = minimizer.kmer_seq;
+                     chain_info_to_push_back.minimizer_source.emplace_back(i);
 
-
-                     //cerr << "SEQ: " << chain_info_to_push_back.seq << endl;
-                     //cerr << "RYMER SEQ: " << chain_info_to_push_back.seq << endl;
+                     //cerr << "SEQ: " << minimizer.kmer_seq << endl;
+                     //cerr << "RYMER SEQ: " << chain_info_to_push_back.rymer_seq << endl;
 
                                               }
 

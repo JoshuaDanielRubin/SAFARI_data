@@ -3,6 +3,6 @@
 
 #./vg_corrected/bin/vg rymer -t 60 -p -g ../euka_dir/euka_db.gbwt -d ../euka_dir/euka_db.dist -o ../euka_dir/euka_db.ry ../euka_dir/euka_db.og -k 10 -w 12 && echo -e "\n\n"
 
-./vgan_corrected/bin/vgan euka -t 60 -fq1 test_data/serengeti/serengeti_damaged.fq --euka_dir /home/projects/MAAG/Magpie/euka_dir/ --outFrag
+./vgan_corrected/bin/vgan euka -t 35 -fq1 test_data/greenland_sample.fq.gz --euka_dir /home/projects/MAAG/Magpie/euka_dir/ --outFrag --minFrag 1 --minMQ 10 --entropy 0 --minBins 0
 
 #./vgan_uncorrected/bin/vgan euka -t 60 -fq1 test_data/three_dhigh_100_tinier.fq.gz --euka_dir /home/projects/MAAG/Magpie/euka_dir/ --outFrag

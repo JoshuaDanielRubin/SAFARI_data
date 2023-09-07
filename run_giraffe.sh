@@ -1,6 +1,6 @@
 hcfiles="/home/projects/MAAG/Magpie/Magpie/vgan_corrected/share/vgan/hcfiles"
 
-./vgan_corrected/dep/vg/bin/vg giraffe -f  test_data/human/B2b3a_damaged.fq -t 60 -m $hcfiles/graph.min -q $hcfiles/graph.ry \
+./vgan_corrected/dep/vg/bin/vg giraffe -f  test_data/human/B2b3a_damaged.fq -t 1 -m $hcfiles/graph.min -q $hcfiles/graph.ry \
                               -b fast -d $hcfiles/graph.dist -Z $hcfiles/graph.giraffe.gbz > corrected.gam && echo -e "\n\n"
 
 
