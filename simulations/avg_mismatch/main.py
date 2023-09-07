@@ -94,7 +94,7 @@ def find_deamination_mismatches(reads: List[str], k: int, w: int, minimizer_tabl
 
 # Main code for generating the plot
 sequence = read_fasta("rCRS.fa")
-k_values = list(range(3, 15))
+k_values = list(range(3, 16))
 average_mismatches = []
 exact_match_fractions = []
 
