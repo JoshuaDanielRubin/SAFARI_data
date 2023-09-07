@@ -94,7 +94,7 @@ def find_deamination_mismatches(reads: List[str], k: int, w: int, minimizer_tabl
 
 # Main code for generating the plot
 sequence = read_fasta("rCRS.fa")
-k_values = list(range(4, 30))
+k_values = list(range(3, 15))
 average_mismatches = []
 exact_match_fractions = []
 
@@ -151,6 +151,8 @@ plt.ylabel('Exact Match Fraction')
 plt.title('Exact Match Fraction as a Function of k (Deamination)')
 plt.grid(True)
 
+plt.subplot(1, 2, 1)  # Make sure we're on the first subplot
+plt.annotate(f'a={a:.4f}, b={b:.4f}', xy=(0.6, 0.2), xycoords='axes fraction')
 plt.tight_layout()
 plt.savefig("mismatch.png")
 
