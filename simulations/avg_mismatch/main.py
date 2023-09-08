@@ -45,7 +45,18 @@ def generate_circular_reads(sequence: str, read_length: int, num_reads: int = No
     circular_sequence = sequence + sequence[:read_length-1]
     if num_reads is None:
         num_reads = len(sequence)
-    reads = [circular_sequence[i:i+read_length] for i in range(num_reads)]
+
+    error_rate = 0.001  # Illumina typical error rate
+
+    reads = []
+    for i in range(num_reads):
+        read = circular_sequence[i:i+read_length]
+        read_with_errors = "".join(
+            (base if random.random() > error_rate else random.choice("ACGT".replace(base, ""))) 
+            for base in read
+        )
+        reads.append(read_with_errors)
+
     assert all(len(read) == read_length for read in reads), "All reads should have the same length."
     return reads
 
