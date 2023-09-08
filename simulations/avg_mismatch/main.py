@@ -37,12 +37,12 @@ def fragment_genome(sequence: str, mean_fragment_size: int, std_dev: int, num_fr
         start = random.randint(0, len(sequence) - mean_fragment_size)
         fragment_size = int(np.random.normal(mean_fragment_size, std_dev))
         fragment = sequence[start:start+fragment_size]
-        fragments.append(fragment)
+        circular_fragment = fragment + fragment[:mean_fragment_size]  # Creating a circular fragment
+        fragments.append(circular_fragment)
     return fragments
 
-def generate_circular_reads(sequence: str, read_length: int, num_reads: int = None) -> List[str]:
+def generate_reads(sequence: str, read_length: int, num_reads: int = None) -> List[str]:
     assert len(sequence) >= read_length, "Sequence length should be greater than or equal to read_length."
-    circular_sequence = sequence + sequence[:read_length-1]
     if num_reads is None:
         num_reads = len(sequence)
 
@@ -50,9 +50,9 @@ def generate_circular_reads(sequence: str, read_length: int, num_reads: int = No
 
     reads = []
     for i in range(num_reads):
-        read = circular_sequence[i:i+read_length]
+        read = sequence[i:i+read_length]
         read_with_errors = "".join(
-            (base if random.random() > error_rate else random.choice("ACGT".replace(base, ""))) 
+            (base if random.random() > error_rate else random.choice("ACGT".replace(base, "")))
             for base in read
         )
         reads.append(read_with_errors)
@@ -116,7 +116,7 @@ for k in k_values:
     fragments = fragment_genome(sequence, 150, 0, 10000)
     all_reads = []
     for fragment in fragments:
-        reads_from_fragment = generate_circular_reads(fragment, 75, 1)
+        reads_from_fragment = generate_reads(fragment, 75, 1)
         all_reads.extend(reads_from_fragment)
     mutated_reads = apply_deamination_mutations(all_reads, 0.2)
     mismatch_counts, exact_matches, total_kmers = find_deamination_mismatches(mutated_reads, k, w, minimizer_table, rymer_table, sequence)
