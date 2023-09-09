@@ -81,7 +81,7 @@ for k in k_values:
     w = k + 2
     minimizer_table = create_index_table(sequence, k, w)
     rymer_table = create_index_table(rymer_transform(sequence), k, w)
-    all_reads = read_fastq("bact.fq.gz")
+    all_reads = read_fastq("SRR19750411_small.fastq.gz")
 
     mismatch_counts, exact_matches, total_kmers = find_deamination_mismatches(all_reads, k, w, minimizer_table, rymer_table, sequence)
     non_zero_mismatches = [count for count in mismatch_counts if count > 0]
