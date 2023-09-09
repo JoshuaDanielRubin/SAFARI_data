@@ -4,6 +4,22 @@ from collections import defaultdict
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import curve_fit
+import gzip
+
+# Add this function to read sequences from a gzipped FASTQ file
+def read_fastq(file_path: str) -> List[str]:
+    with gzip.open(file_path, 'rt') as f:
+        sequences = []
+        while True:
+            f.readline()  # skip the name line
+            seq = f.readline().strip()  # get the sequence line
+            if not seq:
+                break
+            f.readline()  # skip the plus line
+            f.readline()  # skip the quality line
+            sequences.append(seq.upper())
+    return sequences
+
 
 # Functions for reading and preprocessing
 def read_fasta(file_path: str) -> str:
@@ -30,54 +46,6 @@ def create_index_table(sequence: str, k: int, w: int) -> Dict[str, List[int]]:
         table[minimizer].append(i)
     return table
 
-# Functions for read generation and mutation introduction
-def fragment_genome(sequence: str, mean_fragment_size: int, std_dev: int, num_fragments: int) -> List[str]:
-    fragments = []
-    for _ in range(num_fragments):
-        start = random.randint(0, len(sequence) - mean_fragment_size)
-        fragment_size = int(np.random.normal(mean_fragment_size, std_dev))
-        fragment = sequence[start:start+fragment_size]
-        circular_fragment = fragment + fragment[:mean_fragment_size]  # Creating a circular fragment
-        fragments.append(circular_fragment)
-    return fragments
-
-def generate_reads(sequence: str, read_length: int, num_reads: int = None) -> List[str]:
-    assert len(sequence) >= read_length, "Sequence length should be greater than or equal to read_length."
-    if num_reads is None:
-        num_reads = len(sequence)
-
-    error_rate = 0.001  # Illumina typical error rate
-
-    reads = []
-    for i in range(num_reads):
-        read = sequence[i:i+read_length]
-        read_with_errors = "".join(
-            (base if random.random() > error_rate else random.choice("ACGT".replace(base, "")))
-            for base in read
-        )
-        reads.append(read_with_errors)
-
-    assert all(len(read) == read_length for read in reads), "All reads should have the same length."
-    return reads
-
-def briggs_model_damage_probability(x, P0=0.9, lambda_val=10):
-    import math
-    return P0 * math.exp(-x/lambda_val)
-
-def apply_deamination_mutations(reads: List[str], mutation_rate: float) -> List[str]:
-    mutated_reads = []
-    for read in reads:
-        mutated_read = []
-        for i, base in enumerate(read):
-            prob_start = briggs_model_damage_probability(i)
-            prob_end = briggs_model_damage_probability(len(read) - 1 - i)
-            prob = max(prob_start, prob_end)
-            if base == 'C' and random.random() < prob * mutation_rate:
-                mutated_read.append('T')
-            else:
-                mutated_read.append(base)
-        mutated_reads.append("".join(mutated_read))
-    return mutated_reads
 
 # Modified function to count only deamination-specific mismatches
 def find_deamination_mismatches(reads: List[str], k: int, w: int, minimizer_table: Dict[str, List[int]], rymer_table: Dict[str, List[int]], sequence: str) -> List[int]:
@@ -113,13 +81,9 @@ for k in k_values:
     w = k + 2
     minimizer_table = create_index_table(sequence, k, w)
     rymer_table = create_index_table(rymer_transform(sequence), k, w)
-    fragments = fragment_genome(sequence, 150, 0, 10000)
-    all_reads = []
-    for fragment in fragments:
-        reads_from_fragment = generate_reads(fragment, 75, 1)
-        all_reads.extend(reads_from_fragment)
-    mutated_reads = apply_deamination_mutations(all_reads, 0.2)
-    mismatch_counts, exact_matches, total_kmers = find_deamination_mismatches(mutated_reads, k, w, minimizer_table, rymer_table, sequence)
+    all_reads = read_fastq("bact.fq.gz")
+
+    mismatch_counts, exact_matches, total_kmers = find_deamination_mismatches(all_reads, k, w, minimizer_table, rymer_table, sequence)
     non_zero_mismatches = [count for count in mismatch_counts if count > 0]
     average_mismatch = sum(non_zero_mismatches) / len(non_zero_mismatches) if non_zero_mismatches else 0
     average_mismatches.append(average_mismatch / k)
