@@ -91,10 +91,13 @@ public:
     size_t hit_cap = 10;
 
     /// Ignore all minimizers with more than hard_hit_cap hits
-    size_t hard_hit_cap = 500000; //500;
+    size_t hard_hit_cap = 500;
 
     // For rymers, whats our posterior odds threshold?
     double posterior_odds_threshold;
+
+     // For rymers, whats our prior on spurious alignments?
+    double spurious_alignment_prior;
 
     /// Take minimizers between hit_cap and hard_hit_cap hits until this fraction
     /// of total score
@@ -102,7 +105,7 @@ public:
 
     /// Maximum number of distinct minimizers to take
     size_t max_unique_min = 500;
-    
+
     /// Number of minimzers to select based on read_len/num_min_per_bp
     size_t num_bp_per_min = 1000;
 
@@ -124,7 +127,7 @@ public:
     //If a cluster's score is smaller than the best score of any cluster by more than
     //this much, then don't extend it
     double cluster_score_threshold = 50;
-    double cluster_score_threshold_rymer = 50000;
+    double cluster_score_threshold_rymer = 50;
 
     //If the second best cluster's score is no more than this many points below
     //the cutoff set by cluster_score_threshold, snap that cutoff down to the

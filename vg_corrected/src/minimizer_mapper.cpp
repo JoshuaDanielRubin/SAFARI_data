@@ -42,7 +42,7 @@ namespace vg {
 
 using namespace std;
 // Declaration of your function as a function pointer type
-using FuncType = double (*)(std::string&, std::string&, size_t, size_t, bool);
+using FuncType = double (*)(std::string&, std::string&, size_t, size_t, bool, double);
 //using FuncType = double (*)(std::string&, std::string&);
 using Seed = SnarlDistanceIndexClusterer::Seed;
 
@@ -179,11 +179,15 @@ double compute_likelihood_model1(int mismatches, const std::vector<size_t>& mism
 
     double likelihood = 1.0;
     for (size_t pos : mismatch_positions) {
-        size_t adjusted_pos = is_reverse ? fragment_length - (pos + substring_start) - 1 : pos + substring_start;
+        size_t adjusted_pos = is_reverse ? fragment_length - 1 - (pos + substring_start) : pos + substring_start;
 
         if (adjusted_pos >= fragment_length) {
             std::stringstream ss;
-            ss << "Invalid adjusted position: " << adjusted_pos << ", fragment_length: " << fragment_length;
+            ss << "Invalid adjusted position: " << adjusted_pos
+   << ", fragment_length: " << fragment_length
+   << ", pos: " << pos
+   << ", substring_start: " << substring_start
+   << ", is_reverse: " << is_reverse;
             throw std::runtime_error(ss.str());
         }
 
@@ -197,11 +201,15 @@ inline double compute_likelihood_model2(int mismatches, const std::vector<size_t
         throw std::runtime_error("Number of mismatches cannot be negative.");
     }
 
-    double a = 0.7336;
-    double b = -0.6119;
+   if (mismatches == 0){
+       return 0.0;
+   }
+
+    double a = 0.72095;
+    double b = -0.64291;
 
     // Calculate likelihood using power law
-    double likelihood = 1 - (a * std::pow(mismatches, b));
+    double likelihood = 1-(a * std::pow(mismatches, b));
 
     if (likelihood < 0.0 || likelihood > 1.0) {
         std::stringstream ss;
@@ -209,10 +217,10 @@ inline double compute_likelihood_model2(int mismatches, const std::vector<size_t
         throw std::runtime_error(ss.str());
     }
 
-    return max(0.135, likelihood);
+    return likelihood;
 }
 
-inline double calculate_posterior_odds(std::string &kmer_seq, std::string &seed_seq, size_t fragment_length, size_t substring_start, bool is_reverse) {
+inline double calculate_posterior_odds(std::string &kmer_seq, std::string &seed_seq, size_t fragment_length, size_t substring_start, bool is_reverse, double spurious_alignment_prior) {
 
     if (kmer_seq == seed_seq){return 1.0;}
 
@@ -231,8 +239,8 @@ inline double calculate_posterior_odds(std::string &kmer_seq, std::string &seed_
     }
 
     // Define the priors for the models
-    double prior_model1 = 0.5;
-    double prior_model2 = 0.5;
+    double prior_model2 = spurious_alignment_prior;
+    double prior_model1 = 1 - prior_model2;
 
     // Calculate the unnormalized posteriors
     double posterior_model1 = likelihood_model1 * prior_model1;
@@ -769,24 +777,17 @@ auto apply_rymer_filter = [&](vector<Seed>& seeds, auto &minimizers, auto &rymer
             for (int idx : seed.minimizer_source){
                kmer_seq = rymers[idx].kmer_seq;
                rymer_seq = rymers[idx].value.key.decode_rymer(rymer_index.k());
-               //if (entropy_too_high(rymer_seq)){continue;}
                bool is_reverse = get<1>(seed.pos);
-               size_t substring_start = rymers[idx].value.offset;
-               posterior_odds = max(posterior_odds, calculate_posterior_odds_ptr(rymer_seq, kmer_seq, aln.sequence().size(), substring_start, is_reverse));
-               //posterior_odds = max(posterior_odds, calculate_posterior_odds_ptr(rymer_seq, kmer_seq));
+               size_t substring_start = rymers[idx].forward_offset();
+               posterior_odds = max(posterior_odds, calculate_posterior_odds_ptr(rymer_seq, kmer_seq, aln.sequence().size(), substring_start, is_reverse, \
+                                    this->spurious_alignment_prior));
                                                  }
 
             if (posterior_odds > this->posterior_odds_threshold) {
                 #pragma omp critical
-                //cerr << "NODE: " << id(seed.pos) << endl;
-                cerr << "RYMER SEQ: " << rymer_seq << endl;
-                cerr << "KMER SEQ: " << kmer_seq << endl;
-                //cerr << "REVERSE?: " << get<1>(seed.pos) << endl;
-                cerr << "POSTERIOR ODDS: " << posterior_odds << endl;
+
                 // Add the rymer
                 filtered_seeds.push_back(seed);
-
-                //break;  // Exit the loop if a match is found
         }
     }
     return filtered_seeds;
@@ -3780,7 +3781,7 @@ std::vector<SeedType> MinimizerMapper::find_seeds(const std::vector<Minimizer>& 
             target_score = selected_score; 
         } else {
             // Failed hard hit cap
-            std::cerr << "Rejected seed " << i << ": failed hard hit cap, run_hits=" << run_hits << ", hard_hit_cap=" << this->hard_hit_cap << std::endl;
+            //std::cerr << "Rejected seed " << i << ": failed hard hit cap, run_hits=" << run_hits << ", hard_hit_cap=" << this->hard_hit_cap << std::endl;
             took_last = false;
             rejected_count++;
             if (this->track_provenance) {

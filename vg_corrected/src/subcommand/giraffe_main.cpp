@@ -367,6 +367,8 @@ void help_giraffe(char** argv) {
     << "  --rescue-seed-limit INT       attempt rescue with at most INT seeds [100]" << endl
     << "  --track-provenance            track how internal intermediate alignment candidates were arrived at" << endl
     << "  --track-correctness           track if internal intermediate alignment candidates are correct (implies --track-provenance)" << endl
+    << "  -j, --posterior-odds-threshold FLOAT             cutoff for posterior odds ratio when using RYmers" << endl
+    << "  -V, --spurious-prior FLOAT             Prior on spurious alignment when using RYmers" << endl
     << "  -t, --threads INT             number of mapping threads to use" << endl;
 }
 
@@ -403,7 +405,7 @@ int main_giraffe(int argc, char** argv) {
     string report_name;
     // How close should two hits be to be in the same cluster?
     Range<size_t> distance_limit = 200;
-    Range<size_t> hit_cap = 10, hard_hit_cap = 500;
+    Range<size_t> hit_cap = 10, hard_hit_cap = 50000;
     Range<double> minimizer_score_fraction = 0.9;
     Range<size_t> max_unique_min = 500;
     // number minimizers calculated by READ_LENGTH / INT
@@ -475,6 +477,11 @@ int main_giraffe(int argc, char** argv) {
     bool track_correctness = false;
     // Should we log our mapping decision making?
     bool show_work = false;
+    // For rymers, at what posterior odds threshold do we place our filter?
+    double posterior_odds_threshold = 0.5;
+    // What's the prior on spurious alignments when using RYmers?
+    double spurious_alignment_prior = 0.5;
+
 
     // Chain all the ranges and get a function that loops over all combinations.
     auto for_each_combo = distance_limit
@@ -575,11 +582,13 @@ int main_giraffe(int argc, char** argv) {
             {"track-correctness", no_argument, 0, OPT_TRACK_CORRECTNESS},
             {"show-work", no_argument, 0, OPT_SHOW_WORK},
             {"threads", required_argument, 0, 't'},
+            {"posterior-odds-threshold", required_argument, 0, 'j'},
+            {"spurious-alignment-prior", required_argument, 0, 'V'},
             {0, 0, 0, 0}
         };
 
         int option_index = 0;
-        c = getopt_long (argc, argv, "hZ:x:g:H:m:q:s:d:pG:f:iM:N:R:o:Pnb:c:C:D:F:e:a:S:u:U:v:w:Ot:r:A:L:",
+        c = getopt_long (argc, argv, "hZ:x:g:H:m:q:s:d:pG:f:iM:N:R:o:Pnb:c:C:D:F:e:a:S:u:U:v:w:Ot:r:A:L:j:V",
                          long_options, &option_index);
 
 
@@ -1011,7 +1020,15 @@ int main_giraffe(int argc, char** argv) {
                 omp_set_num_threads(num_threads);
             }
                 break;
-                
+
+           case 'j':
+                posterior_odds_threshold = parse<Range<double>>(optarg);
+                break;
+
+           case 'V':
+                spurious_alignment_prior = parse<Range<double>>(optarg);
+                break;
+
             case 'h':
             case '?':
             default:
@@ -1394,6 +1411,16 @@ int main_giraffe(int argc, char** argv) {
             cerr << "--show-work " << endl;
         }
         minimizer_mapper.show_work = show_work;
+
+        if (show_progress && show_work) {
+            cerr << "--posterior-odds-threshold " << endl;
+        }
+        minimizer_mapper.posterior_odds_threshold = posterior_odds_threshold;
+
+         if (show_progress && show_work) {
+            cerr << "--spurious-alignment-prior " << endl;
+        }
+        minimizer_mapper.spurious_alignment_prior = spurious_alignment_prior;
 
         if (show_progress && paired) {
             if (forced_mean && forced_stdev) {
