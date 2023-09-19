@@ -149,8 +149,7 @@ average_mismatches, exact_match_fractions = zip(*results)
 # Plotting the results
 plt.figure(figsize=(10, 5))
 
-# First subplot
-plt.subplot(1, 2, 1)
+# Plotting the mismatch proportions
 plt.plot(k_values, average_mismatches, marker='o', linestyle='-')
 plt.xticks(k_values)
 plt.xlabel('Value of k')
@@ -158,7 +157,7 @@ plt.ylabel('Mismatch Proportion')
 plt.title('Sequence Similarity as a Function of k (Deamination)')
 plt.grid(True)
 
-# Curve fitting for first subplot
+# Curve fitting for the plot
 def power_law(x, a, b):
     return a * np.power(x, b)
 
@@ -173,20 +172,9 @@ y_fit = power_law(x_fit, *params)
 plt.plot(x_fit, y_fit, label='Power-law fit', linestyle='--')
 plt.legend()
 
-# Second subplot
-plt.subplot(1, 2, 2)
-plt.plot(k_values, exact_match_fractions, marker='o', linestyle='-', color='red')
-plt.xticks(k_values)
-plt.xlabel('Value of k')
-plt.ylabel('Exact Match Fraction')
-plt.title('Exact Match Fraction as a Function of k (Deamination)')
-plt.grid(True)
-
-plt.subplot(1, 2, 1)  # Make sure we're on the first subplot
 plt.annotate(f'a={a:.4f}, b={b:.4f}', xy=(0.6, 0.2), xycoords='axes fraction')
 plt.tight_layout()
 plt.savefig("mismatch.png")
 
 # Print the parameters
 print(f"Fitted parameters: a = {a}, b = {b}")
-
