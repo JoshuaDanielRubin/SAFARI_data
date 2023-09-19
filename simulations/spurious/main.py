@@ -5,6 +5,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import curve_fit
 import gzip
+from concurrent.futures import ProcessPoolExecutor
+import os
+
+# Create complement mapping outside of the function
+COMPLEMENT = str.maketrans('ACTGNRY', 'TGACNYR')
 
 # Add this function to read sequences from a gzipped FASTQ file
 def read_fastq(file_path: str) -> List[str]:
@@ -20,20 +25,19 @@ def read_fastq(file_path: str) -> List[str]:
             sequences.append(seq.upper())
     return sequences
 
-
 # Functions for reading and preprocessing
 def read_fasta(file_path: str) -> str:
     with open(file_path, 'r') as f:
-        sequence = ''.join(line.strip() for line in f.readlines()[1:])
+        sequence = ''.join(line.strip() for line in f if not line.startswith('>'))
     return sequence.upper()
 
 def reverse_complement(seq: str) -> str:
-    complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A', 'N': 'N'}
-    return ''.join(complement[base] for base in reversed(seq))
+    return seq.translate(COMPLEMENT)[::-1]
 
-# Functions for index creation
+RYMER_MAP = {'C': 'C', 'T': 'C', 'G': 'A', 'A': 'A', 'N': 'N', 'R': 'R', 'Y': 'Y'}
+
 def rymer_transform(seq: str) -> str:
-    return ''.join(['C' if base in ['C', 'T'] else 'A' if base in ['G', 'A'] else 'N' for base in seq])
+    return ''.join(RYMER_MAP.get(base, 'N') for base in seq)
 
 def create_minimizer(seq: str, k: int, w: int) -> str:
     return min(seq[i:i+k] for i in range(w - k + 1))
@@ -46,49 +50,71 @@ def create_index_table(sequence: str, k: int, w: int) -> Dict[str, List[int]]:
         table[minimizer].append(i)
     return table
 
+def process_kmer(args):
+    kmer, i, rymer_set, sequence, k = args
+    rymer = rymer_transform(kmer)
+    rc_kmer = reverse_complement(kmer)
+    rc_rymer = rymer_transform(rc_kmer)
 
-# Modified function to count only deamination-specific mismatches
-def find_deamination_mismatches(reads: List[str], k: int, w: int, minimizer_table: Dict[str, List[int]], rymer_table: Dict[str, List[int]], sequence: str) -> List[int]:
+    rymer_found = rymer in rymer_set or rc_rymer in rymer_set
+
+    if rymer_found:
+        ref_segment = sequence[i:i+k]
+
+        mismatch_count = sum((a == 'T' and b == 'C') or (a == 'A' and b == 'G') for a, b in zip(kmer, ref_segment))
+        exact_match = kmer == ref_segment
+        return mismatch_count, exact_match
+    else:
+        return None, None
+
+def process_read(args):
+    read, k, rymer_set, sequence = args
+    mismatch_counts = []
     total_kmers = 0
     exact_matches = 0
-    mismatch_counts = []
-    for read in reads:
-        for i in range(len(read) - k + 1):
-            kmer = read[i:i+k]
-            rymer = rymer_transform(kmer)
-            rc_kmer = reverse_complement(kmer)
-            rc_rymer = rymer_transform(rc_kmer)
-            kmer_found = kmer in minimizer_table or rc_kmer in minimizer_table
-            rymer_found = rymer in rymer_table or rc_rymer in rymer_table
-            if rymer_found:
-                ref_segment = sequence[i:i+k]
-                mismatch_count = sum(
-                    1 for a, b in zip(kmer, ref_segment) if (a == 'T' and b == 'C') or (a == 'A' and b == 'G')
-                )
-                mismatch_counts.append(mismatch_count)
-                total_kmers += 1
-                if kmer == ref_segment:
-                    exact_matches += 1
+
+    kmer_args = [(read[i:i+k], i, rymer_set, sequence, k) for i in range(len(read) - k + 1)]
+
+    with ProcessPoolExecutor(max_workers=60) as executor:
+        results = executor.map(process_kmer, kmer_args)
+
+    for res in results:
+        mismatch_count, exact_match = res
+        if mismatch_count is not None:
+            mismatch_counts.append(mismatch_count)
+            total_kmers += 1
+            exact_matches += exact_match
+
+    return mismatch_counts, exact_matches, total_kmers
+
+def find_deamination_mismatches(read: str, k: int, minimizer_table: Dict[str, List[int]], rymer_table: Dict[str, List[int]], sequence: str) -> List[int]:
+    rymer_set = set(rymer_table.keys())
+    args = (read, k, rymer_set, sequence)
+    mismatch_counts, exact_matches, total_kmers = process_read(args)
     return mismatch_counts, exact_matches, total_kmers
 
 # Main code for generating the plot
 sequence = read_fasta("rCRS.fa")
+bacterial_reference = read_fasta("refSoil.fa")
+#bacterial_reference = read_fasta("small.fa")
+print("read the references")
 k_values = list(range(3, 16))
 average_mismatches = []
 exact_match_fractions = []
 
 for k in k_values:
+    print("on k = " + str(k))
     w = k + 2
     minimizer_table = create_index_table(sequence, k, w)
+    print("minimizer index created")
     rymer_table = create_index_table(rymer_transform(sequence), k, w)
-    all_reads = read_fastq("SRR19750411_small.fastq.gz")
-
-    mismatch_counts, exact_matches, total_kmers = find_deamination_mismatches(all_reads, k, w, minimizer_table, rymer_table, sequence)
+    print("rymer index created")
+    mismatch_counts, exact_matches, total_kmers = find_deamination_mismatches([bacterial_reference], k, minimizer_table, rymer_table, sequence)
+    print("deam mismatches found")
     non_zero_mismatches = [count for count in mismatch_counts if count > 0]
     average_mismatch = sum(non_zero_mismatches) / len(non_zero_mismatches) if non_zero_mismatches else 0
     average_mismatches.append(average_mismatch / k)
     exact_match_fractions.append(exact_matches / total_kmers if total_kmers else 0)
-
 
 plt.figure(figsize=(10, 5))
 
@@ -110,9 +136,8 @@ a, b = params
 
 # Annotate the plot with the fitted parameters
 annotation_text = f'a={a:.4f}, b={b:.4f}'
-#plt.annotate(annotation_text, xy=(0.6, 0.2), xycoords='axes fraction')
 
-x_fit = np.linspace(min(k_values), max(k_values), 500)
+x_fit = np.linspace(min(k_values), max(k_values), 1000)
 y_fit = power_law(x_fit, *params)
 plt.plot(x_fit, y_fit, label='Power-law fit', linestyle='--')
 plt.legend()
@@ -133,3 +158,4 @@ plt.savefig("mismatch.png")
 
 # Print the parameters
 print(f"Fitted parameters: a = {a}, b = {b}")
+
