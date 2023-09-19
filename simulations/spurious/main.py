@@ -68,54 +68,85 @@ def process_kmer(args):
         return None, None
 
 def process_read(args):
-    read, k, rymer_set, sequence = args
+    read, k, w, minimizer_set, rymer_set, sequence = args
     mismatch_counts = []
     total_kmers = 0
     exact_matches = 0
 
-    kmer_args = [(read[i:i+k], i, rymer_set, sequence, k) for i in range(len(read) - k + 1)]
+    for i in range(len(read) - k + 1):
+        kmer = read[i:i+k]
+        rymer = rymer_transform(kmer)
+        rc_kmer = reverse_complement(kmer)
+        rc_rymer = rymer_transform(rc_rymer)
 
-    with ProcessPoolExecutor(max_workers=60) as executor:
-        results = executor.map(process_kmer, kmer_args)
+        rymer_found = rymer in rymer_set or rc_rymer in rymer_set
 
-    for res in results:
-        mismatch_count, exact_match = res
-        if mismatch_count is not None:
+        if rymer_found:
+            ref_segment = sequence[i:i+k]
+
+            mismatch_count = sum((a == 'T' and b == 'C') or (a == 'A' and b == 'G') for a, b in zip(kmer, ref_segment))
             mismatch_counts.append(mismatch_count)
             total_kmers += 1
-            exact_matches += exact_match
+
+            if kmer == ref_segment:
+                exact_matches += 1
 
     return mismatch_counts, exact_matches, total_kmers
 
-def find_deamination_mismatches(read: str, k: int, minimizer_table: Dict[str, List[int]], rymer_table: Dict[str, List[int]], sequence: str) -> List[int]:
+def find_deamination_mismatches(reads: List[str], k: int, w: int, minimizer_table: Dict[str, List[int]], rymer_table: Dict[str, List[int]], sequence: str) -> List[int]:
+    total_kmers = 0
+    exact_matches = 0
+    mismatch_counts = []
+
+    minimizer_set = set(minimizer_table.keys())
     rymer_set = set(rymer_table.keys())
-    args = (read, k, rymer_set, sequence)
-    mismatch_counts, exact_matches, total_kmers = process_read(args)
+
+    kmer_args = []
+
+    for read in reads:
+        for i in range(len(read) - k + 1):
+            kmer = read[i:i+k]
+            kmer_args.append((kmer, i, rymer_set, sequence, k))
+
+    # Subsample 0.1% of the kmers
+    subsample_size = max(1, int(0.01 * len(kmer_args)))
+    kmer_args_subsample = random.sample(kmer_args, subsample_size)
+
+    for args in kmer_args_subsample:
+        mc, em = process_kmer(args)
+        if mc is not None and em is not None:
+            mismatch_counts.append(mc)
+            total_kmers += 1
+            if em:
+                exact_matches += 1
+
     return mismatch_counts, exact_matches, total_kmers
+
+def process_k(k):
+    print("k= " +str(k))
+    w = k + 2
+    minimizer_table = create_index_table(sequence, k, w)
+    rymer_table = create_index_table(rymer_transform(sequence), k, w)
+    mismatch_counts, exact_matches, total_kmers = find_deamination_mismatches([bacterial_reference], k, w, minimizer_table, rymer_table, sequence)
+    non_zero_mismatches = [count for count in mismatch_counts if count > 0]
+    average_mismatch = sum(non_zero_mismatches) / len(non_zero_mismatches) if non_zero_mismatches else 0
+    average_mismatch /= k
+    exact_match_fraction = exact_matches / total_kmers if total_kmers else 0
+    return average_mismatch, exact_match_fraction
 
 # Main code for generating the plot
 sequence = read_fasta("rCRS.fa")
-bacterial_reference = read_fasta("refSoil.fa")
-#bacterial_reference = read_fasta("small.fa")
-print("read the references")
+bacterial_reference = read_fasta("refSoilSmall.fa")
+
 k_values = list(range(3, 16))
-average_mismatches = []
-exact_match_fractions = []
+results = []
 
-for k in k_values:
-    print("on k = " + str(k))
-    w = k + 2
-    minimizer_table = create_index_table(sequence, k, w)
-    print("minimizer index created")
-    rymer_table = create_index_table(rymer_transform(sequence), k, w)
-    print("rymer index created")
-    mismatch_counts, exact_matches, total_kmers = find_deamination_mismatches([bacterial_reference], k, minimizer_table, rymer_table, sequence)
-    print("deam mismatches found")
-    non_zero_mismatches = [count for count in mismatch_counts if count > 0]
-    average_mismatch = sum(non_zero_mismatches) / len(non_zero_mismatches) if non_zero_mismatches else 0
-    average_mismatches.append(average_mismatch / k)
-    exact_match_fractions.append(exact_matches / total_kmers if total_kmers else 0)
+with ProcessPoolExecutor(max_workers=1) as executor:
+    results = list(executor.map(process_k, k_values))
 
+average_mismatches, exact_match_fractions = zip(*results)
+
+# Plotting the results
 plt.figure(figsize=(10, 5))
 
 # First subplot
