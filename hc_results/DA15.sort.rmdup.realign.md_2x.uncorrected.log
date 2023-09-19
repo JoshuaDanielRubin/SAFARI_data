@@ -1,0 +1,47 @@
+╦ ╦┌─┐┌─┐┬  ┌─┐╔═╗┌─┐┬─┐┌┬┐
+╠═╣├─┤├─┘│  │ │║  ├─┤├┬┘ │
+╩ ╩┴ ┴┴  ┴─┘└─┘╚═╝┴ ┴┴└─ ┴
+
+
+Predicting sample: stdin
+Using 1 threads
+╦ ╦┌─┐┌─┐┬  ┌─┐╔═╗┌─┐┬─┐┌┬┐
+╠═╣├─┤├─┘│  │ │║  ├─┤├┬┘ │
+╩ ╩┴ ┴┴  ┴─┘└─┘╚═╝┴ ┴┴└─ ┴
+
+
+Predicting sample: stdin
+Using 1 threads
+Processing sample 1 of 1
+Mapping reads...
+Reading GAM file AcMIIa9
+╦ ╦┌─┐┌─┐┬  ┌─┐╔═╗┌─┐┬─┐┌┬┐
+╠═╣├─┤├─┘│  │ │║  ├─┤├┬┘ │
+╩ ╩┴ ┴┴  ┴─┘└─┘╚═╝┴ ┴┴└─ ┴
+
+
+Predicting sample: stdin
+Using 1 threads
+Reads mapped
+Done reading GAM file /tmp/AcMIIa9
+Found 328 reads.
+Removing PCR duplicates ...
+PCR duplicates removed.
+Computing haplogroup likelihoods from 328 reads.
+Processing sample 1 of 1
+Mapping reads...
+Reading GAM file FBNKh9H
+Reads mapped
+Done reading GAM file /tmp/FBNKh9H
+Found 328 reads.
+Removing PCR duplicates ...
+PCR duplicates removed.
+Computing haplogroup likelihoods from 328 reads.
+
+
+#sample	predicted haplogroup	reads
+stdin	C4d	328
+
+
+#sample	predicted haplogroup	reads
+stdin	C4d	328

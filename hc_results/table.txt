@@ -1,0 +1,99 @@
+\begin{longtable}{lllllrr}
+\toprule
+    Sample Name &  Rate & Full\_Coverage\_Prediction & HG\_corrected & HG\_uncorrected &  \# Reads\_corrected &  \# Reads\_uncorrected \\
+\midrule
+\endfirsthead
+
+\toprule
+    Sample Name &  Rate & Full\_Coverage\_Prediction & HG\_corrected & HG\_uncorrected &  \# Reads\_corrected &  \# Reads\_uncorrected \\
+\midrule
+\endhead
+\midrule
+\multicolumn{7}{r}{{Continued on next page}} \\
+\midrule
+\endfoot
+
+\bottomrule
+\endlastfoot
+         AED204 & 0.25X &            X2b11/X2b+226 &       X2b4a1 &         X2b4a1 &               43.0 &                 33.0 \\
+  I7645\_1240k\_0 & 0.25X &                      N/A &           B2 &             B2 &               33.0 &                 31.0 \\
+ I11300\_1240k\_0 & 0.25X &                      N/A &          J2a &            J2a &               87.0 &                 81.0 \\
+  I8132\_1240k\_0 & 0.25X &                      N/A &           B2 &             B2 &               34.0 &                 34.0 \\
+ I10899\_1240k\_0 & 0.25X &                      N/A &           N1 &             N1 &               87.0 &                 83.0 \\
+            FN2 & 0.25X &                    H3/H3 &        H1j1a &           V15a &               64.0 &                 50.0 \\
+          DA171 & 0.25X &                H2a1/H2a1 &        H1an2 &          R31a1 &               37.0 &                 31.0 \\
+         STR491 & 0.25X &                  T2b/T2b &      B4b1a2c &        B4b1a2c &               31.0 &                 27.0 \\
+  I8569\_1240k\_0 & 0.25X &                      N/A &       H1e1a7 &         H1e1a7 &               45.0 &                 41.0 \\
+  I7646\_1240k\_0 & 0.25X &                      N/A &         H3v2 &           H3v2 &               60.0 &                 57.0 \\
+           DA15 & 0.25X &                  C4d/C4d &          C4d &            C4d &               46.0 &                 46.0 \\
+          DA101 & 0.25X &          U5a1b1e/U5a1b1e &      U5a1b1e &         U5a1b1 &               48.0 &                 45.0 \\
+           NW54 & 0.25X &            C4a1a1/C4a1a1 &        C4a1a &            D4n &               37.0 &                 27.0 \\
+         STR486 & 0.25X &                  T2b/T2b &           T2 &             J2 &               54.0 &                 51.0 \\
+          DA100 & 0.25X &                C4b1/C4b1 &           C1 &             C1 &               49.0 &                 43.0 \\
+        STR266b & 0.25X &                 J1c/J1c5 &         J1c9 &           J1c9 &               45.0 &                 43.0 \\
+          Alh10 & 0.25X &                    I1/I1 &           I1 &             I1 &               46.0 &                 38.0 \\
+          Vim2b & 0.25X &                    H7/H7 &         U6a6 &           U6a6 &               37.0 &                 34.0 \\
+        STR393b & 0.25X &                H5a1/H5a1 &        H1ai1 &           H5a1 &               56.0 &                 48.0 \\
+         AED92b & 0.25X &                U4a1/U4a1 &         U4a1 &         U5a2c4 &               42.0 &                 37.0 \\
+  I7645\_1240k\_0 &  0.5X &                      N/A &            F &              F &               75.0 &                 71.0 \\
+         AED204 &  0.5X &            X2b11/X2b+226 &          N/A &         X2b4a1 &                N/A &                 63.0 \\
+  I7646\_1240k\_0 &  0.5X &                      N/A &          N/A &          H1e1c &                N/A &                112.0 \\
+ I11300\_1240k\_0 &  0.5X &                      N/A &       J2a1a1 &         J2a1a1 &              163.0 &                153.0 \\
+         STR486 &  0.5X &                  T2b/T2b &          N/A &             T2 &                N/A &                 90.0 \\
+          Vim2b &  0.5X &                    H7/H7 &          N/A &            H23 &                N/A &                 76.0 \\
+ I10899\_1240k\_0 &  0.5X &                      N/A &         U5b1 &           U5b1 &              174.0 &                169.0 \\
+  I8132\_1240k\_0 &  0.5X &                      N/A &         H1aq &           H1aq &               76.0 &                 75.0 \\
+        STR266b &  0.5X &                 J1c/J1c5 &          N/A &           J1c9 &                N/A &                 84.0 \\
+         AED92b &  0.5X &                U4a1/U4a1 &          N/A &          U4a2d &                N/A &                 84.0 \\
+          DA100 &  0.5X &                C4b1/C4b1 &          N/A &             C1 &                N/A &                 80.0 \\
+          DA171 &  0.5X &                H2a1/H2a1 &          N/A &           H107 &                N/A &                 87.0 \\
+          Alh10 &  0.5X &                    I1/I1 &          N/A &             I1 &                N/A &                 70.0 \\
+         STR491 &  0.5X &                  T2b/T2b &          N/A &            T2b &                N/A &                 65.0 \\
+          DA101 &  0.5X &          U5a1b1e/U5a1b1e &          N/A &         U5a1b1 &                N/A &                 84.0 \\
+           NW54 &  0.5X &            C4a1a1/C4a1a1 &          N/A &          C4a1a &                N/A &                 68.0 \\
+        STR393b &  0.5X &                H5a1/H5a1 &          N/A &            H5c &                N/A &                 78.0 \\
+            FN2 &  0.5X &                    H3/H3 &          N/A &           H2a1 &                N/A &                 97.0 \\
+           DA15 &  0.5X &                  C4d/C4d &          N/A &            C4d &                N/A &                 90.0 \\
+ I8132\_1240k\_1x &  1.0X &                      N/A &          N/A &           H1aq &                N/A &                121.0 \\
+        STR393b &  1.0X &                H5a1/H5a1 &          N/A &           H10c &                N/A &                164.0 \\
+           NW54 &  1.0X &            C4a1a1/C4a1a1 &          N/A &          C4a1a &                N/A &                155.0 \\
+ I8569\_1240k\_1x &  1.0X &                      N/A &          N/A &           H1ah &                N/A &                218.0 \\
+ I7646\_1240k\_1x &  1.0X &                      N/A &          N/A &          H1e1c &                N/A &                221.0 \\
+            FN2 &  1.0X &                    H3/H3 &          N/A &             H1 &                N/A &                206.0 \\
+          Vim2b &  1.0X &                    H7/H7 &          N/A &            H23 &                N/A &                156.0 \\
+         AED204 &  1.0X &            X2b11/X2b+226 &          N/A &         X2b4a1 &                N/A &                134.0 \\
+         AED92b &  1.0X &                U4a1/U4a1 &          N/A &           U4a1 &                N/A &                184.0 \\
+          Alh10 &  1.0X &                    I1/I1 &          N/A &             I1 &                N/A &                139.0 \\
+          DA100 &  1.0X &                C4b1/C4b1 &          N/A &           C4b1 &                N/A &                156.0 \\
+         STR491 &  1.0X &                  T2b/T2b &          N/A &          T2b33 &                N/A &                135.0 \\
+ I7645\_1240k\_1x &  1.0X &                      N/A &          N/A &           HV0d &                N/A &                146.0 \\
+          DA101 &  1.0X &          U5a1b1e/U5a1b1e &          N/A &         U5a1b1 &                N/A &                177.0 \\
+          DA171 &  1.0X &                H2a1/H2a1 &          N/A &            H36 &                N/A &                197.0 \\
+         STR486 &  1.0X &                  T2b/T2b &          N/A &            T2b &                N/A &                181.0 \\
+I10899\_1240k\_1x &  1.0X &                      N/A &          N/A &           U5b1 &                N/A &                311.0 \\
+I11300\_1240k\_1x &  1.0X &                      N/A &          N/A &         J2a1a1 &                N/A &                305.0 \\
+           DA15 &  1.0X &                  C4d/C4d &          N/A &            C4d &                N/A &                162.0 \\
+        STR266b &  1.0X &                 J1c/J1c5 &          N/A &           J1c9 &                N/A &                168.0 \\
+         STR486 &  2.0X &                  T2b/T2b &          N/A &            T2b &                N/A &                327.0 \\
+         STR491 &  2.0X &                  T2b/T2b &          N/A &            T2b &                N/A &                266.0 \\
+        STR393b &  2.0X &                H5a1/H5a1 &          N/A &          H5a1b &                N/A &                322.0 \\
+I11300\_1240k\_2x &  2.0X &                      N/A &          N/A &         J2a1a1 &                N/A &                583.0 \\
+           NW54 &  2.0X &            C4a1a1/C4a1a1 &          N/A &         C4a1a1 &                N/A &                338.0 \\
+ I8569\_1240k\_2x &  2.0X &                      N/A &          N/A &           H1ah &                N/A &                492.0 \\
+ I8132\_1240k\_2x &  2.0X &                      N/A &          N/A &           H1aq &                N/A &                 49.0 \\
+ I7646\_1240k\_2x &  2.0X &                      N/A &          N/A &          H1e1c &                N/A &                414.0 \\
+ I7645\_1240k\_2x &  2.0X &                      N/A &          N/A &             F4 &                N/A &                 58.0 \\
+I10899\_1240k\_2x &  2.0X &                      N/A &          N/A &           U5b1 &                N/A &                571.0 \\
+            FN2 &  2.0X &                    H3/H3 &          N/A &            H53 &                N/A &                388.0 \\
+          DA171 &  2.0X &                H2a1/H2a1 &          N/A &            H3i &                N/A &                366.0 \\
+           DA15 &  2.0X &                  C4d/C4d &          N/A &            C4d &                N/A &                328.0 \\
+          DA101 &  2.0X &          U5a1b1e/U5a1b1e &          N/A &        U5a1b1e &                N/A &                363.0 \\
+          DA100 &  2.0X &                C4b1/C4b1 &          N/A &           C4b1 &                N/A &                353.0 \\
+          Alh10 &  2.0X &                    I1/I1 &          N/A &             I1 &                N/A &                313.0 \\
+         AED92b &  2.0X &                U4a1/U4a1 &          N/A &           U4a1 &                N/A &                363.0 \\
+         AED204 &  2.0X &            X2b11/X2b+226 &          N/A &          X2b'd &                N/A &                255.0 \\
+        STR266b &  2.0X &                 J1c/J1c5 &          N/A &           J1c9 &                N/A &                305.0 \\
+          Vim2b &  2.0X &                    H7/H7 &          N/A &             H7 &                N/A &                296.0 \\
+\end{longtable}
+
+\caption{This is the caption for the table.}

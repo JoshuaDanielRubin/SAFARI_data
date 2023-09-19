@@ -1,0 +1,47 @@
+╦ ╦┌─┐┌─┐┬  ┌─┐╔═╗┌─┐┬─┐┌┬┐
+╠═╣├─┤├─┘│  │ │║  ├─┤├┬┘ │
+╩ ╩┴ ┴┴  ┴─┘└─┘╚═╝┴ ┴┴└─ ┴
+
+
+Predicting sample: stdin
+Using 1 threads
+╦ ╦┌─┐┌─┐┬  ┌─┐╔═╗┌─┐┬─┐┌┬┐
+╠═╣├─┤├─┘│  │ │║  ├─┤├┬┘ │
+╩ ╩┴ ┴┴  ┴─┘└─┘╚═╝┴ ┴┴└─ ┴
+
+
+Predicting sample: stdin
+Using 1 threads
+Processing sample 1 of 1
+Mapping reads...
+Reading GAM file STGcQuJ
+╦ ╦┌─┐┌─┐┬  ┌─┐╔═╗┌─┐┬─┐┌┬┐
+╠═╣├─┤├─┘│  │ │║  ├─┤├┬┘ │
+╩ ╩┴ ┴┴  ┴─┘└─┘╚═╝┴ ┴┴└─ ┴
+
+
+Predicting sample: stdin
+Using 1 threads
+Processing sample 1 of 1
+Mapping reads...
+Reading GAM file LQhm2ly
+Reads mapped
+Done reading GAM file /tmp/STGcQuJ
+Found 324 reads.
+Removing PCR duplicates ...
+PCR duplicates removed.
+Computing haplogroup likelihoods from 322 reads.
+Reads mapped
+Done reading GAM file /tmp/LQhm2ly
+Found 324 reads.
+Removing PCR duplicates ...
+PCR duplicates removed.
+Computing haplogroup likelihoods from 322 reads.
+
+
+#sample	predicted haplogroup	reads
+stdin	H5a1b	322
+
+
+#sample	predicted haplogroup	reads
+stdin	H5a1b	322

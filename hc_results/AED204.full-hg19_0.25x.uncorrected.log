@@ -1,0 +1,60 @@
+╦ ╦┌─┐┌─┐┬  ┌─┐╔═╗┌─┐┬─┐┌┬┐
+╠═╣├─┤├─┘│  │ │║  ├─┤├┬┘ │
+╩ ╩┴ ┴┴  ┴─┘└─┘╚═╝┴ ┴┴└─ ┴
+
+
+Predicting sample: stdin
+Using 1 threads
+Processing sample 1 of 1
+Mapping reads...
+Reading GAM file C3Dv7Lu
+Reads mapped
+Done reading GAM file /tmp/C3Dv7Lu
+Found 33 reads.
+Removing PCR duplicates ...
+PCR duplicates removed.
+Computing haplogroup likelihoods from 33 reads.
+
+
+#sample	predicted haplogroup	reads
+stdin	X2b4a1	33
+╦ ╦┌─┐┌─┐┬  ┌─┐╔═╗┌─┐┬─┐┌┬┐
+╠═╣├─┤├─┘│  │ │║  ├─┤├┬┘ │
+╩ ╩┴ ┴┴  ┴─┘└─┘╚═╝┴ ┴┴└─ ┴
+
+
+Predicting sample: stdin
+Using 1 threads
+Processing sample 1 of 1
+Mapping reads...
+Reading GAM file ElQvSJS
+╦ ╦┌─┐┌─┐┬  ┌─┐╔═╗┌─┐┬─┐┌┬┐
+╠═╣├─┤├─┘│  │ │║  ├─┤├┬┘ │
+╩ ╩┴ ┴┴  ┴─┘└─┘╚═╝┴ ┴┴└─ ┴
+
+
+Predicting sample: stdin
+Using 1 threads
+Reads mapped
+Done reading GAM file /tmp/ElQvSJS
+Found 33 reads.
+Removing PCR duplicates ...
+PCR duplicates removed.
+Computing haplogroup likelihoods from 33 reads.
+Processing sample 1 of 1
+Mapping reads...
+Reading GAM file fqcoHIM
+
+
+#sample	predicted haplogroup	reads
+stdin	X2b4a1	33
+Reads mapped
+Done reading GAM file /tmp/fqcoHIM
+Found 33 reads.
+Removing PCR duplicates ...
+PCR duplicates removed.
+Computing haplogroup likelihoods from 33 reads.
+
+
+#sample	predicted haplogroup	reads
+stdin	X2b4a1	33

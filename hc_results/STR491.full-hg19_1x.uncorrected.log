@@ -1,0 +1,47 @@
+╦ ╦┌─┐┌─┐┬  ┌─┐╔═╗┌─┐┬─┐┌┬┐
+╠═╣├─┤├─┘│  │ │║  ├─┤├┬┘ │
+╩ ╩┴ ┴┴  ┴─┘└─┘╚═╝┴ ┴┴└─ ┴
+
+
+Predicting sample: stdin
+Using 1 threads
+╦ ╦┌─┐┌─┐┬  ┌─┐╔═╗┌─┐┬─┐┌┬┐
+╠═╣├─┤├─┘│  │ │║  ├─┤├┬┘ │
+╩ ╩┴ ┴┴  ┴─┘└─┘╚═╝┴ ┴┴└─ ┴
+
+
+Predicting sample: stdin
+Using 1 threads
+Processing sample 1 of 1
+Mapping reads...
+Reading GAM file MnrsUO1
+╦ ╦┌─┐┌─┐┬  ┌─┐╔═╗┌─┐┬─┐┌┬┐
+╠═╣├─┤├─┘│  │ │║  ├─┤├┬┘ │
+╩ ╩┴ ┴┴  ┴─┘└─┘╚═╝┴ ┴┴└─ ┴
+
+
+Predicting sample: stdin
+Using 1 threads
+Processing sample 1 of 1
+Mapping reads...
+Reading GAM file hpvTceX
+Reads mapped
+Done reading GAM file /tmp/MnrsUO1
+Found 136 reads.
+Removing PCR duplicates ...
+PCR duplicates removed.
+Computing haplogroup likelihoods from 135 reads.
+Reads mapped
+Done reading GAM file /tmp/hpvTceX
+Found 136 reads.
+Removing PCR duplicates ...
+PCR duplicates removed.
+Computing haplogroup likelihoods from 135 reads.
+
+
+#sample	predicted haplogroup	reads
+stdin	T2b33	135
+
+
+#sample	predicted haplogroup	reads
+stdin	T2b33	135

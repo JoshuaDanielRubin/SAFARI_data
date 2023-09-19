@@ -1,0 +1,60 @@
+╦ ╦┌─┐┌─┐┬  ┌─┐╔═╗┌─┐┬─┐┌┬┐
+╠═╣├─┤├─┘│  │ │║  ├─┤├┬┘ │
+╩ ╩┴ ┴┴  ┴─┘└─┘╚═╝┴ ┴┴└─ ┴
+
+
+Predicting sample: stdin
+Using 1 threads
+Processing sample 1 of 1
+Mapping reads...
+Reading GAM file MY2xkUH
+Reads mapped
+Done reading GAM file /tmp/MY2xkUH
+Found 38 reads.
+Removing PCR duplicates ...
+PCR duplicates removed.
+Computing haplogroup likelihoods from 37 reads.
+
+
+#sample	predicted haplogroup	reads
+stdin	U5a2c4	37
+╦ ╦┌─┐┌─┐┬  ┌─┐╔═╗┌─┐┬─┐┌┬┐
+╠═╣├─┤├─┘│  │ │║  ├─┤├┬┘ │
+╩ ╩┴ ┴┴  ┴─┘└─┘╚═╝┴ ┴┴└─ ┴
+
+
+Predicting sample: stdin
+Using 1 threads
+Processing sample 1 of 1
+Mapping reads...
+Reading GAM file gTCBBsF
+╦ ╦┌─┐┌─┐┬  ┌─┐╔═╗┌─┐┬─┐┌┬┐
+╠═╣├─┤├─┘│  │ │║  ├─┤├┬┘ │
+╩ ╩┴ ┴┴  ┴─┘└─┘╚═╝┴ ┴┴└─ ┴
+
+
+Predicting sample: stdin
+Using 1 threads
+Reads mapped
+Done reading GAM file /tmp/gTCBBsF
+Found 38 reads.
+Removing PCR duplicates ...
+PCR duplicates removed.
+Computing haplogroup likelihoods from 37 reads.
+Processing sample 1 of 1
+Mapping reads...
+Reading GAM file 9inH8gQ
+
+
+#sample	predicted haplogroup	reads
+stdin	U5a2c4	37
+Reads mapped
+Done reading GAM file /tmp/9inH8gQ
+Found 38 reads.
+Removing PCR duplicates ...
+PCR duplicates removed.
+Computing haplogroup likelihoods from 37 reads.
+
+
+#sample	predicted haplogroup	reads
+stdin	U5a2c4	37
