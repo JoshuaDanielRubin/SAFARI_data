@@ -1,0 +1,509 @@
+sys.setrecursionlimit(10000)
+
+MAXVAL=0
+#STEPS10=range(10, MAXVAL, 10)
+STEPS10=[0]
+STEPSMSA=["0"]
+#LENGTHS=["30","35","40","45","50","55","60","65","75","85","100","150","200","400"]
+LENGTHS=[str(i) for i in range(20, 76, 5)]
+#RATES=["0.00010","0.00015","0.00020","0.00025","0.0003","0.00035","0.0004","0.00045","0.0005","0.0006","0.0007","0.0008","0.0009","0.001","0.003","0.005","0.007","0.009","0.01","0.03","0.05","0.07","0.09","0.1","0.3","0.5","0.7","0.9"]
+RATES=["1"]
+DAMAGE=["dhigh","dmid","single","none"]
+ALIGNERS=["mem","aln","aln_anc","bowtie2","shrimp","bb", "safari"]
+ALIGNERSC=["aln_anc","bowtie2","shrimp"]
+#CONSENSUS=["mpileup","ec_nodam","angsd"]
+NUMFRAGS=5000
+FRAGNUM=100
+
+rule all:
+    input:
+        expand("simulations/gen_0.fa"),
+        expand("simulations/gen_{steps}.nw",steps=STEPS10),
+        expand("simulations/gen_{steps}_n{nfrag}_l{fraglen}.fa.gz",steps=STEPSMSA,nfrag=NUMFRAGS,fraglen=LENGTHS),
+        expand("simulations/gen_{steps}_n{nfrag}_l{fraglen}_d{dam}.fa.gz",steps=STEPSMSA,nfrag=NUMFRAGS,fraglen=LENGTHS,dam=DAMAGE),
+        expand("simulations/gen_{steps}_n{nfrag}_l{fraglen}_d{dam}_adpt.fa",steps=STEPSMSA,nfrag=NUMFRAGS,fraglen=LENGTHS,dam=DAMAGE),
+        expand("simulations/gen_{steps}_n{nfrag}_l{fraglen}_d{dam}_s1.fq.gz",steps=STEPSMSA,nfrag=NUMFRAGS,fraglen=LENGTHS,dam=DAMAGE),
+        expand("simulations/gen_{steps}_n{nfrag}_l{fraglen}_d{dam}_s2.fq.gz",steps=STEPSMSA,nfrag=NUMFRAGS,fraglen=LENGTHS,dam=DAMAGE),
+        expand("simulations/gen_{steps}_n{nfrag}_l{fraglen}_d{dam}_o.fq.gz",steps=STEPSMSA,nfrag=NUMFRAGS,fraglen=LENGTHS,dam=DAMAGE),
+        expand("simulations/gen_{steps}_n{nfrag}_l{fraglen}_d{dam}_o_s{rate}.fq.gz",steps=STEPSMSA,nfrag=NUMFRAGS,fraglen=LENGTHS,dam=DAMAGE,rate=RATES),
+        expand("simulations/gen_{steps}_n{nfrag}_l{fraglen}_d{dam}_o_r1_s{rate}.fq.gz",steps=STEPSMSA,nfrag=NUMFRAGS,fraglen=LENGTHS,dam=DAMAGE,rate=RATES),
+        expand("simulations/gen_{steps}_n{nfrag}_l{fraglen}_d{dam}_o_r2_s{rate}.fq.gz",steps=STEPSMSA,nfrag=NUMFRAGS,fraglen=LENGTHS,dam=DAMAGE,rate=RATES),
+        expand("simulations/numtS_n{fragn}_l{fraglen}.fa.gz",fragn=FRAGNUM,fraglen=LENGTHS),
+        expand("simulations/numtS_n{fragn}_l{fraglen}_d{dam}.fa.gz",fragn=FRAGNUM,fraglen=LENGTHS,dam=DAMAGE),
+        expand("simulations/numtS_n{fragn}_l{fraglen}_d{dam}_adpt.fa",fragn=FRAGNUM,fraglen=LENGTHS,dam=DAMAGE),
+        expand("simulations/numtS_n{fragn}_l{fraglen}_d{dam}_s1.fq.gz",fragn=FRAGNUM,fraglen=LENGTHS,dam=DAMAGE),
+        expand("simulations/numtS_n{fragn}_l{fraglen}_d{dam}_s2.fq.gz",fragn=FRAGNUM,fraglen=LENGTHS,dam=DAMAGE),
+        expand("simulations/numtS_n{fragn}_l{fraglen}_d{dam}_o.fq.gz",fragn=FRAGNUM,fraglen=LENGTHS,dam=DAMAGE),
+        expand("simulations/numtS_n{fragn}_l{fraglen}_d{dam}_o_s{rate}.fq.gz",fragn=FRAGNUM,fraglen=LENGTHS,dam=DAMAGE,rate=RATES),
+        expand("simulations/numtS_n{fragn}_l{fraglen}_d{dam}_o_r1_s{rate}.fq.gz",fragn=FRAGNUM,fraglen=LENGTHS,dam=DAMAGE,rate=RATES),
+        expand("simulations/numtS_n{fragn}_l{fraglen}_d{dam}_o_r2_s{rate}.fq.gz",fragn=FRAGNUM,fraglen=LENGTHS,dam=DAMAGE,rate=RATES),
+        expand("simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_s{rate}.fq.gz",step=STEPSMSA,nfrags=NUMFRAGS,fraglen=LENGTHS,dam=DAMAGE,rate=RATES),
+        expand("simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r1_s{rate}.fq.gz",step=STEPSMSA,nfrags=NUMFRAGS,fraglen=LENGTHS,dam=DAMAGE,rate=RATES),
+        expand("simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r2_s{rate}.fq.gz",step=STEPSMSA,nfrags=NUMFRAGS,fraglen=LENGTHS,dam=DAMAGE,rate=RATES),
+        expand("alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_mem.bam",step=STEPSMSA,nfrags=NUMFRAGS,fraglen=LENGTHS,dam=DAMAGE,rate=RATES),
+        expand("alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_aln.bam",step=STEPSMSA,nfrags=NUMFRAGS,fraglen=LENGTHS,dam=DAMAGE,rate=RATES),
+        expand("alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_aln_anc.bam",step=STEPSMSA,nfrags=NUMFRAGS,fraglen=LENGTHS,dam=DAMAGE,rate=RATES),
+        expand("alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_bowtie2.bam",step=STEPSMSA,nfrags=NUMFRAGS,fraglen=LENGTHS,dam=DAMAGE,rate=RATES),
+        expand("alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_shrimp.bam",step=STEPSMSA,nfrags=NUMFRAGS,fraglen=LENGTHS,dam=DAMAGE,rate=RATES),
+        #expand("alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_vg.bam",step=STEPSMSA,nfrags=NUMFRAGS,fraglen=LENGTHS,dam=DAMAGE,rate=RATES),
+        expand("alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_safari.bam",step=STEPSMSA,nfrags=NUMFRAGS,fraglen=LENGTHS,dam=DAMAGE,rate=RATES),
+        expand("alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_bb.bam",step=STEPSMSA,nfrags=NUMFRAGS,fraglen=LENGTHS,dam=DAMAGE,rate=RATES),
+        expand("alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}.stat",step=STEPSMSA,nfrags=NUMFRAGS,fraglen=LENGTHS,dam=DAMAGE,rate=RATES,align=ALIGNERS),
+        #expand("alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}.bam.bai",step=STEPSMSA,nfrags=NUMFRAGS,fraglen=LENGTHS,dam=DAMAGE,rate=RATES,align=ALIGNERS),
+        #expand("consensus/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}_{cons}.fa.gz",step=STEPSMSA,nfrags=NUMFRAGS,fraglen=LENGTHS,dam=DAMAGE,rate=RATES,align=ALIGNERSC,cons=CONSENSUS),
+        #expand("consensus/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}_{cons}.fa.nw",step=STEPSMSA,nfrags=NUMFRAGS,fraglen=LENGTHS,dam=DAMAGE,rate=RATES,align=ALIGNERSC,cons=CONSENSUS),
+#        "simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o"
+#        "simulations/all_prank.best.fas"
+        #"simulations/all_mafft.fasta"
+
+
+rule simulations_mt:
+    input: "simulations/gen_0.fa"
+    output: expand("simulations/gen_{idx}.fa", idx=range(1, MAXVAL+1))
+    shell: "/home/projects/benchmarkmito/mitochondrialSimulator/mitochondrialSimulator.py -g {MAXVAL} -o simulations/gen --name=generation /home/projects/benchmarkmito/mitochondrialSimulator/rCRS_0_005.conf {input}"
+
+
+for p in STEPS10:
+    rule:
+        input:
+            input_1="simulations/gen_0.fa",
+            input_2="simulations/gen_{param}.fa".format(param=p)
+        output: "simulations/gen_{param}.nw".format(param=p)
+        params:
+            str(p),
+            out_prefix="simulations/gen_{param}".format(param=p)
+        shell: "/home/ctools/EMBOSS-6.6.0/emboss/needle -gapopen 10.0 -gapextend 0.5 -outfile {output} -asequence {input.input_1} -bsequence {input.input_2}"
+
+rule runmsacat:
+    input:  expand("simulations/gen_{idx}.fa",idx=STEPSMSA)
+    output: "simulations/all.fasta"
+    shell: "cat {input} > {output}"
+
+#run mafft
+rule runmafft:
+    input:  "simulations/all.fasta"
+    output:  "simulations/all_mafft.fasta"
+    shell: "/storage/ctools/mafft-7.487-with-extensions/core/mafft-distance --auto {input} > {output}"
+
+#run prank
+rule runprank:
+    input:  "simulations/all.fasta"
+    output: "simulations/all_prank.best.fas"
+    params:
+        outprefix="simulations/all_prank"
+    shell: "/home/ctools/prank-msa/src/prank -d={input} -showall -o={params.outprefix} -DNA"
+
+
+rule faidx:
+    input: "simulations/gen_{step}.fa"
+    output: "simulations/gen_{step}.fa.fai"
+    shell: "/home/ctools/samtools-1.13/samtools faidx {input}"
+
+rule fragsim:
+    input:
+        input_1="simulations/gen_{step}.fa",
+        input_2="simulations/gen_{step}.fa.fai"
+    output:
+        "simulations/gen_{step}_n{nfrags}_l{fraglen}.fa.gz"
+    wildcard_constraints:
+        fraglen="\d+"
+    shell:
+        "/home/ctools/gargammel/src/fragSim  -n {wildcards.nfrags} -l {wildcards.fraglen} --circ generation_{wildcards.step} {input.input_1} | gzip > {output}"
+
+
+rule deamsim:
+    input:
+        "simulations/gen_{step}_n{nfrags}_l{fraglen}.fa.gz"
+    output:
+        "simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}.fa.gz"
+    wildcard_constraints:
+        fraglen="\d+"
+    shell:
+        "/home/ctools/gargammel/src/deamSim  -matfile {wildcards.dam}  {input} | gzip > {output}"
+
+rule adptsim:
+    input:
+        "simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}.fa.gz"
+    output:
+        "simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}_adpt.fa"
+    wildcard_constraints:
+        fraglen="\d+"
+    shell:
+        "/home/ctools/gargammel/src/adptSim   -l 125 -artp {output}  {input}"
+
+rule art:
+    input:
+        "simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}_adpt.fa"
+    output:
+        "simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s1.fq",
+        "simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s2.fq"
+    wildcard_constraints:
+        fraglen="\d+"
+    params:
+        out_prefix="simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s"
+    shell:
+        "/home/ctools/gargammel/art_src_MountRainier_Linux/art_illumina -ss HS25 -amp -na -p -l 125 -c 1   -i {input} -o {params.out_prefix}"
+
+rule adptsimz:
+    input:
+        "simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}_adpt.fa"
+    output:
+        "simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}_adpt.fa.gz"
+    wildcard_constraints:
+        fraglen="\d+"
+    shell:
+        "gzip  {input}"
+
+rule artz1:
+    input:
+        "simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s1.fq"
+    output:
+        "simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s1.fq.gz"
+    wildcard_constraints:
+        fraglen="\d+"
+    shell:
+       "gzip {input}"
+
+rule artz2:
+    input:
+        "simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s2.fq"
+    output:
+        "simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s2.fq.gz"
+    wildcard_constraints:
+        fraglen="\d+"
+    shell:
+        "gzip {input}"
+
+rule trimmed:
+    input:
+        input_1="simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s1.fq.gz",
+        input_2="simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s2.fq.gz"
+    output:
+        output_1="simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o.fq.gz",
+        output_2="simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r1.fq.gz",
+        output_3="simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r2.fq.gz"
+    params:
+        out_prefix="simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o"
+    wildcard_constraints:
+        fraglen="\d+"
+    shell:
+        "/home/ctools//leeHom-1.2.15/src/leeHom --ancientdna -fq1 {input.input_1} -fq2 {input.input_2} -fqo {params.out_prefix}"
+
+rule subsamp_mt:
+    input: "simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o.fq.gz"
+    output: "simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_s{rate}.fq.gz"
+    wildcard_constraints:
+        fraglen="\d+"
+    shell: "/home/ctools//seqtk-1.3/seqtk sample -s 321 {input} {wildcards.rate} |gzip > {output}"
+
+rule subsamp_r1:
+    input: "simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r1.fq.gz"
+    output: "simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r1_s{rate}.fq.gz"
+    wildcard_constraints:
+        fraglen="\d+"
+    shell: "/home/ctools//seqtk-1.3/seqtk sample -s 321 {input} {wildcards.rate} |gzip > {output}"
+
+rule subsamp_r2:
+    input: "simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r2.fq.gz"
+    output: "simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r2_s{rate}.fq.gz"
+    wildcard_constraints:
+        fraglen="\d+"
+    shell: "/home/ctools//seqtk-1.3/seqtk sample -s 321 {input} {wildcards.rate} |gzip > {output}"
+        
+
+#same process for numtS
+
+rule faidx_numtS:
+    input: "simulations/numtS.fasta"
+    output: "simulations/numtS.fasta.fai"
+    shell: "/home/ctools/samtools-1.13/samtools faidx {input}"
+
+rule fragsim_numtS:
+    input:
+        input_1="simulations/numtS.fasta",
+        input_2="simulations/numtS.fasta.fai"
+    output:
+        "simulations/numtS_n{fragn}_l{fraglen}.fa.gz"
+    wildcard_constraints:
+        fraglen="\d+"
+    shell:
+        "/home/ctools//gargammel/src/fragSim  -n {wildcards.fragn} -l {wildcards.fraglen} {input.input_1} | gzip > {output}"
+
+
+rule deamsim_numtS:
+    input:
+        "simulations/numtS_n{fragn}_l{fraglen}.fa.gz"
+    output:
+        "simulations/numtS_n{fragn}_l{fraglen}_d{dam}.fa.gz"
+    wildcard_constraints:
+        fraglen="\d+"
+    shell:
+        "/home/ctools/gargammel/src/deamSim  -matfile {wildcards.dam}  {input} | gzip > {output}"
+
+
+rule adptsim_numtS:
+    input:
+        "simulations/numtS_n{fragn}_l{fraglen}_d{dam}.fa.gz"
+    output:
+        "simulations/numtS_n{fragn}_l{fraglen}_d{dam}_adpt.fa"
+    wildcard_constraints:
+        fraglen="\d+"
+    shell:
+        "/home/ctools/gargammel/src/adptSim   -l 125 -artp {output}  {input}"
+
+rule art_numtS:
+    input:
+        "simulations/numtS_n{fragn}_l{fraglen}_d{dam}_adpt.fa"
+    output:
+        "simulations/numtS_n{fragn}_l{fraglen}_d{dam}_s1.fq",
+        "simulations/numtS_n{fragn}_l{fraglen}_d{dam}_s2.fq"
+    wildcard_constraints:
+        fraglen="\d+"
+    params:
+        out_prefix="simulations/numtS_n{fragn}_l{fraglen}_d{dam}_s"
+    shell:
+        "/home/ctools/gargammel/art_src_MountRainier_Linux/art_illumina -ss HS25 -amp -na -p -l 125 -c 1   -i {input} -o {params.out_prefix}"
+
+
+rule adptsimz_numtS:
+    input:
+        "simulations/numtS_n{fragn}_l{fraglen}_d{dam}_adpt.fa"
+    output:
+        "simulations/numtS_n{fragn}_l{fraglen}_d{dam}_adpt.fa.gz"
+    wildcard_constraints:
+        fraglen="\d+"
+    shell:
+        "gzip  {input}"
+
+
+rule artz1_numtS:
+    input:
+        "simulations/numtS_n{fragn}_l{fraglen}_d{dam}_s1.fq"
+    output:
+        "simulations/numtS_n{fragn}_l{fraglen}_d{dam}_s1.fq.gz"
+    wildcard_constraints:
+        fraglen="\d+"
+    shell:
+       "gzip {input}"
+
+rule artz2_numtS:
+    input:
+        "simulations/numtS_n{fragn}_l{fraglen}_d{dam}_s2.fq"
+    output:
+        "simulations/numtS_n{fragn}_l{fraglen}_d{dam}_s2.fq.gz"
+    wildcard_constraints:
+        fraglen="\d+"
+    shell:
+        "gzip {input}"
+
+
+rule trimmed_numtS:
+    input:
+        input_1="simulations/numtS_n{fragn}_l{fraglen}_d{dam}_s1.fq.gz",
+        input_2="simulations/numtS_n{fragn}_l{fraglen}_d{dam}_s2.fq.gz"
+    output:
+        output_1="simulations/numtS_n{fragn}_l{fraglen}_d{dam}_o.fq.gz",
+    	output_2="simulations/numtS_n{fragn}_l{fraglen}_d{dam}_o_r1.fq.gz",
+    	output_3="simulations/numtS_n{fragn}_l{fraglen}_d{dam}_o_r2.fq.gz"
+    params:
+        out_prefix="simulations/numtS_n{fragn}_l{fraglen}_d{dam}_o"
+    wildcard_constraints:
+        fraglen="\d+"
+    shell:
+        "/home/ctools/leeHom-1.2.15/src/leeHom --ancientdna -fq1 {input.input_1} -fq2 {input.input_2} -fqo {params.out_prefix}"
+
+
+rule subsamp_numtS:
+    input: "simulations/numtS_n{fragn}_l{fraglen}_d{dam}_o.fq.gz"
+    output: "simulations/numtS_n{fragn}_l{fraglen}_d{dam}_o_s{rate}.fq.gz"
+    wildcard_constraints:
+        fraglen="\d+"
+    shell: "/home/ctools/seqtk-1.3/seqtk sample -s 321 {input} {wildcards.rate} |gzip > {output}"
+
+rule subsamp_numtS_r1:
+    input: "simulations/numtS_n{fragn}_l{fraglen}_d{dam}_o_r1.fq.gz"
+    output: "simulations/numtS_n{fragn}_l{fraglen}_d{dam}_o_r1_s{rate}.fq.gz"
+    wildcard_constraints:
+        fraglen="\d+"
+    shell: "/home/ctools/seqtk-1.3/seqtk sample -s 321 {input} {wildcards.rate} |gzip > {output}"
+
+rule subsamp_numtS_r2:
+    input: "simulations/numtS_n{fragn}_l{fraglen}_d{dam}_o_r2.fq.gz"
+    output: "simulations/numtS_n{fragn}_l{fraglen}_d{dam}_o_r2_s{rate}.fq.gz"
+    wildcard_constraints:
+        fraglen="\d+"
+    shell: "/home/ctools/seqtk-1.3/seqtk sample -s 321 {input} {wildcards.rate} |gzip > {output}"
+
+rule concat_seqtk:
+    input:
+        input_1="simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_s{rate}.fq.gz",
+        input_2="simulations/numtS_n{nfrags}_l{fraglen}_d{dam}_o_s{rate}.fq.gz"
+    output: "simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_s{rate}.fq.gz"
+    wildcard_constraints:
+        fraglen="\d+"
+    shell: "cat {input.input_1} {input.input_2} > {output}"
+
+rule concat_seqtk_r1:
+    input:
+        input_1="simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r1_s{rate}.fq.gz",
+        input_2="simulations/numtS_n{nfrags}_l{fraglen}_d{dam}_o_r1_s{rate}.fq.gz"
+    output: "simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r1_s{rate}.fq.gz"
+    wildcard_constraints:
+        fraglen="\d+"
+    shell: "cat {input.input_1} {input.input_2} > {output}"
+
+rule concat_seqtk_r2:
+    input:
+        input_1="simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r2_s{rate}.fq.gz",
+        input_2="simulations/numtS_n{nfrags}_l{fraglen}_d{dam}_o_r2_s{rate}.fq.gz"
+    output: "simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r2_s{rate}.fq.gz"
+    wildcard_constraints:
+        fraglen="\d+"
+    shell: "cat {input.input_1} {input.input_2} > {output}"
+
+# mapping to the reference 
+
+#bwa mem
+rule bwa:
+    input:
+        input_1="simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_s{rate}.fq.gz",
+        input_2="simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r1_s{rate}.fq.gz",
+        input_3="simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r2_s{rate}.fq.gz"
+    output: "alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_mem.bam"
+    wildcard_constraints:
+        fraglen="\d+"
+    shell: "/home/ctools/interleave_fastq/interleavefastq.sh {input.input_1} {input.input_2} {input.input_3} | /home/ctools/bwa-0.7.17/bwa mem -p /home/projects/benchmarkmito/bwaindex/gen_0.fa  /dev/stdin | /home/ctools/samtools-1.13/samtools sort /dev/stdin > {output}" 
+
+
+#aln
+rule aln:
+    input:
+        input_1="simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_s{rate}.fq.gz",
+        input_2="simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r1_s{rate}.fq.gz",
+        input_3="simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r2_s{rate}.fq.gz"
+    output: "alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_aln.bam" 
+    shell: "cat <(/home/ctools/bwa-0.7.17/bwa aln /home/projects/benchmarkmito/bwaindex/gen_0.fa {input.input_1} | /home/ctools/bwa-0.7.17/bwa samse /home/projects/benchmarkmito/bwaindex/gen_0.fa /dev/stdin {input.input_1}) <(/home/ctools/bwa-0.7.17/bwa sampe /home/projects/benchmarkmito/bwaindex/gen_0.fa <(/home/ctools/bwa-0.7.17/bwa aln /home/projects/benchmarkmito/bwaindex/gen_0.fa {input.input_2}) <(/home/ctools/bwa-0.7.17/bwa aln /home/projects/benchmarkmito/bwaindex/gen_0.fa {input.input_3}) {input.input_2} {input.input_3}  | /home/ctools/samtools-1.13/samtools view -S /dev/stdin) | /home/ctools/samtools-1.13/samtools sort /dev/stdin > {output}"
+
+
+#aln_anc
+rule alnanc:
+    input:
+        input_1="simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_s{rate}.fq.gz",
+        input_2="simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r1_s{rate}.fq.gz",
+        input_3="simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r2_s{rate}.fq.gz"
+    output: "alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_aln_anc.bam"
+    shell: "cat <(/home/ctools/bwa-0.7.17/bwa aln -n 0.01 -o 2 -l 16500 /home/projects/benchmarkmito/bwaindex/gen_0.fa {input.input_1} | /home/ctools/bwa-0.7.17/bwa samse /home/projects/benchmarkmito/bwaindex/gen_0.fa /dev/stdin {input.input_1}) <(/home/ctools/bwa-0.7.17/bwa sampe /home/projects/benchmarkmito/bwaindex/gen_0.fa <(/home/ctools/bwa-0.7.17/bwa aln -n 0.01 -o 2 -l 16500 /home/projects/benchmarkmito/bwaindex/gen_0.fa {input.input_2}) <(/home/ctools/bwa-0.7.17/bwa aln -n 0.01 -o 2 -l 16500 /home/projects/benchmarkmito/bwaindex/gen_0.fa {input.input_3}) {input.input_2} {input.input_3} | /home/ctools/samtools-1.13/samtools view -S /dev/stdin) | /home/ctools/samtools-1.13/samtools sort /dev/stdin > {output}"
+
+##bowtie2
+rule bowtie2:
+    input: 
+        input_1="simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_s{rate}.fq.gz",
+        input_2="simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r1_s{rate}.fq.gz",
+        input_3="simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r2_s{rate}.fq.gz"
+    output: "alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_bowtie2.bam"
+    shell: "/home/ctools/interleave_fastq/interleavefastq.sh {input.input_1} {input.input_2} {input.input_3}  | /home/ctools/bowtie2-2.4.4/bowtie2 --end-to-end --sensitive -x /home/projects/benchmarkmito/bowtie2index/gen_0.fa --interleaved /dev/stdin | /home/ctools/samtools-1.13/samtools sort /dev/stdin > {output}"
+
+
+##SHRiMP
+rule SHRiMP:
+    input:
+        input_1="simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_s{rate}.fq.gz",
+        input_2="simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r1_s{rate}.fq.gz",
+        input_3="simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r2_s{rate}.fq.gz"
+    output: "alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_shrimp.bam"
+    shell: "cat <(/home/ctools/SHRiMP_2_2_2/bin/gmapper -N 1 -o 1 --single-best-mapping --sam-unaligned \
+            --fastq --sam --no-qv-check --qv-offset 33 {input.input_1} simulations/gen_0.fa) <(/home/ctools/SHRiMP_2_2_2/bin/gmapper -N 1 \
+            -o 1 --single-best-mapping --sam-unaligned --fastq --sam --no-qv-check --qv-offset 33 -1 {input.input_2} -2 {input.input_3} \
+            simulations/gen_0.fa | /home/ctools/samtools-1.13/samtools view -S /dev/stdin) | /home/ctools/samtools-1.13/samtools sort /dev/stdin > {output}"
+
+
+##safari
+rule safari:
+    input:
+        input_1="simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_s{rate}.fq.gz",
+        input_2="simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r1_s{rate}.fq.gz",
+        input_3="simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r2_s{rate}.fq.gz"
+    output: "alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_safari.bam"
+    shell: "touch {output} && /home/ctools/interleave_fastq/interleavefastq.sh {input.input_1} {input.input_2} {input.input_3} | \
+            /home/projects/MAAG/Magpie/Magpie/vgan_corrected/dep/vg/bin/vg giraffe \
+           -t 60 -f /dev/stdin \
+           -m  /home/projects/MAAG/Magpie/Magpie/vgan_corrected/share/vgan/hcfiles/graph.min \
+           -d /home/projects/MAAG/Magpie/Magpie/vgan_corrected/share/vgan/hcfiles/graph.dist \
+           -Z /home/projects/MAAG/Magpie/Magpie/vgan_corrected/share/vgan/hcfiles/graph.giraffe.gbz \
+           -q /home/projects/MAAG/Magpie/Magpie/vgan_corrected/share/vgan/hcfiles/graph.ry | \
+           /home/projects/MAAG/Magpie/Magpie/vgan_corrected/dep/vg/bin/vg surject -x /home/projects/MAAG/Magpie/Magpie/vgan_corrected/share/vgan/hcfiles/graph.og \
+           -t 60 -p H2a2a1 -b -M - \
+           > {output}"
+
+#vg mapping
+rule vgmapping:
+    input:
+        input_1="simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_s{rate}.fq.gz",
+        input_2="simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r1_s{rate}.fq.gz",
+        input_3="simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r2_s{rate}.fq.gz"
+    output: "alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_vg.bam"
+    shell: "/home/ctools/interleave_fastq/interleavefastq.sh {input.input_1} {input.input_2} {input.input_3} | /home/ctools/vg_1.33.0/vg map -i -f /dev/stdin -d /home/projects/benchmarkmito/vgindex/gen_0 | /home/ctools/vg_1.33.0/vg surject -x /home/projects/benchmarkmito/vgindex/gen_0.vg -b /dev/stdin | /home/ctools/samtools-1.13/samtools sort /dev/stdin > {output}"
+
+
+#bbmap
+rule bbmap:
+    input:
+        input_1="simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_s{rate}.fq.gz",
+        input_2="simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r1_s{rate}.fq.gz",
+        input_3="simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r2_s{rate}.fq.gz"
+    output: "alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_bb.bam" 
+    shell: "cat <(/home/ctools/bbmap_38_91/bbmap.sh qin=33 ref=simulations/gen_0.fa nodisk=t in={input.input_1} out=/dev/stdout) <(/home/ctools/bbmap_38_91/bbmap.sh qin=33 ref=simulations/gen_0.fa nodisk=t in={input.input_2} in2={input.input_3} out=/dev/stdout  | /home/ctools/samtools-1.13/samtools view -S /dev/stdin) | /home/ctools/samtools-1.13/samtools sort /dev/stdin > {output}"
+
+rule stat:
+    input: "alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}.bam"
+    output: "alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}.stat"
+    shell: "python parseBamMito.py  alignments/numtS_and_gen_0_n{wildcards.nfrags}_l{wildcards.fraglen}_d{wildcards.dam}_s{wildcards.rate}_{wildcards.align}.bam > alignments/numtS_and_gen_{wildcards.step}_n{wildcards.nfrags}_l{wildcards.fraglen}_d{wildcards.dam}_s{wildcards.rate}_{wildcards.align}.stat"
+
+rule mpileup:
+    input: "alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}.bam"
+    output: "consensus/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}_mpileup.fa.gz"
+    params:
+        out_prefix="consensus/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}_mpileup.fa.gz"
+    shell: "/home/ctools/bcftools-1.13/bcftools mpileup -Ou -f  simulations/gen_0.fa {input} |/home/ctools/bcftools-1.13/bcftools call -c --ploidy 1 |bgzip -c > {params.out_prefix}.vcf.gz && /home/ctools/bcftools-1.13/bcftools index {params.out_prefix}.vcf.gz  && cat simulations/gen_0.fa | /home/ctools/bcftools-1.13/bcftools consensus -M N -a N {params.out_prefix}.vcf.gz |gzip > {output}"#-M N -a N means add Ns to missing sites
+
+#rule ec_nodam:
+#    input: "alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}.bam"
+#    output: "consensus/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}_ec_nodam.fa.gz"
+#    params:
+#        out_prefix="consensus/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}_ec_nodam.fa.gz"
+#    shell: "/home/ctools/schmutzi-1.5.6/src/endoCaller  -log /dev/null simulations/gen_0.fa {input}  | gzip > {output}"
+
+#rule ec_dam:
+#    input: "alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}.bam"
+#    output: "consensus/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}_ec_dam.fa.gz"
+#    params:
+#        out_prefix="consensus/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}_ec_dam.fa.gz"
+#        out_prefix="consensus/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}_ec_dam.fa.gz"
+#    shell: "/home/ctools/schmutzi-1.5.6/src/endoCaller  -log /dev/null simulations/gen_0.fa {input}  | gzip > {output}"
+
+#rule angsd:
+#    input: "alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}.bam"
+#    output: "consensus/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}_angsd.fa.gz"
+#    params:
+#        out_prefix="consensus/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}_angsd"
+#    shell: "/home/ctools/angsd-0.935/angsd -doFasta 2 -doCounts 1  -i {input} -out {params.out_prefix}"
+
+#rule aligncons:
+#    input:
+#        input_1="simulations/gen_{step}.fa",
+#        input_2="consensus/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}_{cons}.fa.gz"	
+#    output: "consensus/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}_{cons}.fa.nw"
+#    shell: "/home/ctools/EMBOSS-6.6.0/emboss/needle -gapopen 10.0 -gapextend 0.5 -outfile {output} -asequence {input.input_1} -bsequence <(zcat {input.input_2})"
+
+rule bamindex:
+    input: "alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}.bam"
+    output: "alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}.bam.bai"
+    shell: "/home/ctools/samtools-1.13/samtools index {input}  {output}"
+
+
+#rule mpileup:
+#    input: "alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}.bam"
+#    output: "consensus/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}_{cons}.fa.gz"
+#    params:
+#        out_prefix="consensus/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}_{cons}"
+#    shell: "/home/ctools/bcftools-1.13/bcftools mpileup -Ou -f  simulations/gen_0.fa {input} |/home/ctools/bcftools-1.13/bcftools call -c --ploidy 1 |bgzip -c > {params.out_prefix}.vcf.gz && /home/ctools/bcftools-1.13/bcftools index {params.out_prefix}.vcf.gz  && cat simulations/gen_0.fa | /home/ctools/bcftools-1.13/bcftools consensus -M N -a N {params.out_prefix}.vcf.gz |gzip > {output}"#-M N -a N means add Ns to missing sites
