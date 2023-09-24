@@ -30,11 +30,12 @@ def compute_proportion(directory):
     for file in files:
         file_path = os.path.join(directory, file)
         stats = parse_stat_file(file_path)
+        total = int(stats['Total'])
         correct_map = int(stats['correctmap'])
         mapped = int(stats['mapped'])
         aligner_name = get_aligner_name(file)
         # Compute the proportions for this file
-        proportion_correct = correct_map / 10000
+        proportion_correct = correct_map / 1000
         proportion_incorrect = 0 if mapped == 0 else (mapped - correct_map) / mapped
         # Aggregate the proportions and count of files by aligner
         aligner_proportion_correct_sum[aligner_name] += proportion_correct
