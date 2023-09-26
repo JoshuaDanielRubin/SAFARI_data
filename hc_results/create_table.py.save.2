@@ -1,0 +1,298 @@
+import os
+import pandas as pd
+from collections import Counter
+
+# Specify the directory containing your log files
+log_dir = "."
+
+def extract_info_from_filename(filename):
+    """Extract sample name, subsampling rate, correction status, and replicate number from the filename."""
+    sample_name = filename.split('.')[0]
+
+    subsampling_rate = next((segment.split('x')[0] for segment in filename.split('_') if 'x' in segment), None)
+    correction_status = filename.split('.')[-3] if "replicate" in filename else filename.split('.')[-2]
+    replicate = next((segment.split('_')[-1] for segment in filename.split('.') if 'replicate' in segment), None)
+    
+    return sample_name, float(subsampling_rate), correction_status, int(replicate) if replicate else None
+
+def extract_info_from_file(filepath):
+    """Extract the haplogroup and number of reads from the file content."""
+    with open(filepath, 'r') as file:
+        lines = file.readlines()
+        for line in lines:
+            if line.startswith('stdin'):
+                parts = line.strip().split()
+                haplogroup = parts[1]
+                reads = int(parts[2])
+                return haplogroup, reads
+    return None, None
+
+# Create a dictionary mapping sample names to combined predictions
+full_coverage_predictions = {
+    "DA100": "C4b1/C4b1",
+    "DA101": "U5a1b1e/U5a1b1e",
+    "DA171": "H2a1/H2a1",
+    # ... (other sample names and their predictions)
+}
+
+data = []
+
+# Iterate through all log files in the specified directory
+for filename in os.listdir(log_dir):
+    if filename.endswith('.log'):
+        sample_name, subsampling_rate, correction_status, replicate = extract_info_from_filename(filename)
+        filepath = os.path.join(log_dir, filename)
+        haplogroup, reads = extract_info_from_file(filepath)
+
+        data.append({
+            'Sample Name': sample_name,
+            'Subsampling Rate': subsampling_rate,
+            'Correction Status': correction_status,
+            'Replicate': replicate,
+            'Haplogroup': haplogroup,
+            'Reads': reads,
+            'Full Coverage Prediction': full_coverage_predictions.get(sample_name, "N/A")
+        })
+
+# Create a DataFrame from the data
+df = pd.DataFrame(data)
+
+# Aggregate haplogroup by taking the most common prediction across replicates
+agg_funcs = {
+    'Haplogroup': lambda x: f"{Counter(x).most_common(1)[0][0]} ({Counter(x).most_common(1)[0][1]})",
+    'Reads': 'sum'
+}
+import os
+import pandas as pd
+from collections import Counter
+
+# Specify the directory containing your log files
+log_dir = "."
+
+def extract_info_from_filename(filename):
+    """Extract sample name, subsampling rate, correction status, and replicate number from the filename."""
+    sample_name = filename.split('.')[0]
+
+    subsampling_rate = next((segment.split('x')[0] for segment in filename.split('_') if 'x' in segment), None)
+    correction_status = filename.split('.')[-3] if "replicate" in filename else filename.split('.')[-2]
+    replicate = next((segment.split('_')[-1] for segment in filename.split('.') if 'replicate' in segment), None)
+    
+    return sample_name, float(subsampling_rate), correction_status, int(replicate) if replicate else None
+
+def extract_info_from_file(filepath):
+    """Extract the haplogroup and number of reads from the file content."""
+    with open(filepath, 'r') as file:
+        lines = file.readlines()
+        for line in lines:
+            if line.startswith('stdin'):
+                parts = line.strip().split()
+                haplogroup = parts[1]
+                reads = int(parts[2])
+                return haplogroup, reads
+    return None, None
+
+# Create a dictionary mapping sample names to combined predictions
+full_coverage_predictions = {
+    "DA100": "C4b1/C4b1",
+    "DA101": "U5a1b1e/U5a1b1e",
+    "DA171": "H2a1/H2a1",
+    # ... (other sample names and their predictions)
+}
+
+data = []
+
+# Iterate through all log files in the specified directory
+for filename in os.listdir(log_dir):
+    if filename.endswith('.log'):
+        sample_name, subsampling_rate, correction_status, replicate = extract_info_from_filename(filename)
+        filepath = os.path.join(log_dir, filename)
+        haplogroup, reads = extract_info_from_file(filepath)
+
+        data.append({
+            'Sample Name': sample_name,
+            'Subsampling Rate': subsampling_rate,
+            'Correction Status': correction_status,
+            'Replicate': replicate,
+            'Haplogroup': haplogroup,
+            'Reads': reads,
+            'Full Coverage Prediction': full_coverage_predictions.get(sample_name, "N/A")
+        })
+
+# Create a DataFrame from the data
+df = pd.DataFrame(data)
+
+# Aggregate haplogroup by taking the most common prediction across replicates
+agg_funcs = {
+    'Haplogroup': lambda x: f"{Counter(x).most_common(1)[0][0]} ({Counter(x).most_common(1)[0][1]})",
+    'Reads': 'sum'
+}
+
+# Pivot the table to have separate columns for corrected and uncorrected data
+pivot_df = df.groupby(['Sample Name', 'Subsampling Rate', 'Correction Status', 'Full Coverage Prediction']).agg(agg_funcs).reset_index()
+pivot_df = pivot_df.pivot_table(index=['Sample Name', 'Subsampling Rate', 'Full Coverage Prediction'], columns='Correction Status',
+                                values=['Haplogroup', 'Reads'], aggfunc='first')
+
+# Flatten the MultiIndex to have single level columns
+pivot_df.columns = ['_'.join(col).strip() for col in pivot_df.columns.values]
+
+# Reset the index to bring Sample Name and Subsampling Rate back as columns
+pivot_df.reset_index(inplace=True)
+
+# Adding 'X' to Subsampling Rate values
+pivot_df['Subsampling Rate'] = pivot_df['Subsampling Rate'].astype(str) + 'X'
+
+# Renaming columns to shorter names
+pivot_df.rename(columns={
+    'Haplogroup_corrected': 'HG_corrected',
+    'Haplogroup_uncorrected': 'HG_uncorrected',
+    'Reads_corrected': '# Reads_corrected',
+    'Reads_uncorrected': '# Reads_uncorrected',
+    'Subsampling Rate': 'Rate',
+    'Full Coverage Prediction': 'Full_Coverage_Prediction'
+}, inplace=True)
+
+# Sort the DataFrame by subsampling rate
+pivot_df = pivot_df.sort_values(by='Rate')
+
+# Save the DataFrame to a LaTeX file
+with open('table.txt', 'w') as f:
+    latex_string = pivot_df.to_latex(index=False, na_rep='N/A', longtable=True)
+    latex_string += '\n\\caption{This is the caption for the table.}'
+    f.write(latex_string)
+
+print("Data aggregation complete. The data has been saved to 'table.txt'.")
+
+# Pivot the table to have separate columns for corrected and uncorrected data
+pivot_df = df.groupby(['Sample Name', 'Subsampling Rate', 'Correction Status', 'Full Coverage Prediction']).agg(agg_funcs).reset_index()
+pivot_df = pivot_df.pivot_table(index=['Sample Name', 'Subsampling Rate', 'Full Coverage Prediction'], columns='Correction Status',
+                                values=['Haplogroup', 'Reads'], aggfunc='first')
+
+# Flatten the MultiIndex to have single level columns
+pivot_df.columns = ['_'.join(col).strip() for col in pivot_df.columns.values]
+
+# Reset the index to bring Sample Name and Subsampling Rate back as columns
+pivot_df.reset_index(inplace=True)
+
+# Adding 'X' to Subsampling Rate values
+pivot_df['Subsampling Rate'] = pivot_df['Subsampling Rate'].astype(str) + 'X'
+
+# Renaming columns to shorter names
+pivot_df.rename(columns={
+    'Haplogroup_corrected': 'HG_corrected',
+    'Haplogroup_uncorrected': 'HG_uncorrected',
+    'Reads_corrected': '# Reads_corrected',
+    'Reads_uncorrected': '# Reads_uncorrected',
+    'Subsampling Rate': 'Rate',
+    'Full Coverage Prediction': 'Full_Coverage_Prediction'
+}, inplace=True)
+
+# Sort the DataFrame by subsampling rate
+pivot_df = pivot_df.sort_values(by='Rate')
+
+# Save the DataFrame to a LaTeX file
+with open('table.txt', 'w') as f:
+    latex_string = pivot_df.to_latex(index=False, na_rep='N/A', longtable=True)
+    latex_string += '\n\\caption{This is the caption for the table.}'
+    f.write(latex_string)
+
+print("Data aggregation complete. The data has been saved to 'table.txt'.")
+import os
+import pandas as pd
+from collections import Counter
+
+# Specify the directory containing your log files
+log_dir = "."
+
+def extract_info_from_filename(filename):
+    """Extract sample name, subsampling rate, correction status, and replicate number from the filename."""
+    sample_name = filename.split('.')[0]
+
+    subsampling_rate = next((segment.split('x')[0] for segment in filename.split('_') if 'x' in segment), None)
+    correction_status = filename.split('.')[-3] if "replicate" in filename else filename.split('.')[-2]
+    replicate = next((segment.split('_')[-1] for segment in filename.split('.') if 'replicate' in segment), None)
+    
+    return sample_name, float(subsampling_rate), correction_status, int(replicate) if replicate else None
+
+def extract_info_from_file(filepath):
+    """Extract the haplogroup and number of reads from the file content."""
+    with open(filepath, 'r') as file:
+        lines = file.readlines()
+        for line in lines:
+            if line.startswith('stdin'):
+                parts = line.strip().split()
+                haplogroup = parts[1]
+                reads = int(parts[2])
+                return haplogroup, reads
+    return None, None
+
+# Create a dictionary mapping sample names to combined predictions
+full_coverage_predictions = {
+    "DA100": "C4b1/C4b1",
+    "DA101": "U5a1b1e/U5a1b1e",
+    "DA171": "H2a1/H2a1",
+    # ... (other sample names and their predictions)
+}
+
+data = []
+
+# Iterate through all log files in the specified directory
+for filename in os.listdir(log_dir):
+    if filename.endswith('.log'):
+        sample_name, subsampling_rate, correction_status, replicate = extract_info_from_filename(filename)
+        filepath = os.path.join(log_dir, filename)
+        haplogroup, reads = extract_info_from_file(filepath)
+
+        data.append({
+            'Sample Name': sample_name,
+            'Subsampling Rate': subsampling_rate,
+            'Correction Status': correction_status,
+            'Replicate': replicate,
+            'Haplogroup': haplogroup,
+            'Reads': reads,
+            'Full Coverage Prediction': full_coverage_predictions.get(sample_name, "N/A")
+        })
+
+# Create a DataFrame from the data
+df = pd.DataFrame(data)
+
+# Aggregate haplogroup by taking the most common prediction across replicates
+agg_funcs = {
+    'Haplogroup': lambda x: f"{Counter(x).most_common(1)[0][0]} ({Counter(x).most_common(1)[0][1]})",
+    'Reads': 'sum'
+}
+
+# Pivot the table to have separate columns for corrected and uncorrected data
+pivot_df = df.groupby(['Sample Name', 'Subsampling Rate', 'Correction Status', 'Full Coverage Prediction']).agg(agg_funcs).reset_index()
+pivot_df = pivot_df.pivot_table(index=['Sample Name', 'Subsampling Rate', 'Full Coverage Prediction'], columns='Correction Status',
+                                values=['Haplogroup', 'Reads'], aggfunc='first')
+
+# Flatten the MultiIndex to have single level columns
+pivot_df.columns = ['_'.join(col).strip() for col in pivot_df.columns.values]
+
+# Reset the index to bring Sample Name and Subsampling Rate back as columns
+pivot_df.reset_index(inplace=True)
+
+# Adding 'X' to Subsampling Rate values
+pivot_df['Subsampling Rate'] = pivot_df['Subsampling Rate'].astype(str) + 'X'
+
+# Renaming columns to shorter names
+pivot_df.rename(columns={
+    'Haplogroup_corrected': 'HG_corrected',
+    'Haplogroup_uncorrected': 'HG_uncorrected',
+    'Reads_corrected': '# Reads_corrected',
+    'Reads_uncorrected': '# Reads_uncorrected',
+    'Subsampling Rate': 'Rate',
+    'Full Coverage Prediction': 'Full_Coverage_Prediction'
+}, inplace=True)
+
+# Sort the DataFrame by subsampling rate
+pivot_df = pivot_df.sort_values(by='Rate')
+
+# Save the DataFrame to a LaTeX file
+with open('table.txt', 'w') as f:
+    latex_string = pivot_df.to_latex(index=False, na_rep='N/A', longtable=True)
+    latex_string += '\n\\caption{This is the caption for the table.}'
+    f.write(latex_string)
+
+print("Data aggregation complete. The data has been saved to 'table.txt'.")
+

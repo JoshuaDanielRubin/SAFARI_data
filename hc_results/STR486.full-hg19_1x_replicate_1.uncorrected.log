@@ -7,14 +7,14 @@ Predicting sample: stdin
 Using 1 threads
 Processing sample 1 of 1
 Mapping reads...
-Reading GAM file XQ7tz8C
+Reading GAM file OY5B41X
 Reads mapped
-Done reading GAM file /tmp/XQ7tz8C
-Found 164 reads.
+Done reading GAM file /tmp/OY5B41X
+Found 151 reads.
 Removing PCR duplicates ...
 PCR duplicates removed.
-Computing haplogroup likelihoods from 163 reads.
+Computing haplogroup likelihoods from 150 reads.
 
 
 #sample	predicted haplogroup	reads
-stdin	T2b33	163
+stdin	T2b	150

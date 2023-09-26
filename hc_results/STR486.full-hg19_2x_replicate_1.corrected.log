@@ -10,14 +10,14 @@ Mapping reads...
 Guessing that /home/projects/MAAG/Magpie/Magpie/vgan_uncorrected/share/vgan/hcfiles/graph.gg is GBWTGraph
 Guessing that /home/projects/MAAG/Magpie/Magpie/vgan_uncorrected/share/vgan/hcfiles/graph.xg is XG
 Guessing that /home/projects/MAAG/Magpie/Magpie/vgan_uncorrected/share/vgan/hcfiles/graph.gbwt is Giraffe GBWT
-Reading GAM file Pw1IRjD
+Reading GAM file CWjs8kU
 Reads mapped
-Done reading GAM file /tmp/Pw1IRjD
-Found 712 reads.
+Done reading GAM file /tmp/CWjs8kU
+Found 380 reads.
 Removing PCR duplicates ...
 PCR duplicates removed.
-Computing haplogroup likelihoods from 656 reads.
+Computing haplogroup likelihoods from 371 reads.
 
 
 #sample	predicted haplogroup	reads
-stdin	T	656
+stdin	T2b	371

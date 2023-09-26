@@ -10,15 +10,14 @@ Mapping reads...
 Guessing that /home/projects/MAAG/Magpie/Magpie/vgan_uncorrected/share/vgan/hcfiles/graph.gg is GBWTGraph
 Guessing that /home/projects/MAAG/Magpie/Magpie/vgan_uncorrected/share/vgan/hcfiles/graph.xg is XG
 Guessing that /home/projects/MAAG/Magpie/Magpie/vgan_uncorrected/share/vgan/hcfiles/graph.gbwt is Giraffe GBWT
-Reading GAM file Gy0oYzc
-warning[vg::giraffe]: Refusing to perform too-large tail alignment of 94 bp against 53009 bp tree which would use more than 1572864 cells and might exhaust Dozeu's allocator; suppressing further warnings.
+Reading GAM file 7ZpUNa7
 Reads mapped
-Done reading GAM file /tmp/Gy0oYzc
-Found 726 reads.
+Done reading GAM file /tmp/7ZpUNa7
+Found 344 reads.
 Removing PCR duplicates ...
 PCR duplicates removed.
-Computing haplogroup likelihoods from 638 reads.
+Computing haplogroup likelihoods from 342 reads.
 
 
 #sample	predicted haplogroup	reads
-stdin	U8c	638
+stdin	J1c3g	342
