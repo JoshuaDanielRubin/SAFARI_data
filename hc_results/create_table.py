@@ -1,16 +1,21 @@
 import os
 import pandas as pd
+import re  # Added for extracting replicate numbers
 
 # Specify the directory containing your log files
 log_dir = "."
 
 def extract_info_from_filename(filename):
-    """Extract sample name, subsampling rate, and correction status from the filename."""
+    """Extract sample name, subsampling rate, correction status, and replicate number from the filename."""
     sample_name = filename.split('.')[0]
-
     subsampling_rate = next((segment.split('x')[0] for segment in filename.split('_') if 'x' in segment), None)
     correction_status = filename.split('.')[-2]
-    return sample_name, float(subsampling_rate), correction_status
+
+    # Extracting replicate number using regex
+    replicate_match = re.search(r'_(\d+)x', filename)
+    replicate_number = replicate_match.group(1) if replicate_match else "1"
+    
+    return sample_name, float(subsampling_rate), correction_status, replicate_number
 
 def extract_info_from_file(filepath):
     """Extract the haplogroup and number of reads from the file content."""
@@ -53,7 +58,7 @@ data = []
 # Iterate through all log files in the specified directory
 for filename in os.listdir(log_dir):
     if filename.endswith('.log'):
-        sample_name, subsampling_rate, correction_status = extract_info_from_filename(filename)
+        sample_name, subsampling_rate, correction_status, replicate_number = extract_info_from_filename(filename)
         filepath = os.path.join(log_dir, filename)
         haplogroup, reads = extract_info_from_file(filepath)
 
@@ -63,6 +68,7 @@ for filename in os.listdir(log_dir):
             'Correction Status': correction_status,
             'Haplogroup': haplogroup,
             'Reads': reads,
+            'Replicate': replicate_number,
             'Full Coverage Prediction': full_coverage_predictions.get(sample_name, "N/A")
         })
 
@@ -70,12 +76,13 @@ for filename in os.listdir(log_dir):
 df = pd.DataFrame(data)
 
 # Pivot the table to have separate columns for corrected and uncorrected data
-pivot_df = df.pivot_table(index=['Sample Name', 'Subsampling Rate', 'Full Coverage Prediction'], columns='Correction Status', values=['Haplogroup', 'Reads'], aggfunc='first')
+pivot_df = df.pivot_table(index=['Sample Name', 'Subsampling Rate', 'Full Coverage Prediction', 'Replicate'], columns='Correction Status',
+                          values=['Haplogroup', 'Reads'], aggfunc='first')
 
-# Flatten the MultiIndex to have single level columns
+# Flatten the MultiIndex to have single-level columns
 pivot_df.columns = ['_'.join(col).strip() for col in pivot_df.columns.values]
 
-# Reset the index to bring Sample Name and Subsampling Rate back as columns
+# Reset the index to bring Sample Name, Subsampling Rate, and Replicate back as columns
 pivot_df.reset_index(inplace=True)
 
 # Adding 'X' to Subsampling Rate values
@@ -92,7 +99,7 @@ pivot_df.rename(columns={
 }, inplace=True)
 
 # Sort the DataFrame by subsampling rate
-pivot_df = pivot_df.sort_values(by='Rate')
+pivot_df = pivot_df.sort_values(by=['Rate', 'Sample Name', 'Replicate'])
 
 # Save the DataFrame to a LaTeX file
 with open('table.txt', 'w') as f:
