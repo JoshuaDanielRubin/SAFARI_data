@@ -57,7 +57,7 @@ for i, rate in enumerate(unique_sampling_rates):
     title = (
         f'Sampling Rate {rate}:\n'
         'Percentage Difference in Number of Mappable Reads Correctly Mapped\n'
-        '(Comparing Safari to Other Tools)'
+        '(Comparing SAFARI to Other Tools)'
     )
     axs[i].set_title(title.format(rate=rate))
     axs[i].set_ylabel('Percentage Difference')
@@ -94,7 +94,7 @@ for i, rate in enumerate(unique_sampling_rates):
     title = (
         f'Sampling Rate {rate}:\n'
         'Percentage Difference in Number of Mappable Reads Incorrectly Mapped\n'
-        '(Comparing Safari to Other Tools)'
+        '(Comparing SAFARI to Other Tools)'
     )
     axs[i].set_title(title.format(rate=rate))
     axs[i].set_ylabel('Percentage Difference')
