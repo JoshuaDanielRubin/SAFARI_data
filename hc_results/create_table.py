@@ -7,12 +7,16 @@ log_dir = "."
 
 def extract_info_from_filename(filename):
     """Extract sample name, subsampling rate, correction status, and replicate number from the filename."""
-    sample_name = filename.split('.')[0]
+    
+    # Extracting sample name using regex
+    sample_name_match = re.search(r'^(.*?)_', filename)
+    sample_name = sample_name_match.group(1).split(".")[0] if sample_name_match else filename.split('.')[0]
+    
     subsampling_rate = next((segment.split('x')[0] for segment in filename.split('_') if 'x' in segment), None)
     correction_status = filename.split('.')[-2]
-
+    
     # Extracting replicate number using regex
-    replicate_match = re.search(r'replicate_(\d+)', filename)
+    replicate_match = re.search(r'_replicate_(\d+)', filename)
     replicate_number = replicate_match.group(1) if replicate_match else "1"
     
     return sample_name, float(subsampling_rate), correction_status, replicate_number
