@@ -1,0 +1,329 @@
+import itertools
+import numpy as np
+sys.setrecursionlimit(10000)
+
+CONTt= ["Virus", "Archaea" , "Bacteria" , "Plants", "Fungi"]
+FRAG=[4000, 80000, 800000, 12014, 60000]
+CONT=list(np.repeat(CONTt, 3))
+FRAG=list(np.repeat(FRAG, 3))
+#MITO = ["Sciuridae", "Muridae", "Ursidae", "Bovidae"]
+MITO=["Ursidae", "Sciuridae", "Falconiformes"]
+MITO = list(np.repeat(MITO, 3))
+FRAG2=[2000, 2000, 2000]
+FRAG2 = list(np.repeat(FRAG2, 3))
+NUCL = ["ARS-UI_Ramb", "capHirARS1", "bFalRus1", "dendPon2"]
+NUCL = list(np.repeat(NUCL, 3))
+FRAG3 = [25000, 25000, 25000, 518000]
+FRAG3=list(np.repeat(FRAG3, 3))
+
+DAM = ["dhigh"]
+DAMAGE = list(itertools.repeat(DAM,5))
+DAMAGE = [item for sublist in DAMAGE for item in sublist]
+DAMAG2 = list(itertools.repeat(DAM,12))
+DAMAGE2 = [item for sublist in DAMAG2 for item in sublist]
+DAMAG3 = list(itertools.repeat(DAM,14))
+DAMAGE3 = [item for sublist in DAMAG3 for item in sublist]
+
+ruleorder: fragsim_c > deamsim_c > adptsim_c > art_c > zip_up1_c > zip_up2_c > zip_up3_c > trim_reads_c
+ruleorder: fragsim_m > deamsim_m > adptsim_m > art_m > zip_up_m > zip_up2_m > zip_up3_m > trim_reads_m
+ruleorder: fragsim_n > deamsim_n > adptsim_n > art_n > zip_up_n > zip_up2_n > zip_up3_n > trim_reads_n
+
+rule all: 
+	input:
+		expand("bact/{cont}_{frag}_{dam}_fin.fq.gz", zip, cont=CONT, frag=FRAG, dam=DAMAGE),
+		expand("endo/Mito_{mito}_{frag2}_{dam2}_fin.fq.gz", zip, mito=MITO, frag2=FRAG2, dam2=DAMAGE2),
+		expand("endo/Nuc_{nucl}_{frag3}_{dam3}_fin.fq.gz", zip, nucl=NUCL, frag3=FRAG3, dam3=DAMAGE3),
+		expand("env_cave_{dam}.fq.gz", dam=DAMAGE)
+
+	
+rule fragsim_c: 
+	input:
+		input_1="bact/{cont}_seqs.fa.gz",
+		input_2="bact/{cont}_seqs.fa.gz.fai"
+	output:
+		"bact/{cont}_{frag}_fr.fa.gz"
+	wildcard_constraints:
+		frag="\d+"
+	shell:
+		"/home/ctools/gargammel/src/fragSim -n {wildcards.frag} --loc 3.7344 --scale 0.35 -tag _{wildcards.cont} {input.input_1} | gzip > {output}"
+
+
+rule deamsim_c:
+	input:
+		"bact/{cont}_{frag}_fr.fa.gz"
+	output:
+		"bact/{cont}_{frag}_{dam}.fa.gz"
+	wildcard_constraints:
+		frag="\d+"
+	shell:
+		"/home/ctools/gargammel/src/deamSim -matfile {wildcards.dam} {input} | gzip > {output}"
+
+rule adptsim_c:
+	input:
+		"bact/{cont}_{frag}_{dam}.fa.gz"
+	output:
+		"bact/{cont}_{frag}_{dam}_adp.fa"
+	wildcard_constraints:
+		frag="\d+"
+	shell:
+		"/home/ctools/gargammel/src/adptSim -l 140 -artp {output} {input}"
+
+rule art_c:
+	input:
+		"bact/{cont}_{frag}_{dam}_adp.fa"
+	output:
+		"bact/{cont}_{frag}_{dam}_s1.fq",
+		"bact/{cont}_{frag}_{dam}_s2.fq"
+	wildcard_constraints:
+		frag="\d+"
+	params:
+		out_prefix="bact/{cont}_{frag}_{dam}_s"
+	shell:
+		"/home/ctools/gargammel/art_src_MountRainier_Linux/art_illumina -ss HS25 -amp -na -p -l 140 -c 1 -i {input} -o {params.out_prefix}"
+
+rule zip_up1_c:
+	input:
+		"bact/{cont}_{frag}_{dam}_adp.fa"
+	output:
+		"bact/{cont}_{frag}_{dam}_adp.fa.gz"
+	wildcard_constraints:
+		frag="\d+"
+	shell:
+		"gzip {input}"
+
+rule zip_up2_c:
+	input:
+		"bact/{cont}_{frag}_{dam}_s1.fq"
+	output:
+		"bact/{cont}_{frag}_{dam}_s1.fq.gz"
+	wildcard_constraints:
+		frag="\d+"
+	shell:
+		"gzip {input}"
+
+rule zip_up3_c:
+	input:
+		"bact/{cont}_{frag}_{dam}_s2.fq"
+	output:
+		"bact/{cont}_{frag}_{dam}_s2.fq.gz"
+	wildcard_constraints:
+		frag="\d+"
+	shell:
+		"gzip {input}"
+
+
+rule trim_reads_c:
+	input:
+		input_1="bact/{cont}_{frag}_{dam}_s1.fq.gz",
+		input_2="bact/{cont}_{frag}_{dam}_s2.fq.gz"
+	output:
+		output_1="bact/{cont}_{frag}_{dam}_fin.fq.gz",
+		output_2="bact/{cont}_{frag}_{dam}_fin_r1.fq.gz",
+		output_3="bact/{cont}_{frag}_{dam}_fin_r2.fq.gz"
+	wildcard_constraints:
+		frag="\d+"
+	params:
+		prefix="bact/{cont}_{frag}_{dam}_fin"
+	shell:
+		"/home/ctools/leeHom-1.2.15/src/leeHom --ancientdna -fq1 {input.input_1} -fq2 {input.input_2} -fqo {params.prefix}"
+
+
+
+	
+rule fragsim_m: 
+	input:
+		input_1="endo/Mito_{mito}.fa.gz",
+		input_2="endo/Mito_{mito}.fa.gz.fai"
+	output:
+		"endo/Mito_{mito}_{frag2}_fr.fa.gz"
+	wildcard_constraints:
+		frag2="\d+"
+	shell:
+		"/home/ctools/gargammel/src/fragSim -n {wildcards.frag2} --loc 3.7344 --scale 0.35 -tag _Mito {input.input_1} | gzip > {output}"
+
+
+rule deamsim_m:
+	input:
+		"endo/Mito_{mito}_{frag2}_fr.fa.gz"
+	output:
+		"endo/Mito_{mito}_{frag2}_dam_{dam2}.fa.gz"
+	wildcard_constraints:
+		frag2="\d+"
+	shell:
+		"/home/ctools/gargammel/src/deamSim -matfile {wildcards.dam2} {input} | gzip > {output}"
+
+rule adptsim_m:
+	input:
+		"endo/Mito_{mito}_{frag2}_dam_{dam2}.fa.gz"
+	output:
+		"endo/Mito_{mito}_{frag2}_dam_{dam2}_adpt.fa"
+	wildcard_constraints:
+		frag2="\d+"
+	shell:
+		"/home/ctools/gargammel/src/adptSim -l 140 -artp {output} {input}"
+
+rule art_m:
+	input:
+		"endo/Mito_{mito}_{frag2}_dam_{dam2}_adpt.fa"
+	output:
+		"endo/Mito_{mito}_{frag2}_dam_{dam2}_s1.fq",
+		"endo/Mito_{mito}_{frag2}_dam_{dam2}_s2.fq"
+	wildcard_constraints:
+		frag2="\d+"
+	params:
+		out_prefix="endo/Mito_{mito}_{frag2}_dam_{dam2}_s"
+	shell:
+		"/home/ctools/gargammel/art_src_MountRainier_Linux/art_illumina -ss HS25 -amp -na -p -l 140 -c 1 -i {input} -o {params.out_prefix}"
+
+
+rule zip_up_m:
+	input:
+		"endo/Mito_{mito}_{frag2}_dam_{dam2}_adpt.fa"
+	output:
+		"endo/Mito_{mito}_{frag2}_dam_{dam2}_adpt.fa.gz"
+	wildcard_constraints:
+		frag2="\d+"
+	shell:
+		"gzip {input}"
+
+rule zip_up2_m:
+	input:
+		"endo/Mito_{mito}_{frag2}_dam_{dam2}_s1.fq"
+	output:
+		"endo/Mito_{mito}_{frag2}_dam_{dam2}_s1.fq.gz"
+	wildcard_constraints:
+		frag2="\d+"
+	shell:
+		"gzip {input}"
+
+rule zip_up3_m:
+	input:
+		"endo/Mito_{mito}_{frag2}_dam_{dam2}_s2.fq"
+	output:
+		"endo/Mito_{mito}_{frag2}_dam_{dam2}_s2.fq.gz"
+	wildcard_constraints:
+		frag2="\d+"
+	shell:
+		"gzip {input}"
+
+
+rule trim_reads_m:
+	input:
+		input_1="endo/Mito_{mito}_{frag2}_dam_{dam2}_s1.fq.gz",
+		input_2="endo/Mito_{mito}_{frag2}_dam_{dam2}_s2.fq.gz"
+	output:
+		output_1="endo/Mito_{mito}_{frag2}_{dam2}_fin.fq.gz",
+		output_2="endo/Mito_{mito}_{frag2}_{dam2}_fin_r1.fq.gz",
+		output_3="endo/Mito_{mito}_{frag2}_{dam2}_fin_r2.fq.gz"
+	wildcard_constraints:
+		frag2="\d+"
+	params:
+		out_prefix="endo/Mito_{mito}_{frag2}_{dam2}_fin"
+	shell:
+		"/home/ctools/leeHom-1.2.15/src/leeHom --ancientdna -fq1 {input.input_1} -fq2 {input.input_2} -fqo {params.out_prefix}"
+
+
+
+	
+rule fragsim_n: 
+	input:
+		input_1="endo/{nucl}.fa.gz",
+		input_2="endo/{nucl}.fa.gz.fai"
+	output:
+		"endo/Nuc_{nucl}_{frag3}_fra.fa.gz"
+	wildcard_constraints:
+		frag3="\d+"
+	shell:
+		"/home/ctools/gargammel/src/fragSim -n {wildcards.frag3} --loc 3.7344 --scale 0.35 -tag _Nuc {input.input_1} | gzip > {output}"
+
+
+rule deamsim_n:
+	input:
+		"endo/Nuc_{nucl}_{frag3}_fra.fa.gz"
+	output:
+		"endo/Nuc_{nucl}_{frag3}_dam_{dam3}.fa.gz"
+	wildcard_constraints:
+		frag3="\d+"
+	shell:
+		"/home/ctools/gargammel/src/deamSim -matfile {wildcards.dam3} {input} | gzip > {output}"
+
+rule adptsim_n:
+	input:
+		"endo/Nuc_{nucl}_{frag3}_dam_{dam3}.fa.gz"
+	output:
+		"endo/Nuc_{nucl}_{frag3}_dam_{dam3}_adpt.fa"
+	wildcard_constraints:
+		frag3="\d+"
+	shell:
+		"/home/ctools/gargammel/src/adptSim -l 140 -artp {output} {input}"
+
+rule art_n:
+	input:
+		"endo/Nuc_{nucl}_{frag3}_dam_{dam3}_adpt.fa"
+	output:
+		"endo/Nuc_{nucl}_{frag3}_dam_{dam3}_s1.fq",
+		"endo/Nuc_{nucl}_{frag3}_dam_{dam3}_s2.fq"
+	wildcard_constraints:
+		frag3="\d+"
+	params:
+		out_prefix="endo/Nuc_{nucl}_{frag3}_dam_{dam3}_s"
+	shell:
+		"/home/ctools/gargammel/art_src_MountRainier_Linux/art_illumina -ss HS25 -amp -na -p -l 140 -c 1   -i {input} -o {params.out_prefix}"
+
+
+rule zip_up_n:
+	input:
+		"endo/Nuc_{nucl}_{frag3}_dam_{dam3}_adpt.fa"
+	output:
+		"endo/Nuc_{nucl}_{frag3}_dam_{dam3}_adpt.fa.gz"
+	wildcard_constraints:
+		frag3="\d+"
+	shell:
+		"gzip {input}"
+
+rule zip_up2_n:
+	input:
+		"endo/Nuc_{nucl}_{frag3}_dam_{dam3}_s1.fq"
+	output:
+		"endo/Nuc_{nucl}_{frag3}_dam_{dam3}_s1.fq.gz"
+	wildcard_constraints:
+		frag3="\d+"
+	shell:
+		"gzip {input}"
+
+rule zip_up3_n:
+	input:
+		"endo/Nuc_{nucl}_{frag3}_dam_{dam3}_s2.fq"
+	output:
+		"endo/Nuc_{nucl}_{frag3}_dam_{dam3}_s2.fq.gz"
+	wildcard_constraints:
+		frag3="\d+"
+	shell:
+		"gzip {input}"
+
+
+rule trim_reads_n:
+	input:
+		input_1="endo/Nuc_{nucl}_{frag3}_dam_{dam3}_s1.fq.gz",
+		input_2="endo/Nuc_{nucl}_{frag3}_dam_{dam3}_s2.fq.gz"
+	output:
+		output_1="endo/Nuc_{nucl}_{frag3}_{dam3}_fin.fq.gz",
+		output_2="endo/Nuc_{nucl}_{frag3}_{dam3}_fin_r1.fq.gz",
+		output_3="endo/Nuc_{nucl}_{frag3}_{dam3}_fin_r2.fq.gz"
+	wildcard_constraints:
+		frag3="\d+"
+	params:
+		out_prefix="endo/Nuc_{nucl}_{frag3}_{dam3}_fin"
+	shell:
+		"/home/ctools/leeHom-1.2.15/src/leeHom --ancientdna -fq1 {input.input_1} -fq2 {input.input_2} -fqo {params.out_prefix}"
+
+
+rule combine:
+ 	input: 
+ 		expand("bact/{cont}_{frag}_{dam}_fin.fq.gz", zip, cont=CONT, frag=FRAG, dam=DAMAGE),
+ 		expand("endo/Mito_{mito}_{frag2}_{dam}_fin.fq.gz", zip, mito=MITO, frag2=FRAG2, dam=DAMAGE),
+ 		expand("endo/Nuc_{nucl}_{frag3}_{dam}_fin.fq.gz", zip, nucl=NUCL, frag3=FRAG3, dam=DAMAGE)
+ 	output:
+ 		"env_cave_{dam}.fq.gz"
+ 	shell: 
+ 		"zcat {input} | gzip > {output}"
