@@ -1,3 +1,4 @@
+
 \begin{longtable}{llllllrr}
 \toprule
 Sample Name &  Rate & Full\_Coverage\_Prediction & Replicate & HG\_corrected & HG\_uncorrected &  \# Reads\_corrected &  \# Reads\_uncorrected \\
