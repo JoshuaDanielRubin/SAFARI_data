@@ -12,7 +12,7 @@ def extract_info_from_filename(filename):
     correction_status = filename.split('.')[-2]
 
     # Extracting replicate number using regex
-    replicate_match = re.search(r'_(\d+)x', filename)
+    replicate_match = re.search(r'replicate_(\d+)', filename)
     replicate_number = replicate_match.group(1) if replicate_match else "1"
     
     return sample_name, float(subsampling_rate), correction_status, replicate_number
@@ -33,7 +33,7 @@ def extract_info_from_file(filepath):
 full_coverage_predictions = {
     "DA100": "C4b1/C4b1",
     "DA101": "U5a1b1e/U5a1b1e",
-    "DA171": "H2a1/H2a1",
+      "DA171": "H2a1/H2a1",
     "DA15": "C4d/C4d",
     "I10899": "U5b/U5b",
     "I11300": "J2a1a1/J2a1a1",
