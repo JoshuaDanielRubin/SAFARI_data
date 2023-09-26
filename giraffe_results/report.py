@@ -11,8 +11,12 @@ with open('nodes.txt', 'r') as f:
 
 # Special clade mapping
 special_clade_mapping = {'Ovis': 'Bovidae', 'Capra': 'Bovidae', 'Aquatica': 'Lampyridae', 'Luciola': 'Lampyridae', \
-                         'Ursus': 'Ursidae', 'Tremarctos' : 'Ursidae'
+                         'Ursus': 'Ursidae', 'Tremarctos' : 'Ursidae', 'Tamias': 'Sciuridae', 'Sciurus': 'Sciuridae',
+                         'Falco': 'Neognathae'
                         }
+
+# To store unique clade_from entries
+unique_clade_from = set()
 
 # Initialize counters
 true_positive = 0
@@ -43,6 +47,9 @@ with open(sys.argv[1], 'r') as f:
         # Get clade from read name
         clade_from = read_name.split('_')[1]
         
+        # Add to the set of unique clade_from entries
+        unique_clade_from.add(clade_from)
+
         # Check if clade is special and map it to another clade
         clade_from = special_clade_mapping.get(clade_from, clade_from)
         
@@ -72,11 +79,14 @@ with open(sys.argv[1], 'r') as f:
                 #read_details.append({'read_name': read_name, 'status': 'False Positive (Incorrect clade)', 'clade_from': clade_from, 'clade_to': clade_to})
         else:
             false_positive += 1
-            read_details.append({'read_name': read_name, 'status': 'False Positive (Clade not found)', 'clade_from': clade_from})
+            read_details.append({'read_name': read_name, 'status': 'False Positive (Clade not found)', 'clade_from': clade_from, 'first_node_id': first_node_id})
 
 # Print detailed report
 for detail in read_details:
     print(detail)
+
+# Print unique clade_from entries
+print("Unique clade_from entries:", unique_clade_from)
 
 # Print summary
 print(f"True Positives: {true_positive}")
