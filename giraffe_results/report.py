@@ -7,7 +7,11 @@ nodes_data = {}
 with open('nodes.txt', 'r') as f:
     reader = csv.reader(f, delimiter=' ')
     for row in reader:
-        nodes_data[row[0]] = (int(row[1]), int(row[2]))
+        clade = row[0]
+        start, end = int(row[1]), int(row[2])
+        if clade not in nodes_data:
+            nodes_data[clade] = []
+        nodes_data[clade].append((start, end))
 
 # Special clade mapping
 special_clade_mapping = {'Ovis': 'Bovidae', 'Capra': 'Bovidae', 'Aquatica': 'Lampyridae', 'Luciola': 'Lampyridae', \
@@ -64,9 +68,12 @@ with open(sys.argv[1], 'r') as f:
         
         # Find to which clade it mapped
         clade_to = None
-        for clade, (start, end) in nodes_data.items():
-            if start <= first_node_id <= end:
-                clade_to = clade
+        for clade, ranges in nodes_data.items():
+            for start, end in ranges:
+                if start <= first_node_id <= end:
+                    clade_to = clade
+                    break
+            if clade_to:
                 break
 
         # If clade_to is found, check if it is correctly mapped
