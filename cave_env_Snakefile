@@ -8,11 +8,11 @@ CONT=list(np.repeat(CONTt, 3))
 FRAG=list(np.repeat(FRAG, 3))
 #MITO = ["Sciuridae", "Muridae", "Ursidae", "Bovidae"]
 MITO=["Ursidae", "Sciuridae", "Falconiformes"]
-MITO = list(np.repeat(MITO, 3))
+#MITO = list(np.repeat(MITO, 3))
 FRAG2=[2000, 2000, 2000]
-FRAG2 = list(np.repeat(FRAG2, 3))
+#FRAG2 = list(np.repeat(FRAG2, 3))
 NUCL = ["ARS-UI_Ramb", "capHirARS1", "bFalRus1", "dendPon2"]
-NUCL = list(np.repeat(NUCL, 3))
+#NUCL = list(np.repeat(NUCL, 3))
 FRAG3 = [25000, 25000, 25000, 518000]
 FRAG3=list(np.repeat(FRAG3, 3))
 
