@@ -154,7 +154,7 @@ plt.plot(k_values, average_mismatches, marker='o', linestyle='-')
 plt.xticks(k_values)
 plt.xlabel('Value of k')
 plt.ylabel('Mismatch Proportion')
-plt.title('Sequence Similarity as a Function of k (Deamination)')
+plt.title('Sequence Similarity as a Function of k')
 plt.grid(True)
 
 # Curve fitting for the plot
