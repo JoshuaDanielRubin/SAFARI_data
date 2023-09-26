@@ -11,7 +11,6 @@ DAMAGE=["single"]
 ALIGNERS=["bowtie2", "mem", "aln_anc", "aln", "shrimp", "safari", "bb"]
 #ALIGNERS=["safari", "bowtie2", "shrimp"]
 ALIGNERSC=[]
-#CONSENSUS=["mpileup","ec_nodam","angsd"]
 NUMFRAGS=1000
 FRAGNUM=50
 
@@ -468,44 +467,9 @@ rule mpileup:
         out_prefix="consensus/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}_mpileup.fa.gz"
     shell: "/home/ctools/bcftools-1.13/bcftools mpileup -Ou -f  simulations/gen_0.fa {input} |/home/ctools/bcftools-1.13/bcftools call -c --ploidy 1 |bgzip -c > {params.out_prefix}.vcf.gz && /home/ctools/bcftools-1.13/bcftools index {params.out_prefix}.vcf.gz  && cat simulations/gen_0.fa | /home/ctools/bcftools-1.13/bcftools consensus -M N -a N {params.out_prefix}.vcf.gz |gzip > {output}"#-M N -a N means add Ns to missing sites
 
-#rule ec_nodam:
-#    input: "alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}.bam"
-#    output: "consensus/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}_ec_nodam.fa.gz"
-#    params:
-#        out_prefix="consensus/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}_ec_nodam.fa.gz"
-#    shell: "/home/ctools/schmutzi-1.5.6/src/endoCaller  -log /dev/null simulations/gen_0.fa {input}  | gzip > {output}"
-
-#rule ec_dam:
-#    input: "alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}.bam"
-#    output: "consensus/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}_ec_dam.fa.gz"
-#    params:
-#        out_prefix="consensus/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}_ec_dam.fa.gz"
-#        out_prefix="consensus/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}_ec_dam.fa.gz"
-#    shell: "/home/ctools/schmutzi-1.5.6/src/endoCaller  -log /dev/null simulations/gen_0.fa {input}  | gzip > {output}"
-
-#rule angsd:
-#    input: "alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}.bam"
-#    output: "consensus/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}_angsd.fa.gz"
-#    params:
-#        out_prefix="consensus/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}_angsd"
-#    shell: "/home/ctools/angsd-0.935/angsd -doFasta 2 -doCounts 1  -i {input} -out {params.out_prefix}"
-
-#rule aligncons:
-#    input:
-#        input_1="simulations/gen_{step}.fa",
-#        input_2="consensus/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}_{cons}.fa.gz"	
-#    output: "consensus/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}_{cons}.fa.nw"
-#    shell: "/home/ctools/EMBOSS-6.6.0/emboss/needle -gapopen 10.0 -gapextend 0.5 -outfile {output} -asequence {input.input_1} -bsequence <(zcat {input.input_2})"
 
 rule bamindex:
     input: "alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}.bam"
     output: "alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}.bam.bai"
     shell: "/home/ctools/samtools-1.13/samtools index {input}  {output}"
 
-
-#rule mpileup:
-#    input: "alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}.bam"
-#    output: "consensus/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}_{cons}.fa.gz"
-#    params:
-#        out_prefix="consensus/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}_{cons}"
-#    shell: "/home/ctools/bcftools-1.13/bcftools mpileup -Ou -f  simulations/gen_0.fa {input} |/home/ctools/bcftools-1.13/bcftools call -c --ploidy 1 |bgzip -c > {params.out_prefix}.vcf.gz && /home/ctools/bcftools-1.13/bcftools index {params.out_prefix}.vcf.gz  && cat simulations/gen_0.fa | /home/ctools/bcftools-1.13/bcftools consensus -M N -a N {params.out_prefix}.vcf.gz |gzip > {output}"#-M N -a N means add Ns to missing sites
