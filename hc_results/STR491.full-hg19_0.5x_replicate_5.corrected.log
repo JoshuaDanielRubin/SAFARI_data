@@ -10,9 +10,9 @@ Mapping reads...
 Guessing that /home/projects/MAAG/Magpie/Magpie/vgan_uncorrected/share/vgan/hcfiles/graph.gg is GBWTGraph
 Guessing that /home/projects/MAAG/Magpie/Magpie/vgan_uncorrected/share/vgan/hcfiles/graph.xg is XG
 Guessing that /home/projects/MAAG/Magpie/Magpie/vgan_uncorrected/share/vgan/hcfiles/graph.gbwt is Giraffe GBWT
-Reading GAM file KPX1Nqj
+Reading GAM file 7L30Orm
 Reads mapped
-Done reading GAM file /tmp/KPX1Nqj
+Done reading GAM file /tmp/7L30Orm
 Found 88 reads.
 Removing PCR duplicates ...
 PCR duplicates removed.
