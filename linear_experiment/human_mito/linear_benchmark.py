@@ -29,7 +29,7 @@ def plot_data(data):
         safari_index = aligners.index('safari')
         
         # Create the bar plot
-        plt.figure(figsize=(14, 6))
+        plt.figure(figsize=(28, 12))
         
         # Set positions for bars
         r1 = np.arange(len(aligners))
@@ -39,11 +39,11 @@ def plot_data(data):
         plt.bar(r1, avg_proportion_correct, color='#56B4E9', width=bar_width, label='Proportion Correctly Mapped')
         plt.bar(r2, avg_proportion_incorrect, color='#D55E00', width=bar_width, label='Proportion Incorrectly Mapped')
         
-        plt.xlabel('Aligner Name')
-        plt.ylabel('Proportion')
-        plt.title(f'Damage Level: {readable_damage_type}')
+        plt.xlabel('Aligner Name', fontsize=14)
+        plt.ylabel('Proportion', fontsize=14)
+        plt.title(f'Damage Level: {readable_damage_type}', fontsize=16)
         plt.xticks([r + bar_width / 2 for r in range(len(aligners))], aligners, rotation=45)
-        plt.legend()
+        plt.legend(fontsize=12)
         plt.grid(axis='y')
         
         plt.tight_layout()
