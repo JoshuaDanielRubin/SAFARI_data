@@ -1,11 +1,10 @@
 #!/bin/bash
 
 # Specify the total number of threads
-total_threads=55
+total_threads=60
 
 # Specify the list of subsampling rates
 rates=("0.25x" "0.5x" "1x" "2x")
-#rates=("0.25x")
 
 # Define the function to process each bam file
 process_file_corrected() {
