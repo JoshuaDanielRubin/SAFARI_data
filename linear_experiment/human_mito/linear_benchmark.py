@@ -29,7 +29,7 @@ def plot_data(data):
         safari_index = aligners.index('safari')
         
         # Create the bar plot
-        plt.figure(figsize=(28, 12))
+        plt.figure(figsize=(14, 6))
         
         # Set positions for bars
         r1 = np.arange(len(aligners))
