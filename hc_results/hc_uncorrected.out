@@ -1,0 +1,1223 @@
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//AED204.full-hg19_0.25x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 230307 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//AED204.full-hg19_0.25x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 230913 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//AED204.full-hg19_0.25x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 230428 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//AED204.full-hg19_0.25x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 230704 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//AED204.full-hg19_0.25x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 230149 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//AED92b.full-hg19_0.25x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 197648 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//AED92b.full-hg19_0.25x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 198451 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//AED92b.full-hg19_0.25x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 198619 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//AED92b.full-hg19_0.25x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 198828 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//AED92b.full-hg19_0.25x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 198258 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//Alh10.full-hg19_0.25x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 226125 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//Alh10.full-hg19_0.25x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 226367 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//Alh10.full-hg19_0.25x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 227149 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//Alh10.full-hg19_0.25x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 226462 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//Alh10.full-hg19_0.25x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 225940 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//DA100.sort.rmdup.realign.md_0.25x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 266578 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//DA100.sort.rmdup.realign.md_0.25x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 267125 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//DA100.sort.rmdup.realign.md_0.25x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 267030 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//DA100.sort.rmdup.realign.md_0.25x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 266697 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//DA100.sort.rmdup.realign.md_0.25x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 266720 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//DA101.sort.rmdup.realign.md_0.25x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 349138 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//DA101.sort.rmdup.realign.md_0.25x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 350840 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//DA101.sort.rmdup.realign.md_0.25x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 348642 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//DA101.sort.rmdup.realign.md_0.25x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 349688 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//DA101.sort.rmdup.realign.md_0.25x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 349193 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//DA15.sort.rmdup.realign.md_0.25x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 61628 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//DA15.sort.rmdup.realign.md_0.25x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 61737 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//DA15.sort.rmdup.realign.md_0.25x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 61738 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//DA15.sort.rmdup.realign.md_0.25x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 62005 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//DA15.sort.rmdup.realign.md_0.25x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 61193 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//DA171.sort.rmdup.realign.md_0.25x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 145449 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//DA171.sort.rmdup.realign.md_0.25x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 145080 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//DA171.sort.rmdup.realign.md_0.25x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 144891 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//DA171.sort.rmdup.realign.md_0.25x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 145254 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//DA171.sort.rmdup.realign.md_0.25x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 145568 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//FN2.full-hg19_0.25x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 240503 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//FN2.full-hg19_0.25x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 241580 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//FN2.full-hg19_0.25x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 241354 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//FN2.full-hg19_0.25x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 241955 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//FN2.full-hg19_0.25x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 241819 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//I10899_1240k_0.25x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 11074 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//I10899_1240k_0.25x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 11261 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//I10899_1240k_0.25x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 11193 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//I10899_1240k_0.25x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 11140 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//I10899_1240k_0.25x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 10900 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//I11300_1240k_0.25x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1101 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//I11300_1240k_0.25x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1198 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//I11300_1240k_0.25x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1079 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//I11300_1240k_0.25x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1075 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//I11300_1240k_0.25x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1093 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//I7645_1240k_0.25x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 63537 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//I7645_1240k_0.25x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 63376 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//I7645_1240k_0.25x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 63505 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//I7645_1240k_0.25x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 63345 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//I7645_1240k_0.25x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 63448 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//I7646_1240k_0.25x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 105887 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//I7646_1240k_0.25x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 105827 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//I7646_1240k_0.25x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 105500 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//I7646_1240k_0.25x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 105022 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//I7646_1240k_0.25x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 106118 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//I8132_1240k_0.25x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 18271 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//I8132_1240k_0.25x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 18345 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//I8132_1240k_0.25x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 18265 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//I8132_1240k_0.25x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 18396 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//I8132_1240k_0.25x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 18562 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//I8569_1240k_0.25x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 105917 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//I8569_1240k_0.25x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 105618 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//I8569_1240k_0.25x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 105778 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//I8569_1240k_0.25x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 105888 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//I8569_1240k_0.25x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 106257 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//NW54.full-hg19_0.25x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 176610 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//NW54.full-hg19_0.25x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 176928 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//NW54.full-hg19_0.25x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 177285 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//NW54.full-hg19_0.25x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 176808 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//NW54.full-hg19_0.25x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 177447 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//STR266b.full-hg19_0.25x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 207613 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//STR266b.full-hg19_0.25x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 208094 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//STR266b.full-hg19_0.25x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 207956 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//STR266b.full-hg19_0.25x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 208196 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//STR266b.full-hg19_0.25x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 208100 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//STR393b.full-hg19_0.25x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 157018 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//STR393b.full-hg19_0.25x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 156670 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//STR393b.full-hg19_0.25x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 157604 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//STR393b.full-hg19_0.25x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 157699 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//STR393b.full-hg19_0.25x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 157332 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//STR486.full-hg19_0.25x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 187335 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//STR486.full-hg19_0.25x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 187381 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//STR486.full-hg19_0.25x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 188030 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//STR486.full-hg19_0.25x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 187914 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//STR486.full-hg19_0.25x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 187063 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//STR491.full-hg19_0.25x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 223937 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//STR491.full-hg19_0.25x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 223127 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//STR491.full-hg19_0.25x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 223657 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//STR491.full-hg19_0.25x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 223358 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//STR491.full-hg19_0.25x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 223094 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//Vim2b.full-hg19_0.25x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 139696 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//Vim2b.full-hg19_0.25x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 139320 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//Vim2b.full-hg19_0.25x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 140090 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//Vim2b.full-hg19_0.25x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 139458 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.25x//Vim2b.full-hg19_0.25x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 139649 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//AED204.full-hg19_0.5x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 461162 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//AED204.full-hg19_0.5x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 460622 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//AED204.full-hg19_0.5x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 460739 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//AED204.full-hg19_0.5x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 459817 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//AED204.full-hg19_0.5x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 460905 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//AED92b.full-hg19_0.5x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 395380 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//AED92b.full-hg19_0.5x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 396794 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//AED92b.full-hg19_0.5x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 396458 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//AED92b.full-hg19_0.5x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 396454 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//AED92b.full-hg19_0.5x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 396400 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//Alh10.full-hg19_0.5x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 452786 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//Alh10.full-hg19_0.5x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 452519 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//Alh10.full-hg19_0.5x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 452995 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//Alh10.full-hg19_0.5x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 453010 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//Alh10.full-hg19_0.5x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 453229 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//DA100.sort.rmdup.realign.md_0.5x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 532933 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//DA100.sort.rmdup.realign.md_0.5x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 533523 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//DA100.sort.rmdup.realign.md_0.5x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 533987 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//DA100.sort.rmdup.realign.md_0.5x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 533030 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//DA100.sort.rmdup.realign.md_0.5x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 534096 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//DA101.sort.rmdup.realign.md_0.5x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 697670 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//DA101.sort.rmdup.realign.md_0.5x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 699693 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//DA101.sort.rmdup.realign.md_0.5x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 699562 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//DA101.sort.rmdup.realign.md_0.5x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 699885 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//DA101.sort.rmdup.realign.md_0.5x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 699860 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//DA15.sort.rmdup.realign.md_0.5x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 122970 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//DA15.sort.rmdup.realign.md_0.5x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 122783 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//DA15.sort.rmdup.realign.md_0.5x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 122755 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//DA15.sort.rmdup.realign.md_0.5x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 123005 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//DA15.sort.rmdup.realign.md_0.5x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 123178 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//DA171.sort.rmdup.realign.md_0.5x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 290665 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//DA171.sort.rmdup.realign.md_0.5x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 290593 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//DA171.sort.rmdup.realign.md_0.5x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 290837 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//DA171.sort.rmdup.realign.md_0.5x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 291259 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//DA171.sort.rmdup.realign.md_0.5x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 290858 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//FN2.full-hg19_0.5x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 482721 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//FN2.full-hg19_0.5x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 482204 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//FN2.full-hg19_0.5x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 482852 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//FN2.full-hg19_0.5x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 482231 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//FN2.full-hg19_0.5x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 482571 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//I10899_1240k_0.5x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 21852 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//I10899_1240k_0.5x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 22058 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//I10899_1240k_0.5x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 22101 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//I10899_1240k_0.5x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 21916 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//I10899_1240k_0.5x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 22023 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//I11300_1240k_0.5x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 2190 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//I11300_1240k_0.5x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 2217 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//I11300_1240k_0.5x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 2264 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//I11300_1240k_0.5x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 2265 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//I11300_1240k_0.5x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 2236 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//I7645_1240k_0.5x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 126475 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//I7645_1240k_0.5x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 126826 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//I7645_1240k_0.5x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 127574 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//I7645_1240k_0.5x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 127125 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//I7645_1240k_0.5x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 126859 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//I7646_1240k_0.5x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 211214 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//I7646_1240k_0.5x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 210808 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//I7646_1240k_0.5x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 211514 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//I7646_1240k_0.5x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 211092 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//I7646_1240k_0.5x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 211390 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//I8132_1240k_0.5x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 36572 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//I8132_1240k_0.5x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 36490 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//I8132_1240k_0.5x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 37033 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//I8132_1240k_0.5x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 36653 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//I8132_1240k_0.5x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 36692 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//I8569_1240k_0.5x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 211415 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//I8569_1240k_0.5x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 211857 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//I8569_1240k_0.5x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 211710 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//I8569_1240k_0.5x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 211713 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//I8569_1240k_0.5x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 211416 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//NW54.full-hg19_0.5x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 354110 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//NW54.full-hg19_0.5x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 353125 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//NW54.full-hg19_0.5x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 354445 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//NW54.full-hg19_0.5x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 353766 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//NW54.full-hg19_0.5x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 354592 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//STR266b.full-hg19_0.5x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 417137 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//STR266b.full-hg19_0.5x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 416419 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//STR266b.full-hg19_0.5x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 417100 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//STR266b.full-hg19_0.5x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 417430 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//STR266b.full-hg19_0.5x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 415871 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//STR393b.full-hg19_0.5x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 316036 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//STR393b.full-hg19_0.5x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 316340 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//STR393b.full-hg19_0.5x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 314377 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//STR393b.full-hg19_0.5x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 315707 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//STR393b.full-hg19_0.5x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 314186 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//STR486.full-hg19_0.5x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 374186 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//STR486.full-hg19_0.5x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 374950 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//STR486.full-hg19_0.5x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 374794 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//STR486.full-hg19_0.5x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 374686 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//STR486.full-hg19_0.5x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 374853 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//STR491.full-hg19_0.5x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 447020 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//STR491.full-hg19_0.5x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 446688 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//STR491.full-hg19_0.5x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 446664 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//STR491.full-hg19_0.5x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 447286 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//STR491.full-hg19_0.5x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 446888 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//Vim2b.full-hg19_0.5x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 279581 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//Vim2b.full-hg19_0.5x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 278843 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//Vim2b.full-hg19_0.5x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 278335 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//Vim2b.full-hg19_0.5x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 278874 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/0.5x//Vim2b.full-hg19_0.5x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 278321 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//AED204.full-hg19_1x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 920140 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//AED204.full-hg19_1x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 921452 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//AED204.full-hg19_1x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 921332 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//AED204.full-hg19_1x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 922188 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//AED204.full-hg19_1x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 923563 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//AED92b.full-hg19_1x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 791849 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//AED92b.full-hg19_1x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 793128 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//AED92b.full-hg19_1x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 792444 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//AED92b.full-hg19_1x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 793078 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//AED92b.full-hg19_1x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 792344 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//Alh10.full-hg19_1x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 905223 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//Alh10.full-hg19_1x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 903818 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//Alh10.full-hg19_1x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 903288 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//Alh10.full-hg19_1x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 904085 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//Alh10.full-hg19_1x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 904692 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//DA100.sort.rmdup.realign.md_1x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1068342 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//DA100.sort.rmdup.realign.md_1x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1068107 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//DA100.sort.rmdup.realign.md_1x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1067517 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//DA100.sort.rmdup.realign.md_1x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1067859 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//DA100.sort.rmdup.realign.md_1x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1067624 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//DA101.sort.rmdup.realign.md_1x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1400074 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//DA101.sort.rmdup.realign.md_1x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1400215 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//DA101.sort.rmdup.realign.md_1x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1398719 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//DA101.sort.rmdup.realign.md_1x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1398635 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//DA101.sort.rmdup.realign.md_1x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1398274 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//DA15.sort.rmdup.realign.md_1x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 245555 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//DA15.sort.rmdup.realign.md_1x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 245466 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//DA15.sort.rmdup.realign.md_1x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 246395 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//DA15.sort.rmdup.realign.md_1x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 245722 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//DA15.sort.rmdup.realign.md_1x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 246125 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//DA171.sort.rmdup.realign.md_1x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 581682 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//DA171.sort.rmdup.realign.md_1x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 581550 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//DA171.sort.rmdup.realign.md_1x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 582410 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//DA171.sort.rmdup.realign.md_1x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 582004 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//DA171.sort.rmdup.realign.md_1x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 582509 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//FN2.full-hg19_1x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 964949 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//FN2.full-hg19_1x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 965931 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//FN2.full-hg19_1x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 966544 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//FN2.full-hg19_1x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 964634 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//FN2.full-hg19_1x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 966207 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//I10899_1240k_1x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 43966 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//I10899_1240k_1x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 44162 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//I10899_1240k_1x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 44584 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//I10899_1240k_1x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 44459 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//I10899_1240k_1x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 44252 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//I11300_1240k_1x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 4430 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//I11300_1240k_1x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 4464 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//I11300_1240k_1x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 4431 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//I11300_1240k_1x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 4416 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//I11300_1240k_1x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 4576 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//I7645_1240k_1x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 254221 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//I7645_1240k_1x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 253973 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//I7645_1240k_1x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 254401 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//I7645_1240k_1x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 254139 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//I7645_1240k_1x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 253914 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//I7646_1240k_1x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 422776 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//I7646_1240k_1x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 423006 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//I7646_1240k_1x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 422503 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//I7646_1240k_1x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 423588 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//I7646_1240k_1x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 422874 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//I8132_1240k_1x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 73666 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//I8132_1240k_1x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 73816 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//I8132_1240k_1x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 73472 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//I8132_1240k_1x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 73510 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//I8132_1240k_1x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 73585 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//I8569_1240k_1x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 423180 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//I8569_1240k_1x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 424073 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//I8569_1240k_1x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 423731 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//I8569_1240k_1x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 422684 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//I8569_1240k_1x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 424137 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//NW54.full-hg19_1x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 708392 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//NW54.full-hg19_1x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 707073 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//NW54.full-hg19_1x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 705784 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//NW54.full-hg19_1x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 707759 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//NW54.full-hg19_1x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 708199 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//STR266b.full-hg19_1x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 832606 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//STR266b.full-hg19_1x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 831541 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//STR266b.full-hg19_1x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 833630 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//STR266b.full-hg19_1x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 834603 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//STR266b.full-hg19_1x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 831292 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//STR393b.full-hg19_1x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 630604 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//STR393b.full-hg19_1x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 629701 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//STR393b.full-hg19_1x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 629653 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//STR393b.full-hg19_1x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 629994 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//STR393b.full-hg19_1x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 629201 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//STR486.full-hg19_1x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 749869 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//STR486.full-hg19_1x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 749774 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//STR486.full-hg19_1x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 750694 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//STR486.full-hg19_1x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 751670 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//STR486.full-hg19_1x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 748617 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//STR491.full-hg19_1x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 895598 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//STR491.full-hg19_1x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 893476 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//STR491.full-hg19_1x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 894587 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//STR491.full-hg19_1x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 894061 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//STR491.full-hg19_1x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 892540 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//Vim2b.full-hg19_1x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 557631 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//Vim2b.full-hg19_1x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 557773 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//Vim2b.full-hg19_1x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 557333 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//Vim2b.full-hg19_1x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 558606 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/1x//Vim2b.full-hg19_1x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 557695 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//AED204.full-hg19_2x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1844342 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//AED204.full-hg19_2x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1844297 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//AED204.full-hg19_2x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1842830 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//AED204.full-hg19_2x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1844052 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//AED204.full-hg19_2x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1842414 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//AED92b.full-hg19_2x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1585541 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//AED92b.full-hg19_2x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1585648 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//AED92b.full-hg19_2x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1584010 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//AED92b.full-hg19_2x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1586574 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//AED92b.full-hg19_2x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1582200 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//Alh10.full-hg19_2x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1806532 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//Alh10.full-hg19_2x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1809167 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//Alh10.full-hg19_2x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1813036 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//Alh10.full-hg19_2x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1810324 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//Alh10.full-hg19_2x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1810932 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//DA100.sort.rmdup.realign.md_2x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 2139096 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//DA100.sort.rmdup.realign.md_2x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 2135523 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//DA100.sort.rmdup.realign.md_2x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 2136649 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//DA100.sort.rmdup.realign.md_2x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 2134779 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//DA100.sort.rmdup.realign.md_2x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 2136198 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//DA101.sort.rmdup.realign.md_2x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 2800523 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//DA101.sort.rmdup.realign.md_2x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 2797024 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//DA101.sort.rmdup.realign.md_2x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 2797366 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//DA101.sort.rmdup.realign.md_2x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 2799608 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//DA101.sort.rmdup.realign.md_2x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 2796196 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//DA15.sort.rmdup.realign.md_2x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 491139 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//DA15.sort.rmdup.realign.md_2x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 491650 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//DA15.sort.rmdup.realign.md_2x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 491809 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//DA15.sort.rmdup.realign.md_2x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 491549 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//DA15.sort.rmdup.realign.md_2x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 490847 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//DA171.sort.rmdup.realign.md_2x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1163941 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//DA171.sort.rmdup.realign.md_2x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1162987 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//DA171.sort.rmdup.realign.md_2x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1161973 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//DA171.sort.rmdup.realign.md_2x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1164359 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//DA171.sort.rmdup.realign.md_2x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1164290 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//FN2.full-hg19_2x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1930532 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//FN2.full-hg19_2x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1931792 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//FN2.full-hg19_2x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1929565 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//FN2.full-hg19_2x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1930947 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//FN2.full-hg19_2x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1931371 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//I10899_1240k_2x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 88154 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//I10899_1240k_2x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 88586 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//I10899_1240k_2x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 88584 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//I10899_1240k_2x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 88682 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//I10899_1240k_2x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 88349 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//I11300_1240k_2x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 8885 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//I11300_1240k_2x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 8844 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//I11300_1240k_2x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 8967 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//I11300_1240k_2x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 9005 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//I11300_1240k_2x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 8920 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//I7645_1240k_2x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 94676 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//I7645_1240k_2x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 94491 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//I7645_1240k_2x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 94519 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//I7645_1240k_2x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 94463 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//I7645_1240k_2x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 94404 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//I7646_1240k_2x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 845695 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//I7646_1240k_2x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 845468 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//I7646_1240k_2x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 845505 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//I7646_1240k_2x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 845099 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//I7646_1240k_2x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 845335 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//I8132_1240k_2x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 35317 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//I8132_1240k_2x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 35357 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//I8132_1240k_2x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 35212 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//I8132_1240k_2x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 35278 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//I8132_1240k_2x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 34989 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//I8569_1240k_2x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 846912 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//I8569_1240k_2x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 847280 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//I8569_1240k_2x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 846865 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//I8569_1240k_2x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 845475 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//I8569_1240k_2x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 847214 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//NW54.full-hg19_2x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1415087 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//NW54.full-hg19_2x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1413326 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//NW54.full-hg19_2x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1416059 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//NW54.full-hg19_2x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1413236 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//NW54.full-hg19_2x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1414417 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//STR266b.full-hg19_2x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1666772 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//STR266b.full-hg19_2x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1664989 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//STR266b.full-hg19_2x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1667020 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//STR266b.full-hg19_2x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1664342 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//STR266b.full-hg19_2x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1664497 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//STR393b.full-hg19_2x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1258232 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//STR393b.full-hg19_2x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1259267 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//STR393b.full-hg19_2x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1260681 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//STR393b.full-hg19_2x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1259543 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//STR393b.full-hg19_2x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1258110 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//STR486.full-hg19_2x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1499468 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//STR486.full-hg19_2x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1500681 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//STR486.full-hg19_2x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1497983 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//STR486.full-hg19_2x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1499637 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//STR486.full-hg19_2x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1497555 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//STR491.full-hg19_2x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1788554 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//STR491.full-hg19_2x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1788134 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//STR491.full-hg19_2x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1787191 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//STR491.full-hg19_2x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1785464 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//STR491.full-hg19_2x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1787674 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//Vim2b.full-hg19_2x_replicate_1.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1116172 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//Vim2b.full-hg19_2x_replicate_2.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1117000 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//Vim2b.full-hg19_2x_replicate_3.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1117271 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//Vim2b.full-hg19_2x_replicate_4.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1115548 reads
+Processing /home/projects/MAAG/Magpie/Magpie/haplocart_ancient/subsampled_reps/2x//Vim2b.full-hg19_2x_replicate_5.bam
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1116987 reads
+	Command being timed: "./run_hc.sh"
+	User time (seconds): 7935.68
+	System time (seconds): 1632.09
+	Percent of CPU this job got: 2296%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 6:56.56
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1335904
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 210100870
+	Voluntary context switches: 629406
+	Involuntary context switches: 3232853
+	Swaps: 0
+	File system inputs: 12016
+	File system outputs: 100120
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

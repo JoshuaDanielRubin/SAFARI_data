@@ -1,0 +1,5 @@
+#Taxa	detected	Number_of_reads	proportion_estimate	85%_confidence_interval_lower_bound	85%_confidence_interval_higher_bound	95%_confidence_interval_lower_bound	95%_confidence_interval_higher_bound
+Neognathae	yes	1099	0.344097	0.31686	0.373114	0.300932	0.390151	
+Sciurinae	yes	277	0.0865771	0.0775319	0.0964024	0.0726194	0.102722	
+Ursidae	yes	1298	0.406429	0.376532	0.436834	0.360764	0.45456	
+Xerinae	yes	512	0.160779	0.144553	0.177987	0.135874	0.188691
