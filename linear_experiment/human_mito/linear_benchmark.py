@@ -43,7 +43,7 @@ def plot_data(data):
         plt.ylabel('Proportion', fontsize=14)
         plt.title(f'Damage Level: {readable_damage_type}', fontsize=16)
         plt.xticks([r + bar_width / 2 for r in range(len(aligners))], aligners, rotation=45)
-        plt.legend(fontsize=12)
+        plt.legend(fontsize=9)
         plt.grid(axis='y')
         
         plt.tight_layout()
