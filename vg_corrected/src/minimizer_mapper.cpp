@@ -140,7 +140,7 @@ inline std::pair<size_t, std::vector<size_t>> count_mismatches(const std::string
     return {mismatches, mismatch_positions};
 }
 
-double briggs_likelihood(size_t position, size_t fragment_length) {
+inline double briggs_likelihood(size_t position, size_t fragment_length) {
     if (fragment_length == 0) {
         throw std::runtime_error("Fragment length cannot be zero.");
     }
@@ -168,7 +168,7 @@ double briggs_likelihood(size_t position, size_t fragment_length) {
     return likelihood;
 }
 
-double compute_likelihood_model1(int mismatches, const std::vector<size_t>& mismatch_positions, size_t substring_start, size_t fragment_length, bool is_reverse) {
+inline double compute_likelihood_model1(int mismatches, const std::vector<size_t>& mismatch_positions, size_t substring_start, size_t fragment_length, bool is_reverse) {
     if (fragment_length == 0) {
         throw std::runtime_error("Fragment length cannot be zero.");
     }
@@ -730,7 +730,7 @@ vector<Alignment> MinimizerMapper::map(Alignment& aln) {
 // Get minimizers
 
 std::vector<Minimizer> minimizers = this->find_minimizers(aln.sequence(), funnel, false);
-std::vector<Minimizer> minimizers_rymer = this->find_minimizers(aln.sequence(), funnel, true);
+std::vector<Minimizer> minimizers_rymer; //= this->find_minimizers(aln.sequence(), funnel, true);
 
 for (auto & el : minimizers_rymer){
     if (el.kmer_seq == ""){
@@ -749,9 +749,13 @@ rymers_start_index = minimizers.size();
 
 
 vector<Seed> seeds = this->find_seeds<Seed>(minimizers, aln, funnel, false);
-vector<Seed> seeds_rymer = this->find_seeds<Seed>(minimizers_rymer, aln, funnel, true);
+vector<Seed> seeds_rymer;// = this->find_seeds<Seed>(minimizers_rymer, aln, funnel, true);
 seeds.insert(seeds.end(), seeds_rymer.begin(), seeds_rymer.end());
 
+//cerr << "FOUND: " << seeds.size() << " KMER SEEDS" << endl;
+//cerr << "FOUND: " << seeds_rymer.size() << " RYMER SEDS" << endl;
+
+//throw runtime_error("SANITY CHECK");
 
     // Cluster the seeds. Get sets of input seed indexes that go together.
     if (track_provenance) {
@@ -762,39 +766,47 @@ seeds.insert(seeds.end(), seeds_rymer.begin(), seeds_rymer.end());
 FuncType calculate_posterior_odds_ptr = calculate_posterior_odds;
 
 auto apply_rymer_filter = [&](vector<Seed>& seeds, auto &minimizers, auto &rymers) {
-    vector<Seed> filtered_seeds;
-    filtered_seeds.reserve(seeds.size());  // Pre-allocation for efficiency
+    // Create a vector to store indices of seeds that should be removed
+    vector<size_t> indices_to_remove;
 
     #pragma omp parallel for
-    for (const auto& seed : seeds) {
+    for (size_t i = 0; i < seeds.size(); ++i) {
+        const auto& seed = seeds[i];
 
-        if (!seed.from_rymer) {filtered_seeds.push_back(seed); continue;}
+        if (!seed.from_rymer) { continue; }
 
-            double posterior_odds = 0.0;
+        double posterior_odds = 0.0;
+        string rymer_seq;
+        string kmer_seq;
 
-            string rymer_seq;
-            string kmer_seq;
-            for (int idx : seed.minimizer_source){
-               kmer_seq = rymers[idx].kmer_seq;
-               rymer_seq = rymers[idx].value.key.decode_rymer(rymer_index.k());
-               bool is_reverse = get<1>(seed.pos);
-               size_t substring_start = rymers[idx].forward_offset();
-               posterior_odds = max(posterior_odds, calculate_posterior_odds_ptr(rymer_seq, kmer_seq, aln.sequence().size(), substring_start, is_reverse, \
-                                    this->spurious_alignment_prior));
-                                                 }
+        for (int idx : seed.minimizer_source) {
+            kmer_seq = rymers[idx].kmer_seq;
+            rymer_seq = rymers[idx].value.key.decode_rymer(rymer_index.k());
+            bool is_reverse = get<1>(seed.pos);
+            size_t substring_start = rymers[idx].forward_offset();
 
-            if (posterior_odds > this->posterior_odds_threshold) {
-                #pragma omp critical
+            posterior_odds = max(posterior_odds, calculate_posterior_odds_ptr(rymer_seq, kmer_seq, aln.sequence().size(), substring_start, is_reverse, \
+                                        this->spurious_alignment_prior));
+        }
 
-                // Add the rymer
-                filtered_seeds.push_back(seed);
+        if (posterior_odds <= this->posterior_odds_threshold) {
+            #pragma omp critical
+            indices_to_remove.push_back(i);
         }
     }
-    return filtered_seeds;
+
+    // Sort the indices in descending order before removing
+    sort(indices_to_remove.rbegin(), indices_to_remove.rend());
+
+    // Remove seeds that did not pass the filter
+    for (size_t idx : indices_to_remove) {
+        seeds.erase(seeds.begin() + idx);
+    }
 };
 
+
 #ifdef RYMER
-seeds = apply_rymer_filter(seeds, minimizers, minimizers_rymer);
+apply_rymer_filter(seeds, minimizers, minimizers_rymer);
 #endif
 
 //cerr << "FOUND: " << seeds.size() << " SEEDS" << endl;
@@ -3452,7 +3464,7 @@ void MinimizerMapper::attempt_rescue(const Alignment& aligned_read, Alignment& r
 GaplessExtender::cluster_type MinimizerMapper::seeds_in_subgraph(const std::vector<Minimizer>& minimizers,
                                                                  const std::unordered_set<id_t>& subgraph) const {
 
-   cerr << "IN THE seeds_in_subgraph() FUNCTION" << endl;
+   //cerr << "IN THE seeds_in_subgraph() FUNCTION" << endl;
 
     std::vector<id_t> sorted_ids(subgraph.begin(), subgraph.end());
     std::sort(sorted_ids.begin(), sorted_ids.end());
@@ -3548,6 +3560,7 @@ std::vector<MinimizerMapper::Minimizer> MinimizerMapper::find_minimizers(const s
         std::pair<size_t, const gbwtgraph::hit_type*> hits;
 
         if (rymer){
+            hits = this->minimizer_index.count_and_find(get<0>(m));
             gbwtgraph::Key64 thing;
             int old_key = get<0>(m).key.get_key();
             string kmer_seq = get<0>(m).key.decode(minimizer_index.k());
@@ -3748,7 +3761,7 @@ std::vector<SeedType> MinimizerMapper::find_seeds(const std::vector<Minimizer>& 
                      //cerr << "SEQ: " << minimizer.kmer_seq << endl;
                      //cerr << "RYMER SEQ: " << chain_info_to_push_back.rymer_seq << endl;
 
-                                              }
+                            }
 
                  else{
                      chain_info_to_push_back.seq = minimizer.forward_sequence();
