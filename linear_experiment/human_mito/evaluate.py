@@ -41,7 +41,7 @@ def compute_proportion(directory, output_csv_path):
         correct_map = int(stats['correctmap'])
         mapped = int(stats['mapped'])
         aligner_name, damage_type = get_aligner_name_and_damage_type(file)
-        proportion_correct = correct_map / 2000
+        proportion_correct = correct_map / 1000
         proportion_incorrect = 0 if mapped == 0 else (mapped - correct_map) / mapped
         damage_type_aligner_proportion_correct_sum[damage_type][aligner_name] += proportion_correct
         damage_type_aligner_proportion_incorrect_sum[damage_type][aligner_name] += proportion_incorrect
