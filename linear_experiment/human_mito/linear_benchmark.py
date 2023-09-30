@@ -1,59 +1,63 @@
-import csv
 import matplotlib.pyplot as plt
-import numpy as np
-from collections import defaultdict
+import seaborn as sns
+import pandas as pd
 
-def read_csv(file_path):
-    data = defaultdict(lambda: defaultdict(dict))
-    with open(file_path, 'r') as csvfile:
-        csvreader = csv.reader(csvfile)
-        header = next(csvreader)
-        for row in csvreader:
-            damage_type, aligner_name, avg_proportion_correct, avg_proportion_incorrect = row
-            data[damage_type][aligner_name] = {
-                'Avg_Proportion_Correct': float(avg_proportion_correct),
-                'Avg_Proportion_Incorrect': float(avg_proportion_incorrect)
-            }
-    return data
+# Load the data
+file_path = 'alignment_stats.csv'
+df = pd.read_csv(file_path)
 
-def plot_data(data):
-    bar_width = 0.35  # Width of the bars
-    for damage_type, aligner_data in data.items():
-        # Rename the damage levels
-        readable_damage_type = damage_type.replace("dd", "").replace("dnone", "none").replace("dsingle", "single")
-        
-        aligners = list(aligner_data.keys())
-        avg_proportion_correct = [aligner_data[aligner]['Avg_Proportion_Correct'] for aligner in aligners]
-        avg_proportion_incorrect = [aligner_data[aligner]['Avg_Proportion_Incorrect'] for aligner in aligners]
-        
-        safari_index = aligners.index('safari')
-        
-        # Create the bar plot
-        plt.figure(figsize=(14, 6))
-        
-        # Set positions for bars
-        r1 = np.arange(len(aligners))
-        r2 = [x + bar_width for x in r1]
-        
-        # Plot both metrics
-        plt.bar(r1, avg_proportion_correct, color='#56B4E9', width=bar_width, label='Proportion Correctly Mapped')
-        plt.bar(r2, avg_proportion_incorrect, color='#D55E00', width=bar_width, label='Proportion Incorrectly Mapped')
-        
-        plt.xlabel('Aligner Name', fontsize=14)
-        plt.ylabel('Proportion', fontsize=14)
-        plt.title(f'Damage Level: {readable_damage_type}', fontsize=16)
-        plt.xticks([r + bar_width / 2 for r in range(len(aligners))], aligners, rotation=45)
-        plt.legend(fontsize=10)
-        plt.grid(axis='y')
-        
-        plt.tight_layout()
-        plt.savefig(f"Proportions_{readable_damage_type}.png")
-        plt.close()
+# Define the questions and corresponding columns for plotting
+questions_columns = [
+    ("Number mapped to mt", "Mapped_to_MT"),
+    ("Among those mapped, how many were mt and at the correct location+orientation?", "Mapped_to_MT_Correct_Location"),
+    ("Among those mapped, how many were mt and at the correct location+orientation if MQ>30?", "Mapped_to_MT_Correct_Location_MQ>30"),
+    ("Among those mapped, how many were not mt (i.e. bacteria+nuclear)?", "Mapped_NOT_to_MT"),
+    ("Among those mapped, how many were not mt if MQ>30?", "Mapped_NOT_to_MT_MQ>30")
+]
 
-# Read data from the CSV file
-file_path = 'average_proportions.csv'
-data = read_csv(file_path)
+# Customize the Damage_Type levels and their order
+damage_type_order = ['dnone', 'ddmid', 'ddhigh', 'dsingle']
+custom_order_df = df.copy()
+custom_order_df['Damage_Type'] = custom_order_df['Damage_Type'].astype('category')
+custom_order_df['Damage_Type'].cat.reorder_categories(damage_type_order, ordered=True, inplace=True)
 
-# Plot the data
-plot_data(data)
+# Rename the Damage_Type levels for better readability
+damage_type_rename = {'dnone': 'None', 'ddmid': 'Mid', 'ddhigh': 'High', 'dsingle': 'Single'}
+custom_order_df['Damage_Type'] = custom_order_df['Damage_Type'].map(damage_type_rename)
+
+# Update Aligner_Name to make 'safari' uppercase ('SAFARI')
+custom_order_df['Aligner_Name'] = custom_order_df['Aligner_Name'].replace('safari', 'SAFARI')
+
+# Define more descriptive journal-ready titles
+journal_titles = [
+    "Total Reads Mapped to mtDNA by Aligner",
+    "Reads with Correct Location & Orientation in mtDNA",
+    "Reads with Correct Location & Orientation in mtDNA (MQ > 30)",
+    "Reads Mapped to Non-mtDNA Locations",
+    "Reads Mapped to Non-mtDNA Locations (MQ > 30)"
+]
+
+# Initialize the figure
+fig, axes = plt.subplots(len(journal_titles), 1, figsize=(16, 25))
+fig.suptitle("Alignment Statistics Stratified by DNA Damage Type", fontsize=18, color='black')
+
+# Loop over each question and plot the data
+for ax, (journal_title, column) in zip(axes, zip(journal_titles, [col for _, col in questions_columns])):
+    sns.barplot(
+        x="Aligner_Name", 
+        y=column, 
+        hue="Damage_Type", 
+        data=custom_order_df, 
+        ax=ax, 
+        hue_order=['None', 'Mid', 'High', 'Single']
+    )
+    ax.set_title(journal_title, fontsize=16, color='black')
+    ax.set_xlabel("Alignment Algorithm", fontsize=14, color='black')
+    ax.set_ylabel("Count of Reads", fontsize=14, color='black')
+
+# Adjust layout
+plt.tight_layout(rect=[0, 0, 1, 0.96])
+
+# Save the plot to a file
+plt.savefig("linear_benchmark.png")
 
