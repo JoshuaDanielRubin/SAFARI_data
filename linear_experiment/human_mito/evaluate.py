@@ -2,6 +2,7 @@ import os
 from collections import defaultdict
 import re
 import csv
+import sys  # Import sys for stderr output
 
 def parse_stat_file(file_path):
     with open(file_path, 'r') as file:
@@ -37,11 +38,20 @@ def compute_proportion(directory, output_csv_path):
         
         # Get statistics
         total_reads = stats.get('Total reads', 0)
+        multi_mapped = stats.get('Multi-mapped reads', 0)  # <-- New statistic
         mapped_to_mt = stats.get('Mapped to MT', 0)
         mapped_to_mt_correct_location = stats.get('Mapped to MT (Correct Location)', 0)
         mapped_to_mt_correct_location_mq_30 = stats.get('Mapped to MT (Correct Location, MQ>30)', 0)
         mapped_not_to_mt = stats.get('Mapped NOT to MT', 0)
         mapped_not_to_mt_mq_30 = stats.get('Mapped NOT to MT (MQ>30)', 0)
+        
+        # Calculate multi-mapping rate if possible
+        multi_mapping_rate = 0.0
+        if total_reads > 0:
+            multi_mapping_rate = (multi_mapped / total_reads) * 100
+        
+        # Print multi-mapping rate to stderr
+        #print(f"File: {file}, Multi-mapping rate: {multi_mapping_rate:.2f}%", file=sys.stderr)
         
         aligner_name, damage_type = get_aligner_name_and_damage_type(file)
         
@@ -63,7 +73,7 @@ def compute_proportion(directory, output_csv_path):
 
 # Define the directory path and output CSV path
 directory_path = '/home/projects/MAAG/Magpie/Magpie/linear_experiment/human_mito/alignments'
-output_csv_path = 'new_stats.csv'
+output_csv_path = 'alignment_stats.csv'
 
 # Compute and save the new statistics
 compute_proportion(directory_path, output_csv_path)
