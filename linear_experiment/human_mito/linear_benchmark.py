@@ -6,6 +6,17 @@ import pandas as pd
 file_path = 'alignment_stats.csv'
 df = pd.read_csv(file_path)
 
+# Check if DataFrame is loaded correctly
+print("DataFrame Head:")
+print(df.head())
+
+# Verify column names
+print("DataFrame Columns:", df.columns)
+
+# Check data types of each column
+print("Data Types of Columns:")
+print(df.dtypes)
+
 # Define the questions and corresponding columns for plotting
 questions_columns = [
     ("Number mapped to mt", "Mapped_to_MT"),
@@ -16,13 +27,13 @@ questions_columns = [
 ]
 
 # Customize the Damage_Type levels and their order
-damage_type_order = ['none', 'dmid', 'dhigh', 'single']  # Corrected to match the unique values
+damage_type_order = ['none', 'dmid', 'dhigh', 'single']
 custom_order_df = df.copy()
 custom_order_df['Damage_Type'] = custom_order_df['Damage_Type'].astype('category')
 custom_order_df['Damage_Type'] = custom_order_df['Damage_Type'].cat.reorder_categories(damage_type_order, ordered=True)
 
 # Rename the Damage_Type levels for better readability
-damage_type_rename = {'none': 'None', 'dmid': 'Mid', 'dhigh': 'High', 'single': 'Single'}  # Corrected to match the unique values
+damage_type_rename = {'none': 'None', 'dmid': 'Mid', 'dhigh': 'High', 'single': 'Single'}
 custom_order_df['Damage_Type'] = custom_order_df['Damage_Type'].map(damage_type_rename)
 
 # Update Aligner_Name to make 'safari' uppercase ('SAFARI')
