@@ -37,7 +37,7 @@ print("Original DataFrame Head:")
 print(df.head())
 
 # Filter data for subsampling rate 1.0
-df_filtered = df[df['Subsampling_Rate'] == 1.0]
+df_filtered = df[df['Subsampling_Rate'] == 0.9]
 
 # Check filtered DataFrame
 print("Filtered DataFrame Head:")
@@ -70,7 +70,7 @@ create_plot(df, "linear_benchmark.png", "Alignment Statistics Stratified by DNA 
 
 # Create the plot for subsampling rate 1.0
 if not df_filtered.empty:
-    create_plot(df_filtered, "linear_benchmark_subsampling_1.0.png", "Alignment Statistics for Subsampling Rate 1.0 Stratified by DNA Damage Type")
+    create_plot(df_filtered, "linear_benchmark_subsampling_0.9.png", "Alignment Statistics for Subsampling Rate 1.0 Stratified by DNA Damage Type")
 else:
-    print("No data available for subsampling rate 1.0.")
+    print("No data available for subsampling rate 0.9.")
 
