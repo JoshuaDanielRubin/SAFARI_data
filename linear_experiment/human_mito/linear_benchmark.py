@@ -2,20 +2,46 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 
+def create_plot(df, file_name, title):
+    custom_order_df = df.copy()
+    custom_order_df['Damage_Type'] = custom_order_df['Damage_Type'].astype('category')
+    custom_order_df['Damage_Type'] = custom_order_df['Damage_Type'].cat.reorder_categories(damage_type_order, ordered=True)
+    custom_order_df['Damage_Type'] = custom_order_df['Damage_Type'].map(damage_type_rename)
+    custom_order_df['Aligner_Name'] = custom_order_df['Aligner_Name'].replace('safari', 'SAFARI')
+    
+    fig, axes = plt.subplots(len(journal_titles), 1, figsize=(16, 25))
+    fig.suptitle(title, fontsize=18, color='black')
+    
+    for ax, (journal_title, column) in zip(axes, zip(journal_titles, [col for _, col in questions_columns])):
+        sns.barplot(
+            x="Aligner_Name", 
+            y=column, 
+            hue="Damage_Type", 
+            data=custom_order_df, 
+            ax=ax, 
+            hue_order=['None', 'Mid', 'High', 'Single']
+        )
+        ax.set_title(journal_title, fontsize=16, color='black')
+        ax.set_xlabel("Alignment Algorithm", fontsize=14, color='black')
+        ax.set_ylabel("Count of Reads", fontsize=14, color='black')
+    
+    plt.tight_layout(rect=[0, 0, 1, 0.96])
+    plt.savefig(file_name)
+
 # Load the data
 file_path = 'alignment_stats.csv'
 df = pd.read_csv(file_path)
 
 # Check if DataFrame is loaded correctly
-print("DataFrame Head:")
+print("Original DataFrame Head:")
 print(df.head())
 
-# Verify column names
-print("DataFrame Columns:", df.columns)
+# Filter data for subsampling rate 1.0
+df_filtered = df[df['Subsampling_Rate'] == 1.0]
 
-# Check data types of each column
-print("Data Types of Columns:")
-print(df.dtypes)
+# Check filtered DataFrame
+print("Filtered DataFrame Head:")
+print(df_filtered.head())
 
 # Define the questions and corresponding columns for plotting
 questions_columns = [
@@ -28,16 +54,7 @@ questions_columns = [
 
 # Customize the Damage_Type levels and their order
 damage_type_order = ['none', 'dmid', 'dhigh', 'single']
-custom_order_df = df.copy()
-custom_order_df['Damage_Type'] = custom_order_df['Damage_Type'].astype('category')
-custom_order_df['Damage_Type'] = custom_order_df['Damage_Type'].cat.reorder_categories(damage_type_order, ordered=True)
-
-# Rename the Damage_Type levels for better readability
 damage_type_rename = {'none': 'None', 'dmid': 'Mid', 'dhigh': 'High', 'single': 'Single'}
-custom_order_df['Damage_Type'] = custom_order_df['Damage_Type'].map(damage_type_rename)
-
-# Update Aligner_Name to make 'safari' uppercase ('SAFARI')
-custom_order_df['Aligner_Name'] = custom_order_df['Aligner_Name'].replace('safari', 'SAFARI')
 
 # Define more descriptive journal-ready titles
 journal_titles = [
@@ -48,27 +65,12 @@ journal_titles = [
     "Reads Mapped to Non-mtDNA Locations (MQ > 30)"
 ]
 
-# Initialize the figure
-fig, axes = plt.subplots(len(journal_titles), 1, figsize=(16, 25))
-fig.suptitle("Alignment Statistics Stratified by DNA Damage Type", fontsize=18, color='black')
+# Create the original plot
+create_plot(df, "linear_benchmark.png", "Alignment Statistics Stratified by DNA Damage Type")
 
-# Loop over each question and plot the data
-for ax, (journal_title, column) in zip(axes, zip(journal_titles, [col for _, col in questions_columns])):
-    sns.barplot(
-        x="Aligner_Name", 
-        y=column, 
-        hue="Damage_Type", 
-        data=custom_order_df, 
-        ax=ax, 
-        hue_order=['None', 'Mid', 'High', 'Single']
-    )
-    ax.set_title(journal_title, fontsize=16, color='black')
-    ax.set_xlabel("Alignment Algorithm", fontsize=14, color='black')
-    ax.set_ylabel("Count of Reads", fontsize=14, color='black')
-
-# Adjust layout
-plt.tight_layout(rect=[0, 0, 1, 0.96])
-
-# Save the plot to a file
-plt.savefig("linear_benchmark.png")
+# Create the plot for subsampling rate 1.0
+if not df_filtered.empty:
+    create_plot(df_filtered, "linear_benchmark_subsampling_1.0.png", "Alignment Statistics for Subsampling Rate 1.0 Stratified by DNA Damage Type")
+else:
+    print("No data available for subsampling rate 1.0.")
 
