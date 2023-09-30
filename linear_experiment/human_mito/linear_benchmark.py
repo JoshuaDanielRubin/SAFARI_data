@@ -32,17 +32,6 @@ def create_plot(df, file_name, title):
 file_path = 'alignment_stats.csv'
 df = pd.read_csv(file_path)
 
-# Check if DataFrame is loaded correctly
-print("Original DataFrame Head:")
-print(df.head())
-
-# Filter data for subsampling rate 1.0
-df_filtered = df[df['Subsampling_Rate'] == 0.9]
-
-# Check filtered DataFrame
-print("Filtered DataFrame Head:")
-print(df_filtered.head())
-
 # Define the questions and corresponding columns for plotting
 questions_columns = [
     ("Number mapped to mt", "Mapped_to_MT"),
@@ -68,9 +57,4 @@ journal_titles = [
 # Create the original plot
 create_plot(df, "linear_benchmark.png", "Alignment Statistics Stratified by DNA Damage Type")
 
-# Create the plot for subsampling rate 1.0
-if not df_filtered.empty:
-    create_plot(df_filtered, "linear_benchmark_subsampling_0.9.png", "Alignment Statistics for Subsampling Rate 1.0 Stratified by DNA Damage Type")
-else:
-    print("No data available for subsampling rate 0.9.")
 
