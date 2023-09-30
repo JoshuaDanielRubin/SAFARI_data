@@ -7,15 +7,15 @@ STEPS10=[0]
 STEPSMSA=["0"]
 LENGTHS=[str(i) for i in range(25, 76, 5)]
 #LENGTHS=["50"]
-RATES=["0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9"]
+RATES=["0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10"]
 #RATES=["0.5"]
 DAMAGE=["dhigh", "dmid", "none", "single"]
 #DAMAGE=["none"]
 ALIGNERS=["bowtie2", "mem", "aln_anc", "aln", "shrimp", "safari", "bb", "giraffe"]
-#ALIGNERS=["aln", "bowtie2", "safari", "giraffe"]
+#ALIGNERS=["safari"]
 ALIGNERSC=[]
-NUMFRAGS=1000
-FRAGNUM=50
+NUMFRAGS=10000
+FRAGNUM=100
 
 rule all:
     input:
@@ -196,22 +196,24 @@ rule subsamp_mt:
     output: "simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_s{rate}.fq.gz"
     wildcard_constraints:
         fraglen="\d+"
-    shell: "/home/ctools//seqtk-1.3/seqtk sample -s 321 {input} {wildcards.rate} |gzip > {output}"
+    #shell: "/home/ctools//seqtk-1.3/seqtk sample -s 321 {input} {wildcards.rate} |gzip > {output}"
+    shell: "cp {input} {output}"
 
 rule subsamp_r1:
     input: "simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r1.fq.gz"
     output: "simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r1_s{rate}.fq.gz"
     wildcard_constraints:
         fraglen="\d+"
-    shell: "/home/ctools//seqtk-1.3/seqtk sample -s 321 {input} {wildcards.rate} |gzip > {output}"
+    #shell: "/home/ctools//seqtk-1.3/seqtk sample -s 321 {input} {wildcards.rate} |gzip > {output}"
+    shell: "cp {input} {output}"
 
 rule subsamp_r2:
     input: "simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r2.fq.gz"
     output: "simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r2_s{rate}.fq.gz"
     wildcard_constraints:
         fraglen="\d+"
-    shell: "/home/ctools//seqtk-1.3/seqtk sample -s 321 {input} {wildcards.rate} |gzip > {output}"
-        
+    #shell: "/home/ctools//seqtk-1.3/seqtk sample -s 321 {input} {wildcards.rate} |gzip > {output}"
+    shell: "cp {input} {output}"
 
 #same process for numtS
 
