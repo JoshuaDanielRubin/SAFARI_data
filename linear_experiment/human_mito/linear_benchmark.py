@@ -16,13 +16,13 @@ questions_columns = [
 ]
 
 # Customize the Damage_Type levels and their order
-damage_type_order = ['dnone', 'ddmid', 'ddhigh', 'dsingle']
+damage_type_order = ['none', 'dmid', 'dhigh', 'single']  # Corrected to match the unique values
 custom_order_df = df.copy()
 custom_order_df['Damage_Type'] = custom_order_df['Damage_Type'].astype('category')
-custom_order_df['Damage_Type'].cat.reorder_categories(damage_type_order, ordered=True, inplace=True)
+custom_order_df['Damage_Type'] = custom_order_df['Damage_Type'].cat.reorder_categories(damage_type_order, ordered=True)
 
 # Rename the Damage_Type levels for better readability
-damage_type_rename = {'dnone': 'None', 'ddmid': 'Mid', 'ddhigh': 'High', 'dsingle': 'Single'}
+damage_type_rename = {'none': 'None', 'dmid': 'Mid', 'dhigh': 'High', 'single': 'Single'}  # Corrected to match the unique values
 custom_order_df['Damage_Type'] = custom_order_df['Damage_Type'].map(damage_type_rename)
 
 # Update Aligner_Name to make 'safari' uppercase ('SAFARI')
