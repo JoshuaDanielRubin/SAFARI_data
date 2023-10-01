@@ -1,7 +1,16 @@
 import os
 import glob
 import pandas as pd
-import numpy as np
+from collections import defaultdict
+
+def extract_damage_type(file_name):
+    parts = file_name.split('_')
+    for part in parts:
+        if part.startswith('d') or part.startswith('dd'):
+            damage_type = part.lstrip('d')
+            assert damage_type in ['none', 'mid', 'high', 'single'], f'Unexpected damage type: {damage_type}'
+            return damage_type
+    raise ValueError(f'Unexpected file name structure, no damage type found: {file_name}')
 
 def load_damage_data(file_name):
     file_path = os.path.join(damage_data_path, file_name)
@@ -36,31 +45,14 @@ def load_prof_data(file_name):
         print(f'Data in {file_name} loaded successfully.')
     return table1, table2
 
-def calculate_accuracy(predicted_data, ground_truth_data):
-    if predicted_data is None or ground_truth_data is None or predicted_data.shape != ground_truth_data.shape:
-        return None
-    sum_of_absolute_differences = np.sum(np.abs(predicted_data.values - ground_truth_data.values))
-    total_elements = np.prod(predicted_data.shape)
-    accuracy = 1 - (sum_of_absolute_differences / total_elements)
-    return accuracy
-
-def check_data(damage_data, prof_data):
-    accuracy_results = {}
-
-    for damage_file, damage_df in damage_data.items():
-        prof_file = damage_file.replace('.dat', '.prof')
-        prof_tables = prof_data.get(prof_file)
-
-        if prof_tables is None:
-            print(f"No prof data found for {damage_file}")
+def check_data(damage_data_dict, prof_data_dict):
+    for file_name, (table1, table2) in prof_data_dict.items():
+        if table1 is None or table2 is None:
             continue
+        damage_type = extract_damage_type(file_name)
+        print(f'Processing {file_name} with damage type {damage_type}')
 
-        table1, table2 = prof_tables
-        accuracy_results[(damage_file, 'single3.dat')] = calculate_accuracy(table1, damage_df)
-        accuracy_results[(damage_file, 'single5.dat')] = calculate_accuracy(table2, damage_df)
-
-    for key, accuracy in accuracy_results.items():
-        print(f'Accuracy for {key[0]} with {key[1]}: {accuracy}')
+        # Your accuracy computation logic here
 
 if __name__ == "__main__":
     damage_data_path = '/home/projects/MAAG/Magpie/Magpie/linear_experiment/human_mito'
@@ -69,8 +61,8 @@ if __name__ == "__main__":
     damage_data_files = glob.glob(os.path.join(damage_data_path, '*.dat'))
     prof_data_files = glob.glob(os.path.join(prof_data_path, '*.prof'))
 
-    damage_data = {os.path.basename(file_name): load_damage_data(os.path.basename(file_name)) for file_name in damage_data_files}
-    prof_data = {os.path.basename(file_name): load_prof_data(os.path.basename(file_name)) for file_name in prof_data_files}
+    damage_data_dict = {os.path.basename(file_name): load_damage_data(os.path.basename(file_name)) for file_name in damage_data_files}
+    prof_data_dict = {os.path.basename(file_name): load_prof_data(os.path.basename(file_name)) for file_name in prof_data_files}
 
-    check_data(damage_data, prof_data)
+    check_data(damage_data_dict, prof_data_dict)
 
