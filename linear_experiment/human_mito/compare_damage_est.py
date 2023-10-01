@@ -1,7 +1,7 @@
 import os
 import glob
 import pandas as pd
-from collections import defaultdict
+import numpy as np
 
 def extract_damage_type(file_name):
     parts = file_name.split('_')
@@ -18,7 +18,7 @@ def load_damage_data(file_name):
         print(f'File {file_name} is empty.')
         return None
     try:
-        data = pd.read_csv(file_path, header=None)
+        data = pd.read_csv(file_path, delimiter='\t', index_col=0)
     except Exception as e:
         print(f'Error reading {file_name}: {e}')
         return None
@@ -34,8 +34,8 @@ def load_prof_data(file_name):
         print(f'File {file_name} is empty.')
         return None, None
     try:
-        table1 = pd.read_csv(file_path, header=None, skiprows=1, nrows=5)
-        table2 = pd.read_csv(file_path, header=None, skiprows=7)
+        table1 = pd.read_csv(file_path, header=None, delimiter='\t', skiprows=1, nrows=5, index_col=0)
+        table2 = pd.read_csv(file_path, header=None, delimiter='\t', skiprows=7, index_col=0)
     except Exception as e:
         print(f'Error reading {file_name}: {e}')
         return None, None
@@ -45,6 +45,26 @@ def load_prof_data(file_name):
         print(f'Data in {file_name} loaded successfully.')
     return table1, table2
 
+def compute_mse(true_data, estimated_data):
+    if true_data is None or estimated_data is None:
+        print('Missing data, cannot compute MSE.')
+        return None
+    try:
+        # Ensure the columns match between the two dataframes
+        common_columns = true_data.columns.intersection(estimated_data.columns)
+        true_data = true_data[common_columns]
+        estimated_data = estimated_data[common_columns]
+
+        if true_data.empty or estimated_data.empty:
+            print('Missing data, cannot compute MSE.')
+            return None
+        
+        mse = ((true_data.values - estimated_data.values) ** 2).mean()
+    except Exception as e:
+        print(f'Error computing MSE: {e}')
+        return None
+    return mse
+
 def check_data(damage_data_dict, prof_data_dict):
     for file_name, (table1, table2) in prof_data_dict.items():
         if table1 is None or table2 is None:
@@ -52,7 +72,17 @@ def check_data(damage_data_dict, prof_data_dict):
         damage_type = extract_damage_type(file_name)
         print(f'Processing {file_name} with damage type {damage_type}')
 
-        # Your accuracy computation logic here
+        # Update this line to use the correct key to access the damage_data_dict
+        true_data_key = f'{damage_type}{len(table1)}.dat'
+        true_data = damage_data_dict.get(true_data_key)
+        
+        mse_table1 = compute_mse(true_data, table1)
+        mse_table2 = compute_mse(true_data, table2)
+
+        if mse_table1 is not None:
+            print(f'MSE for table 1: {mse_table1}')
+        if mse_table2 is not None:
+            print(f'MSE for table 2: {mse_table2}')
 
 if __name__ == "__main__":
     damage_data_path = '/home/projects/MAAG/Magpie/Magpie/linear_experiment/human_mito'
