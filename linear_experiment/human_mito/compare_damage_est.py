@@ -31,7 +31,7 @@ def load_damage_data(file_name):
     if data.empty:
         print(f'No data to check for {file_name}')
     else:
-        print(f'Data in {file_name} loaded successfully.')
+        pass #print(f'Data in {file_name} loaded successfully.')
     return data
 
 def load_prof_data(file_name):
@@ -55,7 +55,7 @@ def load_prof_data(file_name):
     if table1.empty or table2.empty:
         print(f'No data to check for {file_name}')
     else:
-        print(f'Data in {file_name} loaded successfully.')
+        pass #print(f'Data in {file_name} loaded successfully.')
     return table1, table2
 
 def compute_mse(true_data, estimated_data):
@@ -85,13 +85,13 @@ def check_data(damage_data_dict, prof_data_dict):
         if table1 is None or table2 is None:
             continue
         damage_type = extract_damage_type(file_name)
-        print(f'Processing {file_name} with damage type {damage_type}')
+        #print(f'Processing {file_name} with damage type {damage_type}')
 
         true_data_key = f'{damage_type}{len(table1)}.dat'
         true_data = damage_data_dict.get(true_data_key)
         
-        print(f'True Data 1:\n{true_data}')
-        print(f'Table 1:\n{table1}')
+        #print(f'True Data 1:\n{true_data}')
+        #print(f'Table 1:\n{table1}')
         
         mse_table1 = compute_mse(true_data, table1)
         mse_table2 = compute_mse(true_data, table2)
