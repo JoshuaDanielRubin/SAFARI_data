@@ -2,6 +2,12 @@ import os
 import glob
 import pandas as pd
 import numpy as np
+import io
+import re
+
+def clean_data(df):
+    df = df.applymap(lambda x: re.search(r"([\d\.]+)", str(x)).group(1) if re.search(r"([\d\.]+)", str(x)) else np.nan)
+    return df.astype(float)
 
 def extract_damage_type(file_name):
     parts = file_name.split('_')
@@ -34,11 +40,18 @@ def load_prof_data(file_name):
         print(f'File {file_name} is empty.')
         return None, None
     try:
-        table1 = pd.read_csv(file_path, header=None, delimiter='\t', skiprows=1, nrows=5, index_col=0)
-        table2 = pd.read_csv(file_path, header=None, delimiter='\t', skiprows=7, index_col=0)
+        with open(file_path, 'r') as file:
+            lines = file.readlines()
+            second_header_index = len(lines) // 2
+            table1_lines = lines[:second_header_index]
+            table2_lines = lines[second_header_index:]
+
+        table1 = pd.read_csv(io.StringIO(''.join(table1_lines)), delimiter='\t', header=0)
+        table2 = pd.read_csv(io.StringIO(''.join(table2_lines)), delimiter='\t', header=0)
     except Exception as e:
         print(f'Error reading {file_name}: {e}')
         return None, None
+
     if table1.empty or table2.empty:
         print(f'No data to check for {file_name}')
     else:
@@ -50,7 +63,9 @@ def compute_mse(true_data, estimated_data):
         print('Missing data, cannot compute MSE.')
         return None
     try:
-        # Ensure the columns match between the two dataframes
+        true_data = clean_data(true_data)
+        estimated_data = clean_data(estimated_data)
+
         common_columns = true_data.columns.intersection(estimated_data.columns)
         true_data = true_data[common_columns]
         estimated_data = estimated_data[common_columns]
@@ -72,9 +87,11 @@ def check_data(damage_data_dict, prof_data_dict):
         damage_type = extract_damage_type(file_name)
         print(f'Processing {file_name} with damage type {damage_type}')
 
-        # Update this line to use the correct key to access the damage_data_dict
         true_data_key = f'{damage_type}{len(table1)}.dat'
         true_data = damage_data_dict.get(true_data_key)
+        
+        print(f'True Data 1:\n{true_data}')
+        print(f'Table 1:\n{table1}')
         
         mse_table1 = compute_mse(true_data, table1)
         mse_table2 = compute_mse(true_data, table2)
