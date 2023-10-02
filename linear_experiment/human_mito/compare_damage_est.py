@@ -136,8 +136,8 @@ def check_data(damage_data_dict, prof_data_dict):
     plot_mse(mse_data)
 
 if __name__ == "__main__":
-    damage_data_path = '/home/projects/MAAG/Magpie/Magpie/linear_experiment/human_mito'
-    prof_data_path = '/home/projects/MAAG/Magpie/Magpie/linear_experiment/human_mito/new_alignments/profs'
+    damage_data_path = '.'
+    prof_data_path = 'new_alignments/profs'
 
     damage_data_files = glob.glob(os.path.join(damage_data_path, '*.dat'))
     prof_data_files = glob.glob(os.path.join(prof_data_path, '*.prof'))
