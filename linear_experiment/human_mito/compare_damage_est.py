@@ -91,7 +91,14 @@ def compute_mse(true_data, estimated_data):
         return None
     return mse
 
-def plot_mse(mse_data):
+def filter_mse_data_for_giraffe_and_safari(mse_data):
+    filtered_mse_data = defaultdict(lambda: defaultdict(float))
+    for aligner in ['giraffe', 'safari']:
+        if aligner in mse_data:
+            filtered_mse_data[aligner] = mse_data[aligner]
+    return filtered_mse_data
+
+def plot_mse(mse_data, plot_title, save_file_name):
     colorblind_colors = ['#0173B2', '#DE8F05', '#029E73', '#D55E00', '#CC78BC', '#CA9161', '#FBAFE4']
     aligners = list(mse_data.keys())
     damage_types = list(mse_data[aligners[0]].keys())
@@ -106,13 +113,13 @@ def plot_mse(mse_data):
     
     ax.set_xlabel('Aligner')
     ax.set_ylabel('MSE')
-    ax.set_title('MSE by aligner and damage type')
+    ax.set_title(plot_title)
     ax.set_xticks(x + width*(len(damage_types)-1)/2)
     ax.set_xticklabels(aligners)
     ax.legend()
 
     fig.tight_layout()
-    plt.savefig('mse_plot.png')
+    plt.savefig(save_file_name)
     
     # Print MSE values
     for aligner in aligners:
@@ -138,8 +145,6 @@ def check_data(damage_data_dict, prof_data_dict):
         if true_data_key == 'mid3.dat':
             true_data_key= "dmid3.dat"
 
-        #print(damage_type, aligner, true_data_key, damage_data_dict.keys())
-
         true_data = damage_data_dict.get(true_data_key)
 
         mse_table1 = compute_mse(true_data, table1)
@@ -150,7 +155,9 @@ def check_data(damage_data_dict, prof_data_dict):
         if mse_table2 is not None:
             mse_data[aligner][damage_type] = mse_table2
 
-    plot_mse(mse_data)
+    plot_mse(mse_data, 'MSE by aligner and damage type', 'mse_plot.png')
+    filtered_mse_data = filter_mse_data_for_giraffe_and_safari(mse_data)
+    plot_mse(filtered_mse_data, 'MSE comparison between Giraffe and Safari', 'mse_plot_giraffe_safari.png')
 
 if __name__ == "__main__":
     damage_data_path = '.'
