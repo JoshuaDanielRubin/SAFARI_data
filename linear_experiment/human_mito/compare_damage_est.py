@@ -42,7 +42,7 @@ def load_damage_data(file_name):
 def load_prof_data(file_name):
     file_path = os.path.join(prof_data_path, file_name)
     if os.path.getsize(file_path) == 0:
-        print(f'File {file_name} is empty.')
+        #print(f'File {file_name} is empty.')
         return None, None
     try:
         with open(file_path, 'r') as file:
@@ -123,6 +123,18 @@ def check_data(damage_data_dict, prof_data_dict):
         aligner = extract_aligner(file_name)
 
         true_data_key = f'{damage_type}{len(table1)}.dat'
+
+        if true_data_key == 'high5.dat':
+            true_data_key= "dhigh5.dat"
+        if true_data_key == 'high3.dat':
+            true_data_key= "dhigh3.dat"
+        if true_data_key == 'mid5.dat':
+            true_data_key= "dmid5.dat"
+        if true_data_key == 'mid3.dat':
+            true_data_key= "dmid3.dat"
+
+        #print(damage_type, aligner, true_data_key, damage_data_dict.keys())
+
         true_data = damage_data_dict.get(true_data_key)
 
         mse_table1 = compute_mse(true_data, table1)
