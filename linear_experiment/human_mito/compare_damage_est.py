@@ -4,6 +4,8 @@ import pandas as pd
 import numpy as np
 import io
 import re
+import matplotlib.pyplot as plt
+from collections import defaultdict
 
 def clean_data(df):
     df = df.applymap(lambda x: re.search(r"([\d\.]+)", str(x)).group(1) if re.search(r"([\d\.]+)", str(x)) else np.nan)
@@ -13,10 +15,13 @@ def extract_damage_type(file_name):
     parts = file_name.split('_')
     for part in parts:
         if part.startswith('d') or part.startswith('dd'):
-            damage_type = part.lstrip('d')
+            damage_type = part.lstrip('d').lstrip('d')  # Adjusted this line
             assert damage_type in ['none', 'mid', 'high', 'single'], f'Unexpected damage type: {damage_type}'
             return damage_type
     raise ValueError(f'Unexpected file name structure, no damage type found: {file_name}')
+
+def extract_aligner(file_name):
+    return file_name.split('_')[-1].split('.')[0]
 
 def load_damage_data(file_name):
     file_path = os.path.join(damage_data_path, file_name)
@@ -29,9 +34,9 @@ def load_damage_data(file_name):
         print(f'Error reading {file_name}: {e}')
         return None
     if data.empty:
-        print(f'No data to check for {file_name}')
+        print(f'No data in file {file_name}.')
     else:
-        pass #print(f'Data in {file_name} loaded successfully.')
+        pass
     return data
 
 def load_prof_data(file_name):
@@ -55,12 +60,15 @@ def load_prof_data(file_name):
     if table1.empty or table2.empty:
         print(f'No data to check for {file_name}')
     else:
-        pass #print(f'Data in {file_name} loaded successfully.')
+        pass
     return table1, table2
 
 def compute_mse(true_data, estimated_data):
-    if true_data is None or estimated_data is None:
-        print('Missing data, cannot compute MSE.')
+    if true_data is None:
+        print('True data is missing.')
+        return None
+    if estimated_data is None:
+        print('Estimated data is missing.')
         return None
     try:
         true_data = clean_data(true_data)
@@ -70,8 +78,11 @@ def compute_mse(true_data, estimated_data):
         true_data = true_data[common_columns]
         estimated_data = estimated_data[common_columns]
 
-        if true_data.empty or estimated_data.empty:
-            print('Missing data, cannot compute MSE.')
+        if true_data.empty:
+            print('True data is empty.')
+            return None
+        if estimated_data.empty:
+            print('Estimated data is empty.')
             return None
         
         mse = ((true_data.values - estimated_data.values) ** 2).mean()
@@ -80,26 +91,49 @@ def compute_mse(true_data, estimated_data):
         return None
     return mse
 
+def plot_mse(mse_data):
+    colorblind_colors = ['#0173B2', '#DE8F05', '#029E73', '#D55E00', '#CC78BC', '#CA9161', '#FBAFE4']
+    aligners = list(mse_data.keys())
+    damage_types = list(mse_data[aligners[0]].keys())
+    
+    x = np.arange(len(aligners))
+    width = 0.2
+
+    fig, ax = plt.subplots()
+    for i, damage_type in enumerate(damage_types):
+        mse_values = [mse_data[aligner][damage_type] for aligner in aligners]
+        ax.bar(x + i*width, mse_values, width, label=damage_type, color=colorblind_colors[i])
+    
+    ax.set_xlabel('Aligner')
+    ax.set_ylabel('MSE')
+    ax.set_title('MSE by aligner and damage type')
+    ax.set_xticks(x + width*(len(damage_types)-1)/2)
+    ax.set_xticklabels(aligners)
+    ax.legend()
+
+    fig.tight_layout()
+    plt.savefig('mse_plot.png')
+
 def check_data(damage_data_dict, prof_data_dict):
+    mse_data = defaultdict(lambda: defaultdict(float))
     for file_name, (table1, table2) in prof_data_dict.items():
         if table1 is None or table2 is None:
             continue
         damage_type = extract_damage_type(file_name)
-        #print(f'Processing {file_name} with damage type {damage_type}')
+        aligner = extract_aligner(file_name)
 
         true_data_key = f'{damage_type}{len(table1)}.dat'
         true_data = damage_data_dict.get(true_data_key)
-        
-        #print(f'True Data 1:\n{true_data}')
-        #print(f'Table 1:\n{table1}')
-        
+
         mse_table1 = compute_mse(true_data, table1)
         mse_table2 = compute_mse(true_data, table2)
 
         if mse_table1 is not None:
-            print(f'MSE for table 1: {mse_table1}')
+            mse_data[aligner][damage_type] = mse_table1
         if mse_table2 is not None:
-            print(f'MSE for table 2: {mse_table2}')
+            mse_data[aligner][damage_type] = mse_table2
+
+    plot_mse(mse_data)
 
 if __name__ == "__main__":
     damage_data_path = '/home/projects/MAAG/Magpie/Magpie/linear_experiment/human_mito'
