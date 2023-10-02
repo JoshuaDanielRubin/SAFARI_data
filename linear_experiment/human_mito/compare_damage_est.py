@@ -73,26 +73,30 @@ def compute_mse(true_data, estimated_data):
         true_data = clean_data(true_data)
         estimated_data = clean_data(estimated_data)
 
+        # Get the common columns between true_data and estimated_data
         common_columns = true_data.columns.intersection(estimated_data.columns)
         true_data = true_data[common_columns]
         estimated_data = estimated_data[common_columns]
 
-        if true_data.empty:
-            print('True data is empty.')
-            return None
-        if estimated_data.empty:
-            print('Estimated data is empty.')
-            return None
-        
-        if true_data.isnull().all().all() or estimated_data.isnull().all().all():
-            #print('All values are NaN in true_data or estimated_data.')
+        # Dropping rows with NaN values in either true_data or estimated_data
+        nan_indices = true_data.isnull().any(axis=1) | estimated_data.isnull().any(axis=1)
+        true_data = true_data[~nan_indices]
+        estimated_data = estimated_data[~nan_indices]
+
+        if true_data.empty or estimated_data.empty:
+            print('Data is empty after dropping NaN values.')
             return None
         
-        mse = np.nanmean((true_data.values - estimated_data.values) ** 2)
+        # Rounding values to avoid rounding errors
+        true_data = true_data.round(6)
+        estimated_data = estimated_data.round(6)
+
+        median_se = np.nanmedian((true_data.values - estimated_data.values) ** 2)
     except Exception as e:
         print(f'Error computing MSE: {e}')
         return None
-    return mse
+    return median_se
+
 
 def filter_mse_data_for_giraffe_and_safari(mse_data):
     filtered_mse_data = defaultdict(lambda: defaultdict(float))
