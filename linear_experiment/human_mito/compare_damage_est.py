@@ -113,6 +113,11 @@ def plot_mse(mse_data):
 
     fig.tight_layout()
     plt.savefig('mse_plot.png')
+    
+    # Print MSE values
+    for aligner in aligners:
+        for damage_type in damage_types:
+            print(f'MSE for {aligner} with damage type {damage_type}: {mse_data[aligner][damage_type]}')
 
 def check_data(damage_data_dict, prof_data_dict):
     mse_data = defaultdict(lambda: defaultdict(float))
