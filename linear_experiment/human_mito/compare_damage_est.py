@@ -15,7 +15,7 @@ def extract_damage_type(file_name):
     parts = file_name.split('_')
     for part in parts:
         if part.startswith('d') or part.startswith('dd'):
-            damage_type = part.lstrip('d').lstrip('d')  # Adjusted this line
+            damage_type = part.lstrip('d').lstrip('d')
             assert damage_type in ['none', 'mid', 'high', 'single'], f'Unexpected damage type: {damage_type}'
             return damage_type
     raise ValueError(f'Unexpected file name structure, no damage type found: {file_name}')
@@ -62,13 +62,13 @@ def load_prof_data(file_name):
         pass
     return table1, table2
 
-def compute_mse(true_data, estimated_data):
+def compute_mse(true_data, estimated_data, aligner, damage_type):
     if true_data is None:
         print('True data is missing.')
-        return None
+        return None, 0
     if estimated_data is None:
         print('Estimated data is missing.')
-        return None
+        return None, 0
     try:
         true_data = clean_data(true_data)
         estimated_data = clean_data(estimated_data)
@@ -85,17 +85,23 @@ def compute_mse(true_data, estimated_data):
 
         if true_data.empty or estimated_data.empty:
             print('Data is empty after dropping NaN values.')
-            return None
-        
-        # Rounding values to avoid rounding errors
-        true_data = true_data.round(6)
-        estimated_data = estimated_data.round(6)
+            return None, 0
 
-        median_se = np.nanmedian((true_data.values - estimated_data.values) ** 2)
+        # Flattening the matrices and then computing the MSE
+        flat_true_data = true_data.values.flatten()
+        flat_estimated_data = estimated_data.values.flatten()
+        mse = np.nanmedian((flat_true_data - flat_estimated_data) ** 2)
+
+        if aligner == 'giraffe' and damage_type == 'high':
+            print(f'True Data for {aligner} with {damage_type} damage:\n', true_data)
+            print(f'Estimated Data for {aligner} with {damage_type} damage:\n', estimated_data)
+            print(f'MSE for {aligner} with {damage_type} damage: {mse}')
+
     except Exception as e:
         print(f'Error computing MSE: {e}')
-        return None
-    return median_se
+        return None, 0
+    
+    return mse, len(true_data)
 
 
 def filter_mse_data_for_giraffe_and_safari(mse_data):
@@ -105,7 +111,7 @@ def filter_mse_data_for_giraffe_and_safari(mse_data):
             filtered_mse_data[aligner] = mse_data[aligner]
     return filtered_mse_data
 
-def plot_mse(mse_data, plot_title, save_file_name):
+def plot_mse(mse_data, mse_sample_count_data, plot_title, save_file_name):
     colorblind_colors = ['#0173B2', '#DE8F05', '#029E73', '#D55E00', '#CC78BC', '#CA9161', '#FBAFE4']
     aligners = list(mse_data.keys())
     damage_types = list(mse_data[aligners[0]].keys())
@@ -128,14 +134,15 @@ def plot_mse(mse_data, plot_title, save_file_name):
     fig.tight_layout()
     plt.savefig(save_file_name)
     
-    # Print average MSE values
     for aligner in aligners:
         for damage_type in damage_types:
-            print(f'Average MSE for {aligner} with damage_type {damage_type}: {mse_data[aligner][damage_type]}')
+            sample_count = mse_sample_count_data[aligner][damage_type]
+            print(f'Average MSE for {aligner} with damage_type {damage_type}: {mse_data[aligner][damage_type]} (based on {sample_count} samples)')
 
 def check_data(damage_data_dict, prof_data_dict):
     mse_sum_data = defaultdict(lambda: defaultdict(float))
     mse_count_data = defaultdict(lambda: defaultdict(int))
+    mse_sample_count_data = defaultdict(lambda: defaultdict(int))
     for file_name, (table1, table2) in prof_data_dict.items():
         damage_type = extract_damage_type(file_name)
         aligner = extract_aligner(file_name)
@@ -146,11 +153,12 @@ def check_data(damage_data_dict, prof_data_dict):
                 true_data_key = "d" + true_data_key
 
             true_data = damage_data_dict.get(true_data_key)
-            mse_table1 = compute_mse(true_data, table1)
+            mse_table1, sample_count_table1 = compute_mse(true_data, table1, aligner, damage_type)
 
             if mse_table1 is not None:
                 mse_sum_data[aligner][damage_type] += mse_table1
                 mse_count_data[aligner][damage_type] += 1
+                mse_sample_count_data[aligner][damage_type] += sample_count_table1
 
         if table2 is not None:
             true_data_key = f'{damage_type}{len(table2)}.dat'
@@ -158,21 +166,21 @@ def check_data(damage_data_dict, prof_data_dict):
                 true_data_key = "d" + true_data_key
 
             true_data = damage_data_dict.get(true_data_key)
-            mse_table2 = compute_mse(true_data, table2)
+            mse_table2, sample_count_table2 = compute_mse(true_data, table2, aligner, damage_type)
 
             if mse_table2 is not None:
                 mse_sum_data[aligner][damage_type] += mse_table2
                 mse_count_data[aligner][damage_type] += 1
+                mse_sample_count_data[aligner][damage_type] += sample_count_table2
 
     mse_avg_data = defaultdict(lambda: defaultdict(float))
     for aligner, damage_data in mse_sum_data.items():
         for damage_type, mse_sum in damage_data.items():
             mse_avg_data[aligner][damage_type] = mse_sum / mse_count_data[aligner][damage_type]
 
-    plot_mse(mse_avg_data, 'Average MSE by aligner and damage type', 'mse_plot.png')
+    plot_mse(mse_avg_data, mse_sample_count_data, 'Average MSE by aligner and damage type', 'mse_plot.png')
     filtered_mse_data = filter_mse_data_for_giraffe_and_safari(mse_avg_data)
-    plot_mse(filtered_mse_data, 'Average MSE comparison between Giraffe and Safari', 'mse_plot_giraffe_safari.png')
-
+    plot_mse(filtered_mse_data, mse_sample_count_data, 'Average MSE comparison between Giraffe and Safari', 'mse_plot_giraffe_safari.png')
 
 if __name__ == "__main__":
     damage_data_path = '.'
