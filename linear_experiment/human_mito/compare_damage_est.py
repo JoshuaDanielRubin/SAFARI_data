@@ -75,6 +75,7 @@ def compute_mse(true_data, estimated_data, aligner, damage_type):
 
         # Get the common columns between true_data and estimated_data
         common_columns = true_data.columns.intersection(estimated_data.columns)
+        
         true_data = true_data[common_columns]
         estimated_data = estimated_data[common_columns]
 
@@ -90,19 +91,18 @@ def compute_mse(true_data, estimated_data, aligner, damage_type):
         # Flattening the matrices and then computing the MSE
         flat_true_data = true_data.values.flatten()
         flat_estimated_data = estimated_data.values.flatten()
-        mse = np.nanmedian((flat_true_data - flat_estimated_data) ** 2)
+
+        # Using mean instead of median
+        mse = np.sqrt(np.nanmean((flat_true_data - flat_estimated_data) ** 2))
 
         if aligner == 'giraffe' and damage_type == 'high':
-            print(f'True Data for {aligner} with {damage_type} damage:\n', true_data)
-            print(f'Estimated Data for {aligner} with {damage_type} damage:\n', estimated_data)
             print(f'MSE for {aligner} with {damage_type} damage: {mse}')
 
     except Exception as e:
         print(f'Error computing MSE: {e}')
         return None, 0
-    
-    return mse, len(true_data)
 
+    return mse, len(true_data)
 
 def filter_mse_data_for_giraffe_and_safari(mse_data):
     filtered_mse_data = defaultdict(lambda: defaultdict(float))
