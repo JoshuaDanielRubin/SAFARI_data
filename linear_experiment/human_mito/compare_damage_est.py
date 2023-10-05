@@ -62,7 +62,7 @@ def load_prof_data(file_name):
         pass
     return table1, table2
 
-def compute_mse(true_data, estimated_data, aligner, damage_type):
+def compute_kl_divergence(true_data, estimated_data, aligner, damage_type):
     if true_data is None:
         print('True data is missing.')
         return None, 0
@@ -88,21 +88,21 @@ def compute_mse(true_data, estimated_data, aligner, damage_type):
             print('Data is empty after dropping NaN values.')
             return None, 0
 
-        # Flattening the matrices and then computing the MSE
-        flat_true_data = true_data.values.flatten()
-        flat_estimated_data = estimated_data.values.flatten()
+        # Flattening the matrices
+        flat_true_data = true_data.values.flatten() + 1e-9  # Adding a small constant to avoid division by zero
+        flat_estimated_data = estimated_data.values.flatten() + 1e-9  # Adding a small constant to avoid log of zero
 
-        # Using mean instead of median
-        mse = np.sqrt(np.nanmean((flat_true_data - flat_estimated_data) ** 2))
+        # Computing the KL Divergence
+        kl_divergence = np.nanmean(flat_true_data * np.log(flat_true_data / flat_estimated_data))
 
         if aligner == 'giraffe' and damage_type == 'high':
-            print(f'MSE for {aligner} with {damage_type} damage: {mse}')
+            print(f'KL Divergence for {aligner} with {damage_type} damage: {kl_divergence}')
 
     except Exception as e:
-        print(f'Error computing MSE: {e}')
+        print(f'Error computing KL Divergence: {e}')
         return None, 0
-
-    return mse, len(true_data)
+    
+    return kl_divergence, len(true_data)
 
 def filter_mse_data_for_giraffe_and_safari(mse_data):
     filtered_mse_data = defaultdict(lambda: defaultdict(float))
@@ -111,7 +111,7 @@ def filter_mse_data_for_giraffe_and_safari(mse_data):
             filtered_mse_data[aligner] = mse_data[aligner]
     return filtered_mse_data
 
-def plot_mse(mse_data, mse_sample_count_data, plot_title, save_file_name):
+def plot_kl(mse_data, mse_sample_count_data, plot_title, save_file_name):
     colorblind_colors = ['#0173B2', '#DE8F05', '#029E73', '#D55E00', '#CC78BC', '#CA9161', '#FBAFE4']
     aligners = list(mse_data.keys())
     damage_types = list(mse_data[aligners[0]].keys())
@@ -153,7 +153,7 @@ def check_data(damage_data_dict, prof_data_dict):
                 true_data_key = "d" + true_data_key
 
             true_data = damage_data_dict.get(true_data_key)
-            mse_table1, sample_count_table1 = compute_mse(true_data, table1, aligner, damage_type)
+            mse_table1, sample_count_table1 = compute_kl_divergence(true_data, table1, aligner, damage_type)
 
             if mse_table1 is not None:
                 mse_sum_data[aligner][damage_type] += mse_table1
@@ -166,7 +166,7 @@ def check_data(damage_data_dict, prof_data_dict):
                 true_data_key = "d" + true_data_key
 
             true_data = damage_data_dict.get(true_data_key)
-            mse_table2, sample_count_table2 = compute_mse(true_data, table2, aligner, damage_type)
+            mse_table2, sample_count_table2 = compute_kl_divergence(true_data, table2, aligner, damage_type)
 
             if mse_table2 is not None:
                 mse_sum_data[aligner][damage_type] += mse_table2
@@ -178,9 +178,9 @@ def check_data(damage_data_dict, prof_data_dict):
         for damage_type, mse_sum in damage_data.items():
             mse_avg_data[aligner][damage_type] = mse_sum / mse_count_data[aligner][damage_type]
 
-    plot_mse(mse_avg_data, mse_sample_count_data, 'Average MSE by aligner and damage type', 'mse_plot.png')
+    plot_kl(mse_avg_data, mse_sample_count_data, 'Average KL Divergence by Aligner and Damage Type', 'kl_plot.png')
     filtered_mse_data = filter_mse_data_for_giraffe_and_safari(mse_avg_data)
-    plot_mse(filtered_mse_data, mse_sample_count_data, 'Average MSE comparison between Giraffe and Safari', 'mse_plot_giraffe_safari.png')
+    plot_kl(filtered_mse_data, mse_sample_count_data, 'Average KL Divergence between Giraffe and Safari', 'kl_plot_giraffe_safari.png')
 
 if __name__ == "__main__":
     damage_data_path = '.'
