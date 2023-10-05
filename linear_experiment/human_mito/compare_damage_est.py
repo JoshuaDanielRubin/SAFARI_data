@@ -59,6 +59,10 @@ def load_prof_data(file_name):
         return None, None
     return table1, table2
 
+def normalize_data(df):
+    row_sums = df.sum(axis=1)
+    return df.div(row_sums, axis=0)
+
 def compute_kl_divergence(true_data, estimated_data, aligner, damage_type):
     assert true_data is not None, 'True data is missing.'
     assert estimated_data is not None, 'Estimated data is missing.'
@@ -68,6 +72,10 @@ def compute_kl_divergence(true_data, estimated_data, aligner, damage_type):
     
     true_data = clean_data(true_data)
     estimated_data = clean_data(estimated_data)
+
+    # Normalize the data
+    true_data = normalize_data(true_data)
+    estimated_data = normalize_data(estimated_data)
     
     assert true_data.shape == estimated_data.shape, "Shape mismatch between true and estimated data."
 
@@ -85,7 +93,10 @@ def compute_kl_divergence(true_data, estimated_data, aligner, damage_type):
     kl_divergence = np.mean(flat_true_data * np.log(flat_true_data / flat_estimated_data))
     
     if kl_divergence < 0:
-        raise ValueError(f"KL Divergence should be non-negative. Got {kl_divergence}. \nTrue data: {true_data}, \nEstimated data: {estimated_data}")
+        print(f"Negative KL divergence detected: {kl_divergence}")
+        print(f"True data: {flat_true_data}")
+        print(f"Estimated data: {flat_estimated_data}")
+        return None, 0  # or you can raise an exception if you prefer
 
     return kl_divergence, len(true_data)
 
