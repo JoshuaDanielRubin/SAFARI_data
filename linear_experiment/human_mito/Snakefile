@@ -14,7 +14,7 @@ DAMAGE=["dhigh", "dmid", "none", "single"]
 ALIGNERS=["bowtie2", "mem", "aln_anc", "aln", "shrimp", "safari", "bb", "giraffe"]
 #ALIGNERS=["safari"]
 ALIGNERSC=[]
-NUMFRAGS=10000
+NUMFRAGS=2000
 FRAGNUM=100
 
 rule all:
@@ -415,7 +415,8 @@ rule bowtie2:
         input_3="simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r2_s{rate}.fq.gz"
     output: "alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_bowtie2.bam"
     shell: "/home/ctools/interleave_fastq/interleavefastq.sh {input.input_1} {input.input_2} {input.input_3}  | \
-            /home/ctools/bowtie2-2.4.4/bowtie2 --end-to-end --sensitive \
+            /home/ctools/bowtie2-2.4.4/bowtie2 --no-unal -k 1000 -D 15 -R 2 -N 1 -L 22 -i S,1,1.15 --np 1 \
+            --mp '1,1' --rdg '0,1' --rfg '0,1' --score-min 'L,0,-0.1' \
             -x /home/projects/benchmarkmito/bowtie2index/gen_0.fa --interleaved /dev/stdin | /home/ctools/samtools-1.13/samtools sort /dev/stdin > {output}"
 
 
