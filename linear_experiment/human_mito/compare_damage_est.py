@@ -62,28 +62,31 @@ def load_prof_data(file_name):
 def compute_kl_divergence(true_data, estimated_data, aligner, damage_type):
     assert true_data is not None, 'True data is missing.'
     assert estimated_data is not None, 'Estimated data is missing.'
-    try:
-        true_data = clean_data(true_data)
-        estimated_data = clean_data(estimated_data)
-        assert true_data.shape == estimated_data.shape, "Shape mismatch between true and estimated data."
-
-        nan_indices = true_data.isnull().any(axis=1) | estimated_data.isnull().any(axis=1)
-        true_data = true_data[~nan_indices]
-        estimated_data = estimated_data[~nan_indices]
-
-        assert not (true_data.empty or estimated_data.empty), 'Data is empty after dropping NaN values.'
-
-        epsilon = 1e-9  
-        flat_true_data = true_data.values.flatten() + epsilon  
-        flat_estimated_data = estimated_data.values.flatten() + epsilon  
-
-        kl_divergence = np.mean(flat_true_data * np.log(flat_true_data / flat_estimated_data))
-        assert kl_divergence >= 0, "KL Divergence should be non-negative."
-
-    except Exception as e:
-        print(f'Error computing KL Divergence: {e}')
+    
+    if np.all(true_data.isna()) or np.all(estimated_data.isna()):
         return None, 0
     
+    true_data = clean_data(true_data)
+    estimated_data = clean_data(estimated_data)
+    
+    assert true_data.shape == estimated_data.shape, "Shape mismatch between true and estimated data."
+
+    nan_indices = true_data.isnull().any(axis=1) | estimated_data.isnull().any(axis=1)
+    true_data = true_data[~nan_indices]
+    estimated_data = estimated_data[~nan_indices]
+
+    if true_data.empty or estimated_data.empty:
+        return None, 0
+
+    epsilon = 1e-9  
+    flat_true_data = true_data.values.flatten() + epsilon  
+    flat_estimated_data = estimated_data.values.flatten() + epsilon  
+
+    kl_divergence = np.mean(flat_true_data * np.log(flat_true_data / flat_estimated_data))
+    
+    if kl_divergence < 0:
+        raise ValueError(f"KL Divergence should be non-negative. Got {kl_divergence}. \nTrue data: {true_data}, \nEstimated data: {estimated_data}")
+
     return kl_divergence, len(true_data)
 
 def filter_mse_data_for_giraffe_and_safari(mse_data):
@@ -182,4 +185,3 @@ if __name__ == "__main__":
     prof_data_dict = {os.path.basename(file_name): load_prof_data(os.path.basename(file_name)) for file_name in prof_data_files}
 
     check_data(damage_data_dict, prof_data_dict)
-
