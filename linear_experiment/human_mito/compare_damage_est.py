@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from collections import defaultdict
 
 def clean_data(df):
+    assert df is not None, "DataFrame should not be None."
     df = df.applymap(lambda x: re.search(r"([\d\.]+)", str(x)).group(1) if re.search(r"([\d\.]+)", str(x)) else np.nan)
     return df.astype(float)
 
@@ -25,78 +26,59 @@ def extract_aligner(file_name):
 
 def load_damage_data(file_name):
     file_path = os.path.join(damage_data_path, file_name)
+    assert os.path.exists(file_path), f"File path does not exist: {file_path}"
     if os.path.getsize(file_path) == 0:
         print(f'File {file_name} is empty.')
         return None
     try:
         data = pd.read_csv(file_path, delimiter='\t', index_col=0)
+        assert not data.empty, f"No data in file {file_name}."
     except Exception as e:
         print(f'Error reading {file_name}: {e}')
         return None
-    if data.empty:
-        print(f'No data in file {file_name}.')
-    else:
-        pass
     return data
 
 def load_prof_data(file_name):
     file_path = os.path.join(prof_data_path, file_name)
+    assert os.path.exists(file_path), f"File path does not exist: {file_path}"
     if os.path.getsize(file_path) == 0:
         return None, None
     try:
         with open(file_path, 'r') as file:
             lines = file.readlines()
             second_header_index = len(lines) // 2
+            assert second_header_index > 0, "Invalid file format."
             table1_lines = lines[:second_header_index]
             table2_lines = lines[second_header_index:]
 
         table1 = pd.read_csv(io.StringIO(''.join(table1_lines)), delimiter='\t', header=0)
         table2 = pd.read_csv(io.StringIO(''.join(table2_lines)), delimiter='\t', header=0)
+        assert not (table1.empty or table2.empty), f"No data in file {file_name}."
     except Exception as e:
         print(f'Error reading {file_name}: {e}')
         return None, None
-
-    if table1.empty or table2.empty:
-        print(f'No data to check for {file_name}')
-    else:
-        pass
     return table1, table2
 
 def compute_kl_divergence(true_data, estimated_data, aligner, damage_type):
-    if true_data is None:
-        print('True data is missing.')
-        return None, 0
-    if estimated_data is None:
-        print('Estimated data is missing.')
-        return None, 0
+    assert true_data is not None, 'True data is missing.'
+    assert estimated_data is not None, 'Estimated data is missing.'
     try:
         true_data = clean_data(true_data)
         estimated_data = clean_data(estimated_data)
+        assert true_data.shape == estimated_data.shape, "Shape mismatch between true and estimated data."
 
-        # Get the common columns between true_data and estimated_data
-        common_columns = true_data.columns.intersection(estimated_data.columns)
-        
-        true_data = true_data[common_columns]
-        estimated_data = estimated_data[common_columns]
-
-        # Dropping rows with NaN values in either true_data or estimated_data
         nan_indices = true_data.isnull().any(axis=1) | estimated_data.isnull().any(axis=1)
         true_data = true_data[~nan_indices]
         estimated_data = estimated_data[~nan_indices]
 
-        if true_data.empty or estimated_data.empty:
-            print('Data is empty after dropping NaN values.')
-            return None, 0
+        assert not (true_data.empty or estimated_data.empty), 'Data is empty after dropping NaN values.'
 
-        # Flattening the matrices
-        flat_true_data = true_data.values.flatten() + 1e-9  # Adding a small constant to avoid division by zero
-        flat_estimated_data = estimated_data.values.flatten() + 1e-9  # Adding a small constant to avoid log of zero
+        epsilon = 1e-9  
+        flat_true_data = true_data.values.flatten() + epsilon  
+        flat_estimated_data = estimated_data.values.flatten() + epsilon  
 
-        # Computing the KL Divergence
-        kl_divergence = np.nanmean(flat_true_data * np.log(flat_true_data / flat_estimated_data))
-
-        if aligner == 'giraffe' and damage_type == 'high':
-            print(f'KL Divergence for {aligner} with {damage_type} damage: {kl_divergence}')
+        kl_divergence = np.mean(flat_true_data * np.log(flat_true_data / flat_estimated_data))
+        assert kl_divergence >= 0, "KL Divergence should be non-negative."
 
     except Exception as e:
         print(f'Error computing KL Divergence: {e}')
@@ -139,6 +121,7 @@ def plot_kl(mse_data, mse_sample_count_data, plot_title, save_file_name):
             sample_count = mse_sample_count_data[aligner][damage_type]
             print(f'Average MSE for {aligner} with damage_type {damage_type}: {mse_data[aligner][damage_type]} (based on {sample_count} samples)')
 
+# The `check_data` function remains unchanged
 def check_data(damage_data_dict, prof_data_dict):
     mse_sum_data = defaultdict(lambda: defaultdict(float))
     mse_count_data = defaultdict(lambda: defaultdict(int))
@@ -183,11 +166,17 @@ def check_data(damage_data_dict, prof_data_dict):
     plot_kl(filtered_mse_data, mse_sample_count_data, 'Average KL Divergence between Giraffe and Safari', 'kl_plot_giraffe_safari.png')
 
 if __name__ == "__main__":
-    damage_data_path = '.'
-    prof_data_path = 'new_alignments/profs'
+    damage_data_path = '.'  # Your path to damage data files
+    prof_data_path = 'new_alignments/profs'  # Your path to prof data files
+
+    assert os.path.exists(damage_data_path), "Damage data path does not exist."
+    assert os.path.exists(prof_data_path), "Prof data path does not exist."
 
     damage_data_files = glob.glob(os.path.join(damage_data_path, '*.dat'))
     prof_data_files = glob.glob(os.path.join(prof_data_path, '*.prof'))
+
+    assert damage_data_files, "No damage data files found."
+    assert prof_data_files, "No prof data files found."
 
     damage_data_dict = {os.path.basename(file_name): load_damage_data(os.path.basename(file_name)) for file_name in damage_data_files}
     prof_data_dict = {os.path.basename(file_name): load_prof_data(os.path.basename(file_name)) for file_name in prof_data_files}
