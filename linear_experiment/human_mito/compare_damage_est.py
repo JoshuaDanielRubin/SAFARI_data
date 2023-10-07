@@ -122,7 +122,7 @@ def filter_cos_sim_data_for_giraffe_and_safari(cos_sim_data):
             filtered_cos_sim_data[aligner] = cos_sim_data[aligner]
     return filtered_cos_sim_data
 
-def plot_rmse(cos_sim_data, cos_sim_sample_count_data, plot_title, save_file_name):
+def plot_cos_sim(cos_sim_data, cos_sim_sample_count_data, plot_title, save_file_name):
     colorblind_colors = ['#0173B2', '#DE8F05', '#029E73', '#D55E00', '#CC78BC', '#CA9161', '#FBAFE4']
     aligners = list(cos_sim_data.keys())
     damage_types = list(cos_sim_data[aligners[0]].keys())
@@ -136,7 +136,7 @@ def plot_rmse(cos_sim_data, cos_sim_sample_count_data, plot_title, save_file_nam
         ax.bar(x + i*width, cos_sim_values, width, label=damage_type, color=colorblind_colors[i])
     
     ax.set_xlabel('Aligner')
-    ax.set_ylabel('Average RMSE')
+    ax.set_ylabel('Average Cosine Similarity')
     ax.set_title(plot_title)
     ax.set_xticks(x + width*(len(damage_types)-1)/2)
     ax.set_xticklabels(aligners)
@@ -148,7 +148,7 @@ def plot_rmse(cos_sim_data, cos_sim_sample_count_data, plot_title, save_file_nam
     for aligner in aligners:
         for damage_type in damage_types:
             sample_count = cos_sim_sample_count_data[aligner][damage_type]
-            print(f'Average rmse for {aligner} with damage_type {damage_type}: {cos_sim_data[aligner][damage_type]} (based on {sample_count} samples)')
+            print(f'Average cos_sim for {aligner} with damage_type {damage_type}: {cos_sim_data[aligner][damage_type]} (based on {sample_count} samples)')
 
 # The `check_data` function remains unchanged
 def check_data(damage_data_dict, prof_data_dict):
@@ -189,7 +189,7 @@ def check_data(damage_data_dict, prof_data_dict):
             cos_sim_median_data[aligner][damage_type] = median(cos_sim_values)
 
     filtered_cos_sim_data = filter_cos_sim_data_for_giraffe_and_safari(cos_sim_median_data)
-    plot_rmse(filtered_cos_sim_data, cos_sim_sample_count_data, 'Median RMSE between Giraffe and SAFARI', 'cos_sim_plot_giraffe_safari.png')
+    plot_cos_sim(filtered_cos_sim_data, cos_sim_sample_count_data, 'Median cos_sim between Giraffe and SAFARI', 'cos_sim_plot_giraffe_safari.png')
 
 
 if __name__ == "__main__":
