@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from collections import defaultdict
 from math import sqrt
 from statistics import median
+from sklearn.metrics.pairwise import cosine_similarity
 
 def clean_data(df):
     assert df is not None, "DataFrame should not be None."
@@ -69,7 +70,7 @@ def mean_squared_error(true_values, predicted_values):
     assert len(true_values) == len(predicted_values), "Length mismatch between true and predicted values."
     return np.mean((true_values - predicted_values)**2)
 
-def compute_rmse_divergence(true_data, estimated_data, aligner, damage_type):
+def compute_cosine_similarity(true_data, estimated_data, aligner, damage_type):
     assert true_data is not None, 'True data is missing.'
     assert estimated_data is not None, 'Estimated data is missing.'
 
@@ -88,12 +89,10 @@ def compute_rmse_divergence(true_data, estimated_data, aligner, damage_type):
     if true_data.empty or estimated_data.empty:
         return None, 0
 
-    flat_true_data = true_data.values.flatten()
-    flat_estimated_data = estimated_data.values.flatten()
+    cosine_sim = cosine_similarity(true_data, estimated_data)
+    mean_cosine_sim = np.mean(cosine_sim)
 
-    rmse = sqrt(mean_squared_error(flat_true_data, flat_estimated_data))
-
-    return rmse, len(true_data)
+    return mean_cosine_sim, len(true_data)
 
 def filter_rmse_data_for_giraffe_and_safari(rmse_data):
     filtered_rmse_data = defaultdict(lambda: defaultdict(float))
@@ -145,7 +144,7 @@ def check_data(damage_data_dict, prof_data_dict):
                 true_data_key = "d" + true_data_key
 
             true_data = damage_data_dict.get(true_data_key)
-            rmse_table1, sample_count_table1 = compute_rmse_divergence(true_data, table1, aligner, damage_type)
+            rmse_table1, sample_count_table1 = compute_cosine_similarity(true_data, table1, aligner, damage_type)
 
             if rmse_table1 is not None:
                 rmse_values_data[aligner][damage_type].append(rmse_table1)
@@ -157,7 +156,7 @@ def check_data(damage_data_dict, prof_data_dict):
                 true_data_key = "d" + true_data_key
 
             true_data = damage_data_dict.get(true_data_key)
-            rmse_table2, sample_count_table2 = compute_rmse_divergence(true_data, table2, aligner, damage_type)
+            rmse_table2, sample_count_table2 = compute_cosine_similarity(true_data, table2, aligner, damage_type)
 
             if rmse_table2 is not None:
                 rmse_values_data[aligner][damage_type].append(rmse_table2)
