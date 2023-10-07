@@ -100,28 +100,28 @@ def compute_kl_divergence(true_data, estimated_data, aligner, damage_type):
 
     return kl_divergence, len(true_data)
 
-def filter_mse_data_for_giraffe_and_safari(mse_data):
-    filtered_mse_data = defaultdict(lambda: defaultdict(float))
+def filter_kl_data_for_giraffe_and_safari(kl_data):
+    filtered_kl_data = defaultdict(lambda: defaultdict(float))
     for aligner in ['giraffe', 'safari']:
-        if aligner in mse_data:
-            filtered_mse_data[aligner] = mse_data[aligner]
-    return filtered_mse_data
+        if aligner in kl_data:
+            filtered_kl_data[aligner] = kl_data[aligner]
+    return filtered_kl_data
 
-def plot_kl(mse_data, mse_sample_count_data, plot_title, save_file_name):
+def plot_kl(kl_data, kl_sample_count_data, plot_title, save_file_name):
     colorblind_colors = ['#0173B2', '#DE8F05', '#029E73', '#D55E00', '#CC78BC', '#CA9161', '#FBAFE4']
-    aligners = list(mse_data.keys())
-    damage_types = list(mse_data[aligners[0]].keys())
+    aligners = list(kl_data.keys())
+    damage_types = list(kl_data[aligners[0]].keys())
     
     x = np.arange(len(aligners))
     width = 0.2
 
     fig, ax = plt.subplots()
     for i, damage_type in enumerate(damage_types):
-        mse_values = [mse_data[aligner][damage_type] for aligner in aligners]
-        ax.bar(x + i*width, mse_values, width, label=damage_type, color=colorblind_colors[i])
+        kl_values = [kl_data[aligner][damage_type] for aligner in aligners]
+        ax.bar(x + i*width, kl_values, width, label=damage_type, color=colorblind_colors[i])
     
     ax.set_xlabel('Aligner')
-    ax.set_ylabel('Average MSE')
+    ax.set_ylabel('Average KL Divergence')
     ax.set_title(plot_title)
     ax.set_xticks(x + width*(len(damage_types)-1)/2)
     ax.set_xticklabels(aligners)
@@ -132,14 +132,14 @@ def plot_kl(mse_data, mse_sample_count_data, plot_title, save_file_name):
     
     for aligner in aligners:
         for damage_type in damage_types:
-            sample_count = mse_sample_count_data[aligner][damage_type]
-            print(f'Average MSE for {aligner} with damage_type {damage_type}: {mse_data[aligner][damage_type]} (based on {sample_count} samples)')
+            sample_count = kl_sample_count_data[aligner][damage_type]
+            print(f'Average kl for {aligner} with damage_type {damage_type}: {kl_data[aligner][damage_type]} (based on {sample_count} samples)')
 
 # The `check_data` function remains unchanged
 def check_data(damage_data_dict, prof_data_dict):
-    mse_sum_data = defaultdict(lambda: defaultdict(float))
-    mse_count_data = defaultdict(lambda: defaultdict(int))
-    mse_sample_count_data = defaultdict(lambda: defaultdict(int))
+    kl_sum_data = defaultdict(lambda: defaultdict(float))
+    kl_count_data = defaultdict(lambda: defaultdict(int))
+    kl_sample_count_data = defaultdict(lambda: defaultdict(int))
     for file_name, (table1, table2) in prof_data_dict.items():
         damage_type = extract_damage_type(file_name)
         aligner = extract_aligner(file_name)
@@ -150,12 +150,12 @@ def check_data(damage_data_dict, prof_data_dict):
                 true_data_key = "d" + true_data_key
 
             true_data = damage_data_dict.get(true_data_key)
-            mse_table1, sample_count_table1 = compute_kl_divergence(true_data, table1, aligner, damage_type)
+            kl_table1, sample_count_table1 = compute_kl_divergence(true_data, table1, aligner, damage_type)
 
-            if mse_table1 is not None:
-                mse_sum_data[aligner][damage_type] += mse_table1
-                mse_count_data[aligner][damage_type] += 1
-                mse_sample_count_data[aligner][damage_type] += sample_count_table1
+            if kl_table1 is not None:
+                kl_sum_data[aligner][damage_type] += kl_table1
+                kl_count_data[aligner][damage_type] += 1
+                kl_sample_count_data[aligner][damage_type] += sample_count_table1
 
         if table2 is not None:
             true_data_key = f'{damage_type}{len(table2)}.dat'
@@ -163,21 +163,21 @@ def check_data(damage_data_dict, prof_data_dict):
                 true_data_key = "d" + true_data_key
 
             true_data = damage_data_dict.get(true_data_key)
-            mse_table2, sample_count_table2 = compute_kl_divergence(true_data, table2, aligner, damage_type)
+            kl_table2, sample_count_table2 = compute_kl_divergence(true_data, table2, aligner, damage_type)
 
-            if mse_table2 is not None:
-                mse_sum_data[aligner][damage_type] += mse_table2
-                mse_count_data[aligner][damage_type] += 1
-                mse_sample_count_data[aligner][damage_type] += sample_count_table2
+            if kl_table2 is not None:
+                kl_sum_data[aligner][damage_type] += kl_table2
+                kl_count_data[aligner][damage_type] += 1
+                kl_sample_count_data[aligner][damage_type] += sample_count_table2
 
-    mse_avg_data = defaultdict(lambda: defaultdict(float))
-    for aligner, damage_data in mse_sum_data.items():
-        for damage_type, mse_sum in damage_data.items():
-            mse_avg_data[aligner][damage_type] = mse_sum / mse_count_data[aligner][damage_type]
+    kl_avg_data = defaultdict(lambda: defaultdict(float))
+    for aligner, damage_data in kl_sum_data.items():
+        for damage_type, kl_sum in damage_data.items():
+            kl_avg_data[aligner][damage_type] = kl_sum / kl_count_data[aligner][damage_type]
 
-    plot_kl(mse_avg_data, mse_sample_count_data, 'Average KL Divergence by Aligner and Damage Type', 'kl_plot.png')
-    filtered_mse_data = filter_mse_data_for_giraffe_and_safari(mse_avg_data)
-    plot_kl(filtered_mse_data, mse_sample_count_data, 'Average KL Divergence between Giraffe and Safari', 'kl_plot_giraffe_safari.png')
+    #plot_kl(kl_avg_data, kl_sample_count_data, 'Average KL Divergence by Aligner and Damage Type', 'kl_plot.png')
+    filtered_kl_data = filter_kl_data_for_giraffe_and_safari(kl_avg_data)
+    plot_kl(filtered_kl_data, kl_sample_count_data, 'Average KL Divergence between Giraffe and SAFARI', 'kl_plot_giraffe_safari.png')
 
 if __name__ == "__main__":
     damage_data_path = '.'  # Your path to damage data files
