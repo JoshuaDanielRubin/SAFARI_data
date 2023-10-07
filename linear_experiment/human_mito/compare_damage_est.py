@@ -66,10 +66,6 @@ def normalize_data(df):
     row_sums = df.sum(axis=1)
     return df.div(row_sums, axis=0)
 
-def mean_squared_error(true_values, predicted_values):
-    assert len(true_values) == len(predicted_values), "Length mismatch between true and predicted values."
-    return np.mean((true_values - predicted_values)**2)
-
 def compute_cosine_similarity(true_data, estimated_data, aligner, damage_type):
     assert true_data is not None, 'True data is missing.'
     assert estimated_data is not None, 'Estimated data is missing.'
