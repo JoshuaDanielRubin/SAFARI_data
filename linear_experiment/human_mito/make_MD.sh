@@ -2,7 +2,7 @@
 
 # Define the directories and reference FASTA files
 source_dir="alignments"
-target_dir="new_alignments"
+target_dir="alignments/with_md"
 reference_fasta1="simulations/gen_0.fa"
 reference_fasta2="rCRS.fa"
 

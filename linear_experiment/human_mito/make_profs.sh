@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Directory containing the BAM files
-BAM_DIR="alignments"
+BAM_DIR="alignments/with_md"
 
 # Directory to save the output .prof files
-OUTPUT_DIR="$BAM_DIR/profs"
+OUTPUT_DIR="alignments/profs"
 
 # Create the output directory if it doesn't exist
 mkdir -p "$OUTPUT_DIR"
@@ -14,7 +14,13 @@ for bam_file in "$BAM_DIR"/*.bam; do
     # Get the base name of the BAM file (without path and extension)
     base_name=$(basename "$bam_file" .bam)
 
-    # Run bam2prof on the BAM file and redirect the output to a .prof file in the output directory
-    ./bam2prof/src/bam2prof "$bam_file" > "$OUTPUT_DIR/$base_name.prof"
+    # Check if the base_name contains the word "single"
+    if [[ "$base_name" == *"single"* ]]; then
+        # Use the -single flag
+        ./bam2prof/src/bam2prof -both -q -single -minl 20 -paired "$bam_file" > "$OUTPUT_DIR/$base_name.prof"
+    else
+        # Use the -double flag
+        ./bam2prof/src/bam2prof -both -q -double -minl 20 -paired "$bam_file" > "$OUTPUT_DIR/$base_name.prof"
+    fi
 done
 
