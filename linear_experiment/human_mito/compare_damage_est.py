@@ -125,7 +125,7 @@ def plot_rmse(rmse_data, rmse_sample_count_data, plot_title, save_file_name):
         
         ax.set_xlabel('Aligner')
         ax.set_ylabel('Median RMSE')
-        ax.set_title(f"Damage Type: {damage_type.capitalize()}")
+        ax.set_title(f"Damage Matrix: {damage_type.capitalize()}")
         ax.set_xticks(x)
         ax.set_xticklabels([display_labels.get(aligner, aligner) for aligner in aligners], fontweight='bold' if aligner in ['giraffe', 'safari'] else 'normal')
 
