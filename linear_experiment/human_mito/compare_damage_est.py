@@ -107,22 +107,27 @@ def plot_rmse(rmse_data, rmse_sample_count_data, plot_title, save_file_name):
     width = 0.2
 
     fig, axs = plt.subplots(2, 2, figsize=(12, 10))
-    fig.suptitle("Median RMSE between estimated and\n ground truth damage rate matrices", fontsize=14)
+    fig.suptitle("Median RMSE between Estimated and Ground Truth Damage Rate Matrices", fontsize=14)
 
     for i, damage_type in enumerate(damage_types):
         ax = axs[i // 2, i % 2]
         rmse_values = [rmse_data[aligner][damage_type] for aligner in aligners]
         
         for j, aligner in enumerate(aligners):
-            color = colorblind_colors[j] if aligner not in ['giraffe', 'safari'] else ('#FF0000' if aligner == 'giraffe' else '#0000FF')
+            if aligner in ['giraffe', 'safari']:
+                color = '#FF0000'
+                label_fontweight = 'bold'
+            else:
+                color = colorblind_colors[j]
+                label_fontweight = 'normal'
             label = display_labels.get(aligner, aligner)
             ax.bar(x[j], rmse_values[j], width, label=label, color=color)
         
-        ax.set_xlabel('Aligner', fontweight='bold' if aligner in ['giraffe', 'safari'] else 'normal')
+        ax.set_xlabel('Aligner')
         ax.set_ylabel('Median RMSE')
-        ax.set_title(damage_type)
+        ax.set_title(f"Damage Type: {damage_type.capitalize()}")
         ax.set_xticks(x)
-        ax.set_xticklabels([display_labels.get(aligner, aligner) for aligner in aligners], fontweight='bold' if aligner in ['giraffe', 'safari'] else 'normal')
+        ax.set_xticklabels([display_labels.get(aligner, aligner) for aligner in aligners], fontweight=label_fontweight)
 
     fig.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.savefig(save_file_name)
@@ -131,6 +136,7 @@ def plot_rmse(rmse_data, rmse_sample_count_data, plot_title, save_file_name):
         for damage_type in damage_types:
             sample_count = rmse_sample_count_data[aligner][damage_type]
             print(f'Median RMSE for {aligner} with damage_type {damage_type}: {rmse_data[aligner][damage_type]} (based on {sample_count} samples)')
+
 
 def check_data(damage_data_dict, prof_data_dict):
     rmse_values_data = defaultdict(lambda: defaultdict(list))
