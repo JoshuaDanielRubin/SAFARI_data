@@ -85,58 +85,33 @@ def compute_cosine_similarity(true_data, estimated_data, aligner, damage_type):
     if true_data.empty or estimated_data.empty:
         return None, 0
 
-    # Handle rows with all zeros explicitly
-    true_data_zero_rows = np.all(true_data == 0, axis=1)
-    estimated_data_zero_rows = np.all(estimated_data == 0, axis=1)
-
-    both_zero_rows = true_data_zero_rows & estimated_data_zero_rows
-    one_zero_rows = true_data_zero_rows ^ estimated_data_zero_rows
-
-    # Debug prints
-    print(f"Number of both zero rows: {np.sum(both_zero_rows)}")
-    print(f"Number of one zero rows: {np.sum(one_zero_rows)}")
-
-    non_zero_rows = ~(true_data_zero_rows | estimated_data_zero_rows)
-
-    # Compute cosine similarity only for non-zero rows
-    if np.any(non_zero_rows):
-        cosine_sim_non_zero = cosine_similarity(true_data[non_zero_rows], estimated_data[non_zero_rows])
-    else:
-        cosine_sim_non_zero = np.array([])
-
-    # Combine results
-    cosine_sim = np.concatenate([
-        np.ones(np.sum(both_zero_rows)),
-        np.zeros(np.sum(one_zero_rows)),
-        cosine_sim_non_zero.flatten()
-    ])
-    
+    cosine_sim = cosine_similarity(true_data, estimated_data)
     mean_cosine_sim = np.mean(cosine_sim)
 
     return mean_cosine_sim, len(true_data)
 
-def filter_cos_sim_data_for_giraffe_and_safari(cos_sim_data):
-    filtered_cos_sim_data = defaultdict(lambda: defaultdict(float))
+def filter_rmse_data_for_giraffe_and_safari(rmse_data):
+    filtered_rmse_data = defaultdict(lambda: defaultdict(float))
     for aligner in ['giraffe', 'safari']:
-        if aligner in cos_sim_data:
-            filtered_cos_sim_data[aligner] = cos_sim_data[aligner]
-    return filtered_cos_sim_data
+        if aligner in rmse_data:
+            filtered_rmse_data[aligner] = rmse_data[aligner]
+    return filtered_rmse_data
 
-def plot_cos_sim(cos_sim_data, cos_sim_sample_count_data, plot_title, save_file_name):
+def plot_rmse(rmse_data, rmse_sample_count_data, plot_title, save_file_name):
     colorblind_colors = ['#0173B2', '#DE8F05', '#029E73', '#D55E00', '#CC78BC', '#CA9161', '#FBAFE4']
-    aligners = list(cos_sim_data.keys())
-    damage_types = list(cos_sim_data[aligners[0]].keys())
+    aligners = list(rmse_data.keys())
+    damage_types = list(rmse_data[aligners[0]].keys())
     
     x = np.arange(len(aligners))
     width = 0.2
 
     fig, ax = plt.subplots()
     for i, damage_type in enumerate(damage_types):
-        cos_sim_values = [cos_sim_data[aligner][damage_type] for aligner in aligners]
-        ax.bar(x + i*width, cos_sim_values, width, label=damage_type, color=colorblind_colors[i])
+        rmse_values = [rmse_data[aligner][damage_type] for aligner in aligners]
+        ax.bar(x + i*width, rmse_values, width, label=damage_type, color=colorblind_colors[i])
     
     ax.set_xlabel('Aligner')
-    ax.set_ylabel('Average Cosine Similarity')
+    ax.set_ylabel('Average RMSE')
     ax.set_title(plot_title)
     ax.set_xticks(x + width*(len(damage_types)-1)/2)
     ax.set_xticklabels(aligners)
@@ -147,13 +122,13 @@ def plot_cos_sim(cos_sim_data, cos_sim_sample_count_data, plot_title, save_file_
     
     for aligner in aligners:
         for damage_type in damage_types:
-            sample_count = cos_sim_sample_count_data[aligner][damage_type]
-            print(f'Average cos_sim for {aligner} with damage_type {damage_type}: {cos_sim_data[aligner][damage_type]} (based on {sample_count} samples)')
+            sample_count = rmse_sample_count_data[aligner][damage_type]
+            print(f'Average rmse for {aligner} with damage_type {damage_type}: {rmse_data[aligner][damage_type]} (based on {sample_count} samples)')
 
 # The `check_data` function remains unchanged
 def check_data(damage_data_dict, prof_data_dict):
-    cos_sim_values_data = defaultdict(lambda: defaultdict(list))
-    cos_sim_sample_count_data = defaultdict(lambda: defaultdict(int))
+    rmse_values_data = defaultdict(lambda: defaultdict(list))
+    rmse_sample_count_data = defaultdict(lambda: defaultdict(int))
     
     for file_name, (table1, table2) in prof_data_dict.items():
         damage_type = extract_damage_type(file_name)
@@ -165,11 +140,11 @@ def check_data(damage_data_dict, prof_data_dict):
                 true_data_key = "d" + true_data_key
 
             true_data = damage_data_dict.get(true_data_key)
-            cos_sim_table1, sample_count_table1 = compute_cosine_similarity(true_data, table1, aligner, damage_type)
+            rmse_table1, sample_count_table1 = compute_cosine_similarity(true_data, table1, aligner, damage_type)
 
-            if cos_sim_table1 is not None:
-                cos_sim_values_data[aligner][damage_type].append(cos_sim_table1)
-                cos_sim_sample_count_data[aligner][damage_type] += sample_count_table1
+            if rmse_table1 is not None:
+                rmse_values_data[aligner][damage_type].append(rmse_table1)
+                rmse_sample_count_data[aligner][damage_type] += sample_count_table1
 
         if table2 is not None:
             true_data_key = f'{damage_type}{len(table2)}.dat'
@@ -177,24 +152,24 @@ def check_data(damage_data_dict, prof_data_dict):
                 true_data_key = "d" + true_data_key
 
             true_data = damage_data_dict.get(true_data_key)
-            cos_sim_table2, sample_count_table2 = compute_cosine_similarity(true_data, table2, aligner, damage_type)
+            rmse_table2, sample_count_table2 = compute_cosine_similarity(true_data, table2, aligner, damage_type)
 
-            if cos_sim_table2 is not None:
-                cos_sim_values_data[aligner][damage_type].append(cos_sim_table2)
-                cos_sim_sample_count_data[aligner][damage_type] += sample_count_table2
+            if rmse_table2 is not None:
+                rmse_values_data[aligner][damage_type].append(rmse_table2)
+                rmse_sample_count_data[aligner][damage_type] += sample_count_table2
 
-    cos_sim_median_data = defaultdict(lambda: defaultdict(float))
-    for aligner, damage_data in cos_sim_values_data.items():
-        for damage_type, cos_sim_values in damage_data.items():
-            cos_sim_median_data[aligner][damage_type] = median(cos_sim_values)
+    rmse_median_data = defaultdict(lambda: defaultdict(float))
+    for aligner, damage_data in rmse_values_data.items():
+        for damage_type, rmse_values in damage_data.items():
+            rmse_median_data[aligner][damage_type] = median(rmse_values)
 
-    filtered_cos_sim_data = filter_cos_sim_data_for_giraffe_and_safari(cos_sim_median_data)
-    plot_cos_sim(filtered_cos_sim_data, cos_sim_sample_count_data, 'Median cos_sim between Giraffe and SAFARI', 'cos_sim_plot_giraffe_safari.png')
+    filtered_rmse_data = filter_rmse_data_for_giraffe_and_safari(rmse_median_data)
+    plot_rmse(filtered_rmse_data, rmse_sample_count_data, 'Median RMSE between Giraffe and SAFARI', 'rmse_plot_giraffe_safari.png')
 
 
 if __name__ == "__main__":
     damage_data_path = '.'  # Your path to damage data files
-    prof_data_path = 'new_alignments/profs'  # Your path to prof data files
+    prof_data_path = 'alignments/profs'  # Your path to prof data files
 
     assert os.path.exists(damage_data_path), "Damage data path does not exist."
     assert os.path.exists(prof_data_path), "Prof data path does not exist."
