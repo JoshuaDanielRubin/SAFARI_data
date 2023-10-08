@@ -17,10 +17,10 @@ for bam_file in "$BAM_DIR"/*.bam; do
     # Check if the base_name contains the word "single"
     if [[ "$base_name" == *"single"* ]]; then
         # Use the -single flag
-        ./bam2prof/src/bam2prof -both -q -single -minl 20 -paired "$bam_file" > "$OUTPUT_DIR/$base_name.prof"
+        ./bam2prof/src/bam2prof -q -both -single -minl 20 -paired "$bam_file" > "$OUTPUT_DIR/$base_name.prof"
     else
         # Use the -double flag
-        ./bam2prof/src/bam2prof -both -q -double -minl 20 -paired "$bam_file" > "$OUTPUT_DIR/$base_name.prof"
+        ./bam2prof/src/bam2prof -q -both -double -minl 20 -paired "$bam_file" > "$OUTPUT_DIR/$base_name.prof"
     fi
 done
 

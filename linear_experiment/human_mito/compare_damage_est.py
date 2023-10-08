@@ -90,33 +90,41 @@ def compute_rmse_divergence(true_data, estimated_data, aligner, damage_type):
 
     return rmse, len(true_data)
 
-def plot_rmse(rmse_data, rmse_sample_count_data, plot_title_prefix, save_file_name):
+def filter_rmse_data_for_giraffe_and_safari(rmse_data):
+    filtered_rmse_data = defaultdict(lambda: defaultdict(float))
+    for aligner in ['giraffe', 'safari']:
+        if aligner in rmse_data:
+            filtered_rmse_data[aligner] = rmse_data[aligner]
+    return filtered_rmse_data
+
+def plot_rmse(rmse_data, rmse_sample_count_data, plot_title, save_file_name):
     colorblind_colors = ['#0173B2', '#DE8F05', '#029E73', '#D55E00', '#CC78BC', '#CA9161', '#FBAFE4']
-    
-    # Ensure Giraffe and SAFARI are the first aligners and bold their labels
-    aligners = ['Giraffe', 'SAFARI'] + [a for a in rmse_data.keys() if a not in ['Giraffe', 'SAFARI']]
-    bold_labels = {aligner: 'bold' if aligner in ['Giraffe', 'SAFARI'] else 'normal' for aligner in aligners}
-    
+    aligners = list(rmse_data.keys())
     damage_types = list(rmse_data[aligners[0]].keys())
     
-    fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(15, 15))
-    
-    for idx, damage_type in enumerate(damage_types):
-        ax = axes[idx//2, idx%2]
+    x = np.arange(len(aligners))
+    width = 0.2
+
+    fig, axs = plt.subplots(2, 2, figsize=(12, 10))
+    fig.suptitle(plot_title)
+
+    for i, damage_type in enumerate(damage_types):
+        ax = axs[i // 2, i % 2]
         rmse_values = [rmse_data[aligner][damage_type] for aligner in aligners]
-        bars = ax.bar(aligners, rmse_values, color=colorblind_colors)
+        ax.bar(x, rmse_values, width, label=damage_type, color=colorblind_colors[i])
+        ax.set_xlabel('Aligner')
         ax.set_ylabel('Median RMSE')
-        ax.set_title(f'{plot_title_prefix} ({damage_type.upper()})')
-        
-        # Setting bold labels for Giraffe and SAFARI
-        ax.set_xticklabels(aligners, fontweight=bold_labels[aligner])
-        
-        for aligner in aligners:
+        ax.set_title(damage_type)
+        ax.set_xticks(x)
+        ax.set_xticklabels(aligners)
+
+    fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+    plt.savefig(save_file_name)
+    
+    for aligner in aligners:
+        for damage_type in damage_types:
             sample_count = rmse_sample_count_data[aligner][damage_type]
             print(f'Median rmse for {aligner} with damage_type {damage_type}: {rmse_data[aligner][damage_type]} (based on {sample_count} samples)')
-    
-    fig.tight_layout()
-    plt.savefig(save_file_name)
 
 def check_data(damage_data_dict, prof_data_dict):
     rmse_values_data = defaultdict(lambda: defaultdict(list))
@@ -155,11 +163,12 @@ def check_data(damage_data_dict, prof_data_dict):
         for damage_type, rmse_values in damage_data.items():
             rmse_median_data[aligner][damage_type] = np.median(rmse_values)
 
-    plot_rmse(rmse_median_data, rmse_sample_count_data, 'Median RMSE by Aligner', 'rmse_plot')
+    plot_rmse(rmse_median_data, rmse_sample_count_data, 'Median RMSE by Aligner and Damage Type', 'rmse_plot.png')
+    filtered_rmse_data = filter_rmse_data_for_giraffe_and_safari(rmse_median_data)
 
 if __name__ == "__main__":
     damage_data_path = '.'  # Your path to damage data files
-    prof_data_path = './alignments/profs'  # Your path to prof data files
+    prof_data_path = 'alignments/profs'  # Your path to prof data files
 
     assert os.path.exists(damage_data_path), "Damage data path does not exist."
     assert os.path.exists(prof_data_path), "Prof data path does not exist."
