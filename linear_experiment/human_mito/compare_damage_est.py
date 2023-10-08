@@ -60,10 +60,6 @@ def load_prof_data(file_name):
         return None, None
     return table1, table2
 
-def normalize_data(df):
-    row_sums = df.sum(axis=1)
-    return df.div(row_sums, axis=0)
-
 def mean_squared_error(true_values, predicted_values):
     assert len(true_values) == len(predicted_values), "Length mismatch between true and predicted values."
     return np.mean((true_values - predicted_values)**2)
@@ -115,7 +111,7 @@ def plot_rmse(rmse_data, rmse_sample_count_data, plot_title, save_file_name):
         ax.bar(x + i*width, rmse_values, width, label=damage_type, color=colorblind_colors[i])
     
     ax.set_xlabel('Aligner')
-    ax.set_ylabel('Average RMSE')
+    ax.set_ylabel('Median RMSE')
     ax.set_title(plot_title)
     ax.set_xticks(x + width*(len(damage_types)-1)/2)
     ax.set_xticklabels(aligners)
@@ -127,13 +123,12 @@ def plot_rmse(rmse_data, rmse_sample_count_data, plot_title, save_file_name):
     for aligner in aligners:
         for damage_type in damage_types:
             sample_count = rmse_sample_count_data[aligner][damage_type]
-            print(f'Average rmse for {aligner} with damage_type {damage_type}: {rmse_data[aligner][damage_type]} (based on {sample_count} samples)')
+            print(f'Median rmse for {aligner} with damage_type {damage_type}: {rmse_data[aligner][damage_type]} (based on {sample_count} samples)')
 
-# The `check_data` function remains unchanged
 def check_data(damage_data_dict, prof_data_dict):
-    rmse_sum_data = defaultdict(lambda: defaultdict(float))
-    rmse_count_data = defaultdict(lambda: defaultdict(int))
+    rmse_values_data = defaultdict(lambda: defaultdict(list))
     rmse_sample_count_data = defaultdict(lambda: defaultdict(int))
+    
     for file_name, (table1, table2) in prof_data_dict.items():
         damage_type = extract_damage_type(file_name)
         aligner = extract_aligner(file_name)
@@ -147,8 +142,7 @@ def check_data(damage_data_dict, prof_data_dict):
             rmse_table1, sample_count_table1 = compute_rmse_divergence(true_data, table1, aligner, damage_type)
 
             if rmse_table1 is not None:
-                rmse_sum_data[aligner][damage_type] += rmse_table1
-                rmse_count_data[aligner][damage_type] += 1
+                rmse_values_data[aligner][damage_type].append(rmse_table1)
                 rmse_sample_count_data[aligner][damage_type] += sample_count_table1
 
         if table2 is not None:
@@ -160,22 +154,20 @@ def check_data(damage_data_dict, prof_data_dict):
             rmse_table2, sample_count_table2 = compute_rmse_divergence(true_data, table2, aligner, damage_type)
 
             if rmse_table2 is not None:
-                rmse_sum_data[aligner][damage_type] += rmse_table2
-                rmse_count_data[aligner][damage_type] += 1
+                rmse_values_data[aligner][damage_type].append(rmse_table2)
                 rmse_sample_count_data[aligner][damage_type] += sample_count_table2
 
-    rmse_avg_data = defaultdict(lambda: defaultdict(float))
-    for aligner, damage_data in rmse_sum_data.items():
-        for damage_type, rmse_sum in damage_data.items():
-            rmse_avg_data[aligner][damage_type] = rmse_sum / rmse_count_data[aligner][damage_type]
+    rmse_median_data = defaultdict(lambda: defaultdict(float))
+    for aligner, damage_data in rmse_values_data.items():
+        for damage_type, rmse_values in damage_data.items():
+            rmse_median_data[aligner][damage_type] = np.median(rmse_values)
 
-    plot_rmse(rmse_avg_data, rmse_sample_count_data, 'Average RMSE by Aligner and Damage Type', 'rmse_plot.png')
-    filtered_rmse_data = filter_rmse_data_for_giraffe_and_safari(rmse_avg_data)
-    #plot_rmse(filtered_rmse_data, rmse_sample_count_data, 'Average RMSE between Giraffe and SAFARI', 'rmse_plot_giraffe_safari.png')
+    plot_rmse(rmse_median_data, rmse_sample_count_data, 'Median RMSE by Aligner and Damage Type', 'rmse_plot.png')
+    filtered_rmse_data = filter_rmse_data_for_giraffe_and_safari(rmse_median_data)
 
 if __name__ == "__main__":
     damage_data_path = '.'  # Your path to damage data files
-    prof_data_path = 'old_alignments/profs'  # Your path to prof data files
+    prof_data_path = 'alignments/profs'  # Your path to prof data files
 
     assert os.path.exists(damage_data_path), "Damage data path does not exist."
     assert os.path.exists(prof_data_path), "Prof data path does not exist."
@@ -190,3 +182,4 @@ if __name__ == "__main__":
     prof_data_dict = {os.path.basename(file_name): load_prof_data(os.path.basename(file_name)) for file_name in prof_data_files}
 
     check_data(damage_data_dict, prof_data_dict)
+
