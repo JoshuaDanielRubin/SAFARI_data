@@ -3,16 +3,31 @@ import seaborn as sns
 import pandas as pd
 
 def create_plot(df, file_name, title):
+    # Check if all required columns are present
+    required_columns = ['Damage_Type', 'Aligner_Name'] + [col for _, col in questions_columns]
+    assert set(required_columns).issubset(df.columns), "Not all required columns are present in the dataframe."
+
     custom_order_df = df.copy()
+
+    # Check if all values in Damage_Type are in the predefined order
+    assert set(custom_order_df['Damage_Type']).issubset(damage_type_order), "Unexpected values found in Damage_Type column."
+    
     custom_order_df['Damage_Type'] = custom_order_df['Damage_Type'].astype('category')
     custom_order_df['Damage_Type'] = custom_order_df['Damage_Type'].cat.reorder_categories(damage_type_order, ordered=True)
     custom_order_df['Damage_Type'] = custom_order_df['Damage_Type'].map(damage_type_rename)
+    
+    # Assert that all values in 'Aligner_Name' column are strings
+    assert all(isinstance(name, str) for name in custom_order_df['Aligner_Name']), "Non-string values found in Aligner_Name column."
+    
     custom_order_df['Aligner_Name'] = custom_order_df['Aligner_Name'].replace('safari', 'SAFARI')
     
     fig, axes = plt.subplots(len(journal_titles), 1, figsize=(16, 25))
     fig.suptitle(title, fontsize=18, color='black')
     
     for ax, (journal_title, column) in zip(axes, zip(journal_titles, [col for _, col in questions_columns])):
+        # Check if values are numeric
+        assert all(pd.to_numeric(custom_order_df[column], errors='coerce').notnull()), f"Non-numeric values found in {column} column."
+        
         sns.barplot(
             x="Aligner_Name", 
             y=column, 
@@ -31,6 +46,9 @@ def create_plot(df, file_name, title):
 # Load the data
 file_path = 'alignment_stats.csv'
 df = pd.read_csv(file_path)
+
+# Assert if the dataframe is empty
+assert not df.empty, "The dataframe is empty."
 
 # Define the questions and corresponding columns for plotting
 questions_columns = [
@@ -56,5 +74,4 @@ journal_titles = [
 
 # Create the original plot
 create_plot(df, "linear_benchmark.png", "Alignment Statistics Stratified by DNA Damage Type")
-
 

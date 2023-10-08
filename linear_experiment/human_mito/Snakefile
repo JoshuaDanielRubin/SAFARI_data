@@ -12,7 +12,7 @@ RATES=["0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10"]
 DAMAGE=["dhigh", "dmid", "none", "single"]
 #DAMAGE=["none"]
 ALIGNERS=["bowtie2", "mem", "aln_anc", "aln", "shrimp", "safari", "bb", "giraffe"]
-#ALIGNERS=["safari"]
+#ALIGNERS=["safari", "giraffe"]
 ALIGNERSC=[]
 NUMFRAGS=2000
 FRAGNUM=100
@@ -442,19 +442,19 @@ rule safari:
     output: "alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_safari.bam"
     shell: "nice -19 /home/ctools/interleave_fastq/interleavefastq.sh {input.input_1} {input.input_2} {input.input_3} | \
             /home/projects/MAAG/Magpie/Magpie/vgan_corrected/dep/vg/bin/vg safari \
-           -M 2 \
            -t 60 \
            -f /dev/stdin \
            -b fast \
-           --num-bp-per-min 50 \
            -i \
+           -P \
+           -C 20 \
            -m  /home/projects/MAAG/Magpie/Magpie/vgan_corrected/share/vgan/hcfiles/graph.min \
            -d /home/projects/MAAG/Magpie/Magpie/vgan_corrected/share/vgan/hcfiles/graph.dist \
            -q /home/projects/MAAG/Magpie/Magpie/vgan_corrected/share/vgan/hcfiles/graph.ry \
            -Z /home/projects/MAAG/Magpie/Magpie/vgan_corrected/share/vgan/hcfiles/graph.giraffe.gbz | \
-           vg filter -i - | \
+           vg filter -i -q 10 -o 1 - | \
            nice -19 /home/projects/MAAG/Magpie/Magpie/vgan_corrected/dep/vg/bin/vg surject \
-                    -x /home/projects/MAAG/Magpie/Magpie/vgan_corrected/share/vgan/hcfiles/graph.og \
+                    -x /home/projects/MAAG/Magpie/Magpie/vgan_corrected/share/vgan/hcfiles/graph.xg \
            -t 60 -p H2a2a1 -b - \
            > {output}"
 
@@ -467,18 +467,18 @@ rule giraffe:
     output: "alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_giraffe.bam"
     shell: "nice -19 /home/ctools/interleave_fastq/interleavefastq.sh {input.input_1} {input.input_2} {input.input_3} | \
             /home/projects/MAAG/Magpie/Magpie/vg_uncorrected/bin/vg giraffe \
-           -M 2 \
            -t 60 \
            -f /dev/stdin \
            -b fast \
            -i \
-           --num-bp-per-min 50 \
+           -P \
+           -C 20 \
            -m  /home/projects/MAAG/Magpie/Magpie/vgan_corrected/share/vgan/hcfiles/graph.min \
            -d /home/projects/MAAG/Magpie/Magpie/vgan_corrected/share/vgan/hcfiles/graph.dist \
            -Z /home/projects/MAAG/Magpie/Magpie/vgan_corrected/share/vgan/hcfiles/graph.giraffe.gbz | \
-           vg filter -i - | \
+           vg filter -i -q 10 -o 1 - | \
            nice -19 /home/projects/MAAG/Magpie/Magpie/vgan_corrected/dep/vg/bin/vg surject \
-                    -x /home/projects/MAAG/Magpie/Magpie/vgan_corrected/share/vgan/hcfiles/graph.og \
+                    -x /home/projects/MAAG/Magpie/Magpie/vgan_corrected/share/vgan/hcfiles/graph.xg \
            -t 60 -p H2a2a1 -b - \
            > {output}"
 
