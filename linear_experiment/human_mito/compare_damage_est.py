@@ -98,7 +98,7 @@ def filter_rmse_data_for_giraffe_and_safari(rmse_data):
     return filtered_rmse_data
 
 def plot_rmse(rmse_data, rmse_sample_count_data, plot_title, save_file_name):
-    colorblind_colors = ['#0173B2', '#DE8F05', '#029E73', '#D55E00', '#CC78BC', '#CA9161', '#FBAFE4']
+    grey_color = '#808080'
     aligners = ['giraffe', 'safari'] + [a for a in rmse_data.keys() if a not in ['giraffe', 'safari']]
     display_labels = {'giraffe': 'Giraffe', 'safari': 'SAFARI'}
     damage_types = list(rmse_data[aligners[0]].keys())
@@ -114,12 +114,12 @@ def plot_rmse(rmse_data, rmse_sample_count_data, plot_title, save_file_name):
         rmse_values = [rmse_data[aligner][damage_type] for aligner in aligners]
         
         for j, aligner in enumerate(aligners):
-            if aligner in ['giraffe', 'safari']:
-                color = '#FF0000'
-                label_fontweight = 'bold'
+            if aligner == 'giraffe':
+                color = '#FF0000'  # Red color for giraffe
+            elif aligner == 'safari':
+                color = '#0000FF'  # Blue color for SAFARI
             else:
-                color = colorblind_colors[j]
-                label_fontweight = 'normal'
+                color = grey_color  # Grey color for other aligners
             label = display_labels.get(aligner, aligner)
             ax.bar(x[j], rmse_values[j], width, label=label, color=color)
         
@@ -127,7 +127,7 @@ def plot_rmse(rmse_data, rmse_sample_count_data, plot_title, save_file_name):
         ax.set_ylabel('Median RMSE')
         ax.set_title(f"Damage Type: {damage_type.capitalize()}")
         ax.set_xticks(x)
-        ax.set_xticklabels([display_labels.get(aligner, aligner) for aligner in aligners], fontweight=label_fontweight)
+        ax.set_xticklabels([display_labels.get(aligner, aligner) for aligner in aligners], fontweight='bold' if aligner in ['giraffe', 'safari'] else 'normal')
 
     fig.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.savefig(save_file_name)
