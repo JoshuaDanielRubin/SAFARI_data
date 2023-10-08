@@ -115,9 +115,9 @@ def plot_rmse(rmse_data, rmse_sample_count_data, plot_title, save_file_name):
         
         for j, aligner in enumerate(aligners):
             if aligner == 'giraffe':
-                color = '#FF0000'  # Red color for giraffe
+                color = '#E69F00'
             elif aligner == 'safari':
-                color = '#0000FF'  # Blue color for SAFARI
+                color = '#0072B2'
             else:
                 color = grey_color  # Grey color for other aligners
             label = display_labels.get(aligner, aligner)
