@@ -42,3 +42,8 @@ This repository contains the scripts and data necessary to reproduce our benchma
    - Script: 'Snakefile'
    - Description: Generates simulations
    
+## spurious_model Directory
+
+- **Estimate parameters for spurious alignment model**
+   - Script: 'main.py'
+   - Description: Estimates parameters of the power law distribution for our spurious alignment model using a RYmer and minimizer index.
