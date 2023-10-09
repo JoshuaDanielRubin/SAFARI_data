@@ -39,11 +39,11 @@ This repository contains the scripts and data necessary to reproduce our benchma
   - Description: Runs bam2prof to create the damage profiles (i.e., estimated nucleotide misincorporation matrices).
 
 - **Generate simulations for linear aligner benchmarking experiment**:
-   - Script: 'Snakefile'
+   - Script: `Snakefile`
    - Description: Generates simulations
    
 ## spurious_model Directory
 
 - **Estimate parameters for spurious alignment model**
-   - Script: 'main.py'
+   - Script: `main.py`
    - Description: Estimates parameters of the power law distribution for our spurious alignment model using a RYmer and minimizer index.
