@@ -446,13 +446,11 @@ rule safari:
            -f /dev/stdin \
            -b fast \
            -i \
-           -P \
-           -C 20 \
            -m  /home/projects/MAAG/Magpie/Magpie/vgan_corrected/share/vgan/hcfiles/graph.min \
            -d /home/projects/MAAG/Magpie/Magpie/vgan_corrected/share/vgan/hcfiles/graph.dist \
            -q /home/projects/MAAG/Magpie/Magpie/vgan_corrected/share/vgan/hcfiles/graph.ry \
            -Z /home/projects/MAAG/Magpie/Magpie/vgan_corrected/share/vgan/hcfiles/graph.giraffe.gbz | \
-           vg filter -i -q 10 -o 1 - | \
+           vg filter -i - | \
            nice -19 /home/projects/MAAG/Magpie/Magpie/vgan_corrected/dep/vg/bin/vg surject \
                     -x /home/projects/MAAG/Magpie/Magpie/vgan_corrected/share/vgan/hcfiles/graph.xg \
            -t 60 -p H2a2a1 -b - \
@@ -471,12 +469,10 @@ rule giraffe:
            -f /dev/stdin \
            -b fast \
            -i \
-           -P \
-           -C 20 \
            -m  /home/projects/MAAG/Magpie/Magpie/vgan_corrected/share/vgan/hcfiles/graph.min \
            -d /home/projects/MAAG/Magpie/Magpie/vgan_corrected/share/vgan/hcfiles/graph.dist \
            -Z /home/projects/MAAG/Magpie/Magpie/vgan_corrected/share/vgan/hcfiles/graph.giraffe.gbz | \
-           vg filter -i -q 10 -o 1 - | \
+           vg filter -i - | \
            nice -19 /home/projects/MAAG/Magpie/Magpie/vgan_corrected/dep/vg/bin/vg surject \
                     -x /home/projects/MAAG/Magpie/Magpie/vgan_corrected/share/vgan/hcfiles/graph.xg \
            -t 60 -p H2a2a1 -b - \
