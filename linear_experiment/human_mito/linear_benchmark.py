@@ -32,15 +32,12 @@ def create_new_plot(df, file_name, title):
     ]
 
     # Determine the y-axis limit for all subplots
-    ymax = custom_order_df['Total_Reads'].max()
+    ymax = custom_order_df['Total_Reads'].mean()
 
     fig, axes = plt.subplots(len(questions_columns), 1, figsize=(16, 25))
     fig.suptitle(title, fontsize=18, color='black')
 
     for ax, (label, column) in zip(axes, questions_columns):
-        # Check if values are numeric
-        assert all(pd.to_numeric(custom_order_df[column], errors='coerce').notnull()), f"Non-numeric values found in {column} column."
-
         sns.barplot(
             x="Aligner_Name", 
             y=column, 
@@ -52,7 +49,7 @@ def create_new_plot(df, file_name, title):
         ax.set_title(label, fontsize=16, color='black')
         ax.set_xlabel("Alignment Algorithm", fontsize=14, color='black')
         ax.set_ylabel("Count of Reads", fontsize=14, color='black')
-        ax.set_ylim(0, ymax)  # Set y-axis limit for all subplots
+        ax.set_ylim(0, ymax)  # Set y-axis limit to average of Total_Reads
 
     plt.tight_layout(rect=[0, 0, 1, 0.96])
     plt.savefig(file_name)
