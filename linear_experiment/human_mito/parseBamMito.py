@@ -20,13 +20,16 @@ def main(bam_file_path):
     mapped_to_mt_correct_location_MQ_gt_30 = 0
     not_mapped_to_mt = 0
     not_mapped_to_mt_MQ_gt_30 = 0
+    unmapped_reads = 0  # Initialize counter for unmapped reads
 
     # Loop through each read in the BAM file
     for read in bamInputFile:
         total += 1  # Increment total read counter
 
-        # Only consider mapped reads
-        if not read.is_unmapped:
+        # Check for unmapped reads
+        if read.is_unmapped:
+            unmapped_reads += 1
+        else:
             # Check if read is from mitochondrial genome based on query name
             if read.query_name.startswith("generation"):
                 mapped_to_mt += 1
@@ -53,12 +56,12 @@ def main(bam_file_path):
     # Close the BAM file
     bamInputFile.close()
 
-    # Assert that all reads are accounted for
-    #assert total == mapped_to_mt + not_mapped_to_mt, "Not all reads are accounted for!"
+    assert total == mapped_to_mt + not_mapped_to_mt + unmapped_reads, "Not all reads are accounted for!"
 
     # Output statistics in table form
     print(f"Total reads: {total}")
     print(f"-----------------------------------------")
+    print(f"Unmapped reads: {unmapped_reads}")
     print(f"Mapped to MT: {mapped_to_mt}")
     print(f"Mapped to MT (Correct Location): {mapped_to_mt_correct_location}")
     print(f"Mapped to MT (Correct Location, MQ>30): {mapped_to_mt_correct_location_MQ_gt_30}")
