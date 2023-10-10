@@ -1,5 +1,4 @@
 #!/usr/bin/python
-
 import pysam
 import sys
 
