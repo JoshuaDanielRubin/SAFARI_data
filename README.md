@@ -41,7 +41,11 @@ This repository contains the scripts and data necessary to reproduce our benchma
 - **Generate simulations for linear aligner benchmarking experiment**:
    - Script: `Snakefile`
    - Description: Generates simulations
-   
+
+- **Compute statistics from BAM file**
+   - Script: `parseBamMito.py`
+   - Description: Compute statistics from BAM file
+
 ## spurious_model Directory
 
 - **Estimate parameters for spurious alignment model**
