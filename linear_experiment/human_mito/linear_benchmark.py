@@ -63,5 +63,5 @@ damage_type_order = ['none', 'dmid', 'dhigh', 'single']
 damage_type_rename = {'none': 'None', 'dmid': 'Mid', 'dhigh': 'High', 'single': 'Single'}
 
 # Create the new plot
-create_new_plot(df_new, "new_alignment_benchmark.png", "Alignment Statistics Stratified by DNA Damage Type")
+create_new_plot(df_new, "linear_benchmark.png", "Alignment Statistics Stratified by DNA Damage Type")
 
