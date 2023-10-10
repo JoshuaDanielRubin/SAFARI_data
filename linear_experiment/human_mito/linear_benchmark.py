@@ -4,7 +4,7 @@ import pandas as pd
 
 def create_new_plot(df, file_name, title):
     # Check if all required columns are present
-    required_columns = ['Damage_Type', 'Aligner_Name', 'Mapped_to_MT', 'Mapped_to_MT_Correct_Location', 'Mapped_to_MT_Correct_Location_MQ>30', 'Unmapped_Reads', 'Total_Reads']
+    required_columns = ['Damage_Type', 'Aligner_Name', 'Mapped_to_MT', 'Mapped_to_MT_Correct_Location', 'Mapped_to_MT_Correct_Location_MQ>30', 'Unmapped_Reads']
     assert set(required_columns).issubset(df.columns), "Not all required columns are present in the dataframe."
 
     custom_order_df = df.copy()
@@ -13,15 +13,15 @@ def create_new_plot(df, file_name, title):
     custom_order_df['Mapped_NOT_Correctly'] = custom_order_df['Mapped_to_MT'] - custom_order_df['Mapped_to_MT_Correct_Location']
 
     # Handle damage type order and renaming
-    damage_type_order = ['none', 'dmid', 'dhigh', 'single']
-    damage_type_rename = {'none': 'None', 'dmid': 'Mid', 'dhigh': 'High', 'single': 'Single'}
-
     custom_order_df['Damage_Type'] = custom_order_df['Damage_Type'].astype('category')
     custom_order_df['Damage_Type'] = custom_order_df['Damage_Type'].cat.reorder_categories(damage_type_order, ordered=True)
     custom_order_df['Damage_Type'] = custom_order_df['Damage_Type'].map(damage_type_rename)
 
     # Handling Aligner Name
     custom_order_df['Aligner_Name'] = custom_order_df['Aligner_Name'].replace('safari', 'SAFARI')
+
+    # Calculate the mean total number of reads
+    mean_total_reads = df[['Mapped_to_MT', 'Mapped_to_MT_Correct_Location', 'Mapped_to_MT_Correct_Location_MQ>30', 'Unmapped_Reads']].sum(axis=1).mean()
 
     # Define the questions and corresponding columns for new plots
     questions_columns = [
@@ -31,13 +31,13 @@ def create_new_plot(df, file_name, title):
         ("Total Reads Unmapped", "Unmapped_Reads")
     ]
 
-    # Determine the y-axis limit for all subplots
-    ymax = custom_order_df['Total_Reads'].mean()
-
     fig, axes = plt.subplots(len(questions_columns), 1, figsize=(16, 25))
     fig.suptitle(title, fontsize=18, color='black')
 
     for ax, (label, column) in zip(axes, questions_columns):
+        # Check if values are numeric
+        assert all(pd.to_numeric(custom_order_df[column], errors='coerce').notnull()), f"Non-numeric values found in {column} column."
+
         sns.barplot(
             x="Aligner_Name", 
             y=column, 
@@ -49,18 +49,22 @@ def create_new_plot(df, file_name, title):
         ax.set_title(label, fontsize=16, color='black')
         ax.set_xlabel("Alignment Algorithm", fontsize=14, color='black')
         ax.set_ylabel("Count of Reads", fontsize=14, color='black')
-        ax.set_ylim(0, ymax)  # Set y-axis limit to average of Total_Reads
+        ax.set_ylim(0, mean_total_reads)
 
     plt.tight_layout(rect=[0, 0, 1, 0.96])
     plt.savefig(file_name)
 
-# Load the data
+# Load the new data
 file_path = 'alignment_stats.csv'
-df = pd.read_csv(file_path)
+df_new = pd.read_csv(file_path)
 
-# Assert if the dataframe is empty
-assert not df.empty, "The dataframe is empty."
+# Check if the dataframe is empty
+assert not df_new.empty, "The dataframe is empty."
+
+# Customize the Damage_Type levels and their order
+damage_type_order = ['none', 'dmid', 'dhigh', 'single']
+damage_type_rename = {'none': 'None', 'dmid': 'Mid', 'dhigh': 'High', 'single': 'Single'}
 
 # Create the new plot
-create_new_plot(df, "linear_benchmark.png", "Alignment Statistics Stratified by DNA Damage Type")
+create_new_plot(df_new, "linear_benchmark.png", "Alignment Statistics Stratified by DNA Damage Type")
 
