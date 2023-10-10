@@ -49,7 +49,6 @@ def create_new_plot(df, file_name, title):
         ax.set_title(label, fontsize=16, color='black')
         ax.set_xlabel("Alignment Algorithm", fontsize=14, color='black')
         ax.set_ylabel("Count of Reads", fontsize=14, color='black')
-        ax.set_ylim(0, mean_total_reads)
 
     plt.tight_layout(rect=[0, 0, 1, 0.96])
     plt.savefig(file_name)
