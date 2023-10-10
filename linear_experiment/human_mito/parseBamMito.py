@@ -56,7 +56,12 @@ def main(bam_file_path):
     # Close the BAM file
     bamInputFile.close()
 
-    assert total == mapped_to_mt + not_mapped_to_mt + unmapped_reads, "Not all reads are accounted for!"
+    # Assertions
+    assert total == (mapped_to_mt + not_mapped_to_mt + unmapped_reads), "Mismatch in total mapped and unmapped reads!"
+    assert mapped_to_mt == (mapped_to_mt_correct_location + (mapped_to_mt - mapped_to_mt_correct_location)), "Mismatch in MT mapped reads!"
+    assert mapped_to_mt_correct_location_MQ_gt_30 <= mapped_to_mt_correct_location, "More reads with MQ>30 than reads in the correct location!"
+    assert not_mapped_to_mt_MQ_gt_30 <= not_mapped_to_mt, "More non-MT reads with MQ>30 than total non-MT reads!"
+    assert (mapped_to_mt + not_mapped_to_mt) == (total - unmapped_reads), "Mismatch in MT vs non-MT reads!"
 
     # Output statistics in table form
     print(f"Total reads: {total}")
