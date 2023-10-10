@@ -18,8 +18,8 @@ def main(bam_file_path):
     mapped_to_mt = 0
     mapped_to_mt_correct_location = 0
     mapped_to_mt_correct_location_MQ_gt_30 = 0
-    mapped_not_mt = 0
-    mapped_not_mt_MQ_gt_30 = 0
+    not_mapped_to_mt = 0
+    not_mapped_to_mt_MQ_gt_30 = 0
 
     # Loop through each read in the BAM file
     for read in bamInputFile:
@@ -44,14 +44,17 @@ def main(bam_file_path):
                     if read.mapping_quality > 30:
                         mapped_to_mt_correct_location_MQ_gt_30 += 1
             else:
-                mapped_not_mt += 1
+                not_mapped_to_mt += 1
                 
                 # Check for MQ > 30
                 if read.mapping_quality > 30:
-                    mapped_not_mt_MQ_gt_30 += 1
+                    not_mapped_to_mt_MQ_gt_30 += 1
 
     # Close the BAM file
     bamInputFile.close()
+
+    # Assert that all reads are accounted for
+    #assert total == mapped_to_mt + not_mapped_to_mt, "Not all reads are accounted for!"
 
     # Output statistics in table form
     print(f"Total reads: {total}")
@@ -59,8 +62,8 @@ def main(bam_file_path):
     print(f"Mapped to MT: {mapped_to_mt}")
     print(f"Mapped to MT (Correct Location): {mapped_to_mt_correct_location}")
     print(f"Mapped to MT (Correct Location, MQ>30): {mapped_to_mt_correct_location_MQ_gt_30}")
-    print(f"Mapped NOT to MT: {mapped_not_mt}")
-    print(f"Mapped NOT to MT (MQ>30): {mapped_not_mt_MQ_gt_30}")
+    print(f"NOT Mapped to MT: {not_mapped_to_mt}")
+    print(f"NOT Mapped to MT (MQ>30): {not_mapped_to_mt_MQ_gt_30}")
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
