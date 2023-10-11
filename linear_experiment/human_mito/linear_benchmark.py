@@ -18,17 +18,28 @@ def create_new_plot(df, file_name, title):
     custom_order_df['Damage_Type'] = custom_order_df['Damage_Type'].map(damage_type_rename)
 
     # Handling Aligner Name
-    custom_order_df['Aligner_Name'] = custom_order_df['Aligner_Name'].replace('safari', 'SAFARI')
+    aligner_rename = {
+        'safari': 'SAFARI',
+        'mem': 'BWA-MEM',
+        'aln_anc': 'BWA-aln (anc)',
+        'aln': 'BWA-aln',
+        'bb': 'BBMap',
+        'shrimp': 'SHRiMP'
+    }
+    custom_order_df['Aligner_Name'] = custom_order_df['Aligner_Name'].replace(aligner_rename)
 
-    # Calculate the mean total number of reads by aligner
-    mean_total_reads = df.groupby('Aligner_Name')[['Mapped_to_MT', 'Mapped_to_MT_Correct_Location', 'Mapped_to_MT_Correct_Location_MQ>30', 'Unmapped_Reads']].sum().median(axis=1).mean()
+    # Define a custom order for the Aligner Name and then sort the dataframe by this order
+    custom_aligner_order = ['SAFARI', 'giraffe', 'BWA-MEM', 'BWA-aln (anc)', 'BWA-aln', 'BBMap', 'SHRiMP']
+    custom_order_df['Aligner_Name'] = custom_order_df['Aligner_Name'].astype('category')
+    custom_order_df['Aligner_Name'].cat.set_categories(custom_aligner_order, ordered=True, inplace=True)
+    custom_order_df.sort_values('Aligner_Name', inplace=True)
 
-    # Define the questions and corresponding columns for new plots
+    # Questions and corresponding columns for new plots
     questions_columns = [
-        ("Total Reads Mapped Correctly", "Mapped_to_MT_Correct_Location"),
-        ("Total Reads Mapped, but Not Correctly", "Mapped_NOT_Correctly"),
-        ("Reads Mapped Correctly (MQ > 30)", "Mapped_to_MT_Correct_Location_MQ>30"),
-        ("Total Reads Unmapped", "Unmapped_Reads")
+        ("Median Total Reads Mapped Correctly Across Samples", "Mapped_to_MT_Correct_Location"),
+        ("Median Total Reads Mapped, but Not Correctly Across Samples", "Mapped_NOT_Correctly"),
+        ("Median Reads Mapped Correctly (MQ > 30) Across Samples", "Mapped_to_MT_Correct_Location_MQ>30"),
+        ("Median Total Reads Unmapped Across Samples", "Unmapped_Reads")
     ]
 
     fig, axes = plt.subplots(len(questions_columns), 1, figsize=(16, 25))
@@ -53,7 +64,7 @@ def create_new_plot(df, file_name, title):
     plt.tight_layout(rect=[0, 0, 1, 0.96])
     plt.savefig(file_name)
 
-# Load the new data
+# Load the data
 file_path = 'alignment_stats.csv'
 df_new = pd.read_csv(file_path)
 
@@ -66,4 +77,5 @@ damage_type_rename = {'none': 'None', 'dmid': 'Mid', 'dhigh': 'High', 'single': 
 
 # Create the new plot
 create_new_plot(df_new, "linear_benchmark.png", "Alignment Statistics Stratified by DNA Damage Type")
+
 
