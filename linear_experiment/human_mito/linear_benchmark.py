@@ -21,7 +21,7 @@ def create_new_plot(df, file_name, title):
     custom_order_df['Aligner_Name'] = custom_order_df['Aligner_Name'].replace('safari', 'SAFARI')
 
     # Calculate the mean total number of reads by aligner
-    mean_total_reads = df.groupby('Aligner_Name')[['Mapped_to_MT', 'Mapped_to_MT_Correct_Location', 'Mapped_to_MT_Correct_Location_MQ>30', 'Unmapped_Reads']].sum().mean(axis=1).mean()
+    mean_total_reads = df.groupby('Aligner_Name')[['Mapped_to_MT', 'Mapped_to_MT_Correct_Location', 'Mapped_to_MT_Correct_Location_MQ>30', 'Unmapped_Reads']].sum().median(axis=1).mean()
 
     # Define the questions and corresponding columns for new plots
     questions_columns = [
