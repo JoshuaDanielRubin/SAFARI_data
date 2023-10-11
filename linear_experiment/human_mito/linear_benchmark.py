@@ -12,6 +12,10 @@ def create_new_plot(df, file_name, title):
     # Create additional column for reads mapped but not correctly
     custom_order_df['Mapped_NOT_Correctly'] = custom_order_df['Mapped_to_MT'] - custom_order_df['Mapped_to_MT_Correct_Location']
 
+    # Customize the Damage_Type levels and their order
+    damage_type_order = ['none', 'dmid', 'dhigh', 'single']
+    damage_type_rename = {'none': 'None', 'dmid': 'Mid', 'dhigh': 'High', 'single': 'Single'}
+    
     # Handle damage type order and renaming
     custom_order_df['Damage_Type'] = custom_order_df['Damage_Type'].astype('category')
     custom_order_df['Damage_Type'] = custom_order_df['Damage_Type'].cat.reorder_categories(damage_type_order, ordered=True)
@@ -64,6 +68,23 @@ def create_new_plot(df, file_name, title):
     plt.tight_layout(rect=[0, 0, 1, 0.96])
     plt.savefig(file_name)
 
+    # Printing percent changes
+    filtered_df = custom_order_df[custom_order_df['Aligner_Name'].isin(['giraffe', 'SAFARI'])]
+    percent_changes = {}
+
+    for _, column in questions_columns:
+        pivot_df = filtered_df.pivot_table(index='Damage_Type', columns='Aligner_Name', values=column).reset_index()
+        pivot_df['Percent Change'] = ((pivot_df['SAFARI'] - pivot_df['giraffe']) / pivot_df['giraffe']) * 100
+        percent_changes[column] = pivot_df[['Damage_Type', 'Percent Change']]
+
+    for metric, change_df in percent_changes.items():
+        print(f"\nPercent change for {metric}:")
+        for _, row in change_df.iterrows():
+            damage_type, change = row['Damage_Type'], row['Percent Change']
+            increase_or_decrease = "increase" if change > 0 else "decrease"
+            print(f"{damage_type}: {abs(change):.2f}% {increase_or_decrease} from giraffe to SAFARI")
+
+
 # Load the data
 file_path = 'alignment_stats.csv'
 df_new = pd.read_csv(file_path)
@@ -71,11 +92,6 @@ df_new = pd.read_csv(file_path)
 # Check if the dataframe is empty
 assert not df_new.empty, "The dataframe is empty."
 
-# Customize the Damage_Type levels and their order
-damage_type_order = ['none', 'dmid', 'dhigh', 'single']
-damage_type_rename = {'none': 'None', 'dmid': 'Mid', 'dhigh': 'High', 'single': 'Single'}
-
 # Create the new plot
 create_new_plot(df_new, "linear_benchmark.png", "Alignment Statistics Stratified by DNA Damage Type")
-
 
