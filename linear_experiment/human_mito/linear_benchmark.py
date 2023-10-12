@@ -46,5 +46,5 @@ assert not df_new.empty, "Dataframe empty."
 # Customize the Damage_Type levels and order
 damage_type_order = ['none', 'dmid', 'dhigh', 'single']
 damage_type_rename = {'none': 'None', 'dmid': 'Mid', 'dhigh': 'High', 'single': 'Single'}
-create_new_plot(df_new, "linear_benchmark2.png", "Alignment Statistics Stratified by DNA Damage Type")
+create_new_plot(df_new, "linear_benchmark.png", "Alignment Statistics Stratified by DNA Damage Type")
 
