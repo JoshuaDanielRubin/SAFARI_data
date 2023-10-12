@@ -85,6 +85,7 @@ def create_new_plot(df, file_name, title):
             increase_or_decrease = "increase" if change > 0 else "decrease"
             print(f"{damage_type}: {abs(change):.2f}% {increase_or_decrease} from giraffe to SAFARI")
 
+
 # Load the data
 file_path = 'alignment_stats.csv'
 df_new = pd.read_csv(file_path)

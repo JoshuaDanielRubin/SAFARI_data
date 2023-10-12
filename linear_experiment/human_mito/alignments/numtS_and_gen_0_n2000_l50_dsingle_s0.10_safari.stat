@@ -1,7 +1,8 @@
-Total reads: 1978
+Total reads: 2194
 -----------------------------------------
-Mapped to MT: 1976
-Mapped to MT (Correct Location): 1976
-Mapped to MT (Correct Location, MQ>30): 1969
-Mapped NOT to MT: 2
-Mapped NOT to MT (MQ>30): 2
+Unmapped reads: 157
+Mapped to MT: 2001
+Mapped to MT (Correct Location): 2000
+Mapped to MT (Correct Location, MQ>30): 1987
+NOT Mapped to MT: 36
+NOT Mapped to MT (MQ>30): 35

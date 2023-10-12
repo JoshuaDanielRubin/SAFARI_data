@@ -1,7 +1,8 @@
-Total reads: 2026
+Total reads: 2020
 -----------------------------------------
+Unmapped reads: 0
 Mapped to MT: 1995
 Mapped to MT (Correct Location): 1995
 Mapped to MT (Correct Location, MQ>30): 1995
-Mapped NOT to MT: 31
-Mapped NOT to MT (MQ>30): 31
+NOT Mapped to MT: 25
+NOT Mapped to MT (MQ>30): 25

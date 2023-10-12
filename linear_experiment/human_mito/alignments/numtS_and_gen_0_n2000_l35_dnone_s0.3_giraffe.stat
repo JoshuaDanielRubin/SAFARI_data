@@ -1,7 +1,8 @@
-Total reads: 1436
+Total reads: 2604
 -----------------------------------------
-Mapped to MT: 1434
-Mapped to MT (Correct Location): 1434
-Mapped to MT (Correct Location, MQ>30): 1416
-Mapped NOT to MT: 2
-Mapped NOT to MT (MQ>30): 2
+Unmapped reads: 828
+Mapped to MT: 1715
+Mapped to MT (Correct Location): 1714
+Mapped to MT (Correct Location, MQ>30): 1661
+NOT Mapped to MT: 61
+NOT Mapped to MT (MQ>30): 58
