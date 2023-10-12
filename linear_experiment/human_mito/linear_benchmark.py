@@ -51,6 +51,7 @@ def process_data(df):
 
 
 def create_new_plot(df, file_name, title):
+
     questions_columns = [
         ("Median Total Reads Mapped Correctly Across Samples", "Mapped_to_MT_Correct_Location"),
         ("Median Total Reads Mapped, but Not Correctly Across Samples", "Mapped_NOT_Correctly"),
@@ -62,6 +63,8 @@ def create_new_plot(df, file_name, title):
     fig.suptitle(title, fontsize=18, color='black')
 
     for ax, (label, column) in zip(axes, questions_columns):
+        non_numeric_values = df[pd.to_numeric(df[column], errors='coerce').isna()][column]
+        print(f"Non-numeric values in {column} column: {non_numeric_values.unique()}")
         assert all(pd.to_numeric(df[column], errors='coerce').notnull()), f"Non-numeric values found in {column} column."
         sns.barplot(
             x="Aligner_Name", 
