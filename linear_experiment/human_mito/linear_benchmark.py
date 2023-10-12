@@ -14,17 +14,21 @@ def create_new_plot(df, file_name, title):
     fig.suptitle(title, fontsize=18, color='black')
 
     for ax, (label, column) in zip(axes, questions_columns):
-        sns.barplot(x="Aligner_Name", y=column, hue="Damage_Type", data=df, ax=ax, hue_order=['None', 'Mid', 'High', 'Single'])
+        sns.barplot(x="Aligner_Name", y=column, hue="Damage_Type", data=df, ax=ax, hue_order=['None', 'Mid', 'High', 'Single'], order=["giraffe", "SAFARI"])
         ax.set_title(label, fontsize=16)
         ax.set_xlabel("Alignment Algorithm", fontsize=14)
         ax.set_ylabel("Count of Reads", fontsize=14)
+        
+        # Compute mean values for each aligner by damage type
+        table_df = df.groupby(['Aligner_Name', 'Damage_Type'])[column].median().unstack()
+        
         # Print Latex table
-        table = df.pivot_table(index='Aligner_Name', columns='Damage_Type', values=column, aggfunc='sum').to_latex()
+        table = table_df.to_latex()
         print(f"\nLaTeX Table for {label}:\n", table)
 
         # Calculate and print percent increase or decrease from "giraffe" to "SAFARI"
-        giraffe_val = df[df["Aligner_Name"] == "giraffe"][column].sum()
-        safari_val = df[df["Aligner_Name"] == "SAFARI"][column].sum()
+        giraffe_val = table_df.loc["giraffe"].mean()
+        safari_val = table_df.loc["SAFARI"].mean()
         percent_change = ((safari_val - giraffe_val) / giraffe_val) * 100
         print(f"Percent change from 'giraffe' to 'SAFARI' for {label}: {percent_change:.2f}%")
 
