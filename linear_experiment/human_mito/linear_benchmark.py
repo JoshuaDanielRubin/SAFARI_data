@@ -33,7 +33,22 @@ def process_data(df):
     custom_order_df['Aligner_Name'].cat.set_categories(custom_aligner_order, ordered=True, inplace=True)
     custom_order_df.sort_values('Aligner_Name', inplace=True)
 
+     # Calculate the medians
+    metrics = [
+        "Mapped_to_MT_Correct_Location",
+        "Mapped_NOT_Correctly",
+        "Mapped_to_MT_Correct_Location_MQ>30",
+        "Unmapped_Reads"
+    ]
+    
+    # Instead of using the transform, let's explicitly compute the median and then merge it back to the dataframe
+    medians_df = custom_order_df.groupby(['Aligner_Name', 'Damage_Type'])[metrics].median().reset_index()
+    
+    custom_order_df = custom_order_df.drop(columns=metrics).drop_duplicates(subset=['Aligner_Name', 'Damage_Type'])
+    custom_order_df = pd.merge(custom_order_df, medians_df, on=['Aligner_Name', 'Damage_Type'], how='left')
+    
     return custom_order_df
+
 
 def create_new_plot(df, file_name, title):
     questions_columns = [
