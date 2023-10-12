@@ -20,7 +20,7 @@ def create_new_plot(df, file_name, title):
         ax.set_ylabel("Count of Reads", fontsize=14)
         
         # Compute mean values for each aligner by damage type
-        table_df = df.groupby(['Aligner_Name', 'Damage_Type'])[column].median().unstack()
+        table_df = df.groupby(['Aligner_Name', 'Damage_Type'])[column].mean().unstack()
         
         # Print Latex table
         table = table_df.to_latex()
