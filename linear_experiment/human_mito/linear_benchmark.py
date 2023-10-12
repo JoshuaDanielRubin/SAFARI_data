@@ -8,7 +8,7 @@ def create_new_plot(df, file_name, title):
     df['Mapped_NOT_Correctly'] = df['Mapped_to_MT'] - df['Mapped_to_MT_Correct_Location']
     df['Damage_Type'] = df['Damage_Type'].astype('category').cat.reorder_categories(damage_type_order, ordered=True).map(damage_type_rename)
     df['Aligner_Name'] = df['Aligner_Name'].replace('safari', 'SAFARI')
-    questions_columns = [("Total Reads Mapped Correctly", "Mapped_to_MT_Correct_Location"), ("Total Reads Mapped, but Not Correctly", "Mapped_NOT_Correctly"), ("Reads Mapped Correctly (MQ > 30)", "Mapped_to_MT_Correct_Location_MQ>30"), ("Total Reads Unmapped", "Unmapped_Reads")]
+    questions_columns = [("Mean Total Reads Mapped Correctly", "Mapped_to_MT_Correct_Location"), ("Mean Total Reads Mapped, but Not Correctly", "Mapped_NOT_Correctly"), ("Mean Reads Mapped Correctly (MQ > 30)", "Mapped_to_MT_Correct_Location_MQ>30"), ("Mean Total Reads Unmapped", "Unmapped_Reads")]
 
     fig, axes = plt.subplots(len(questions_columns), 1, figsize=(16, 25))
     fig.suptitle(title, fontsize=18, color='black')
@@ -17,7 +17,7 @@ def create_new_plot(df, file_name, title):
         sns.barplot(x="Aligner_Name", y=column, hue="Damage_Type", data=df, ax=ax, hue_order=['None', 'Mid', 'High', 'Single'], order=["giraffe", "SAFARI"])
         ax.set_title(label, fontsize=16)
         ax.set_xlabel("Alignment Algorithm", fontsize=14)
-        ax.set_ylabel("Count of Reads", fontsize=14)
+        ax.set_ylabel("Mean Count of Reads", fontsize=14)
         
         # Compute mean values for each aligner by damage type
         table_df = df.groupby(['Aligner_Name', 'Damage_Type'])[column].mean().unstack()
@@ -26,11 +26,12 @@ def create_new_plot(df, file_name, title):
         table = table_df.to_latex()
         print(f"\nLaTeX Table for {label}:\n", table)
 
-        # Calculate and print percent increase or decrease from "giraffe" to "SAFARI"
-        giraffe_val = table_df.loc["giraffe"].mean()
-        safari_val = table_df.loc["SAFARI"].mean()
-        percent_change = ((safari_val - giraffe_val) / giraffe_val) * 100
-        print(f"Percent change from 'giraffe' to 'SAFARI' for {label}: {percent_change:.2f}%")
+        # Calculate and print percent increase or decrease from "giraffe" to "SAFARI" for each damage type
+        for damage in damage_type_rename.values():
+            giraffe_val = table_df.loc["giraffe", damage]
+            safari_val = table_df.loc["SAFARI", damage]
+            percent_change = ((safari_val - giraffe_val) / giraffe_val) * 100
+            print(f"Percent change from 'giraffe' to 'SAFARI' for {label} with damage type '{damage}': {percent_change:.2f}%")
 
     plt.tight_layout(rect=[0, 0, 1, 0.96])
     plt.savefig(file_name)
