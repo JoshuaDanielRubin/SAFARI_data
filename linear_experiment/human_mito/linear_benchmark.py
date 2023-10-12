@@ -1,3 +1,4 @@
+
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
@@ -84,7 +85,6 @@ def create_new_plot(df, file_name, title):
             increase_or_decrease = "increase" if change > 0 else "decrease"
             print(f"{damage_type}: {abs(change):.2f}% {increase_or_decrease} from giraffe to SAFARI")
 
-
 # Load the data
 file_path = 'alignment_stats.csv'
 df_new = pd.read_csv(file_path)
@@ -94,4 +94,5 @@ assert not df_new.empty, "The dataframe is empty."
 
 # Create the new plot
 create_new_plot(df_new, "linear_benchmark.png", "Alignment Statistics Stratified by DNA Damage Type")
+
 
