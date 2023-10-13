@@ -11,8 +11,8 @@ RATES=["0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10"]
 #RATES=["0.5"]
 DAMAGE=["dhigh", "dmid", "none", "single"]
 #DAMAGE=["none"]
-ALIGNERS=["bowtie2", "mem", "aln_anc", "aln", "shrimp", "safari", "bb", "giraffe"]
-#ALIGNERS=["safari", "giraffe"]
+ALIGNERS=["bowtie2", "mem", "aln_anc", "aln", "shrimp", "bb", "giraffe", "safari"]
+#ALIGNERS=["giraffe"]
 ALIGNERSC=[]
 NUMFRAGS=2000
 FRAGNUM=100
@@ -441,7 +441,7 @@ rule safari:
         input_3="simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r2_s{rate}.fq.gz"
     output: "alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_safari.bam"
     shell: "nice -19 /home/ctools/interleave_fastq/interleavefastq.sh {input.input_1} {input.input_2} {input.input_3} | \
-            /home/projects/MAAG/Magpie/Magpie/vgan_corrected/dep/vg/bin/vg safari \
+            /home/projects/MAAG/Magpie/Magpie/vgan_corrected/dep/vg/bin/vg giraffe \
            -t 60 \
            -f /dev/stdin \
            -b fast \
