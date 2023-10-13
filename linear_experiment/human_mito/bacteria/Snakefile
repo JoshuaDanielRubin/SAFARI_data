@@ -1,0 +1,53 @@
+# Snakefile
+
+# Global variables
+Nfrag = 10000
+Lfrag = 40
+
+rule all:
+    input:
+        "refSoil.fa.fai",
+        expand("refSoil_n{nfrags}_l{fraglen}.fa.gz", nfrags=[Nfrag], fraglen=[Lfrag]),
+        expand("simulations/gen_refSoil_n{nfrags}_l{fraglen}_d{dam}.fa.gz", nfrags=[Nfrag], fraglen=[Lfrag], dam=[YOUR_DEAM_MAT_FILES]),
+        expand("simulations/gen_refSoil_n{nfrags}_l{fraglen}_d{dam}_adpt.fa", nfrags=[Nfrag], fraglen=[Lfrag], dam=[YOUR_DEAM_MAT_FILES])
+
+rule faidx:
+    input:
+        "refSoil.fa"
+    output:
+        "refSoil.fa.fai"
+    shell:
+        "/home/ctools/samtools-1.13/samtools faidx {input}"
+
+rule fragsim:
+    input:
+        input_1="refSoil.fa",
+        input_2="refSoil.fa.fai"
+    output:
+        "refSoil_n{nfrags}_l{fraglen}.fa.gz"
+    wildcard_constraints:
+        fraglen="\d+"
+    shell:
+        "/home/ctools/gargammel/src/fragSim  -n {wildcards.nfrags} -l {wildcards.fraglen} --circ NC_022660.1 {input.input_1} | gzip > {output}"
+
+rule deamsim:
+    input:
+        "refSoil_n{nfrags}_l{fraglen}.fa.gz"
+    output:
+        "simulations/gen_refSoil_n{nfrags}_l{fraglen}_d{dam}.fa.gz"
+    wildcard_constraints:
+        fraglen="\d+"
+    shell:
+        "/home/ctools/gargammel/src/deamSim -matfile {wildcards.dam} {input} | gzip > {output}"
+
+rule adptsim:
+    input:
+        "simulations/gen_refSoil_n{nfrags}_l{fraglen}_d{dam}.fa.gz"
+    output:
+        "simulations/gen_refSoil_n{nfrags}_l{fraglen}_d{dam}_adpt.fa"
+    wildcard_constraints:
+        fraglen="\d+"
+    shell:
+        "/home/ctools/gargammel/src/adptSim -l 125 -artp {output} {input}"
+
+
