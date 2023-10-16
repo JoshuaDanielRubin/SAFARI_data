@@ -32,7 +32,6 @@ with open('alignment_stats.csv', 'r') as file:
         for key in summary[aligner]:
             summary[aligner][key] += int(row[key])
     
-    # Sort the aligners to display Safari first and then Giraffe
     aligner_order = ['safari', 'giraffe'] + [aligner for aligner in summary if aligner not in ['safari', 'giraffe']]
     metrics = ["Sensitivity", "Specificity", "Precision", "Accuracy", "F1 Score"]
     
@@ -45,24 +44,22 @@ with open('alignment_stats.csv', 'r') as file:
             results = calculate_metrics(summary[aligner]["TP" + suffix], summary[aligner]["FP" + suffix], summary[aligner]["TN" + suffix], summary[aligner]["FN" + suffix])
             report_metrics(results, metric_type)
             
-            for i, metric in enumerate(metrics):
-                data_to_plot[metric].append(results[i])
+            for metric in metrics:
+                data_to_plot[metric].append(results[metrics.index(metric)])
         
-        # Plotting
         x = range(len(aligner_order))
-        width = 0.15
-        fig, ax = plt.subplots(figsize=(12, 7))
-
-        for i, metric in enumerate(metrics):
-            ax.bar([pos + i * width for pos in x], data_to_plot[metric], width, label=metric)
-
-        ax.set_xlabel('Aligners')
-        ax.set_title(f'{metric_type} Metrics by Aligner')
-        ax.set_xticks([pos + 2 * width for pos in x])
-        ax.set_xticklabels(aligner_order)
-        ax.legend()
-
-        plt.tight_layout()
-        plt.savefig("linear_benchmark.png")
+        
+        for metric in metrics:
+            fig, ax = plt.subplots(figsize=(10, 5))
+            ax.bar(x, data_to_plot[metric], label=metric, color=['b', 'r', 'g', 'y', 'c', 'm', 'k', 'orange', 'purple'])
+            ax.set_xlabel('Aligners')
+            ax.set_ylabel(metric)
+            ax.set_title(f'{metric} ({metric_type}) by Aligner')
+            ax.set_xticks(x)
+            ax.set_xticklabels(aligner_order)
+            ax.legend()
+            plt.tight_layout()
+            plt.savefig(f"linear_benchmark_{metric.replace(' ', '_').lower()}_{suffix}.png")
+            plt.show()
 
 
