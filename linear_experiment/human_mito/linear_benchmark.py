@@ -1,50 +1,68 @@
+import csv
 import matplotlib.pyplot as plt
-import seaborn as sns
-import pandas as pd
 
-def create_new_plot(df, file_name, title):
-    required_columns = ['Damage_Type', 'Aligner_Name', 'Mapped_to_MT', 'Mapped_to_MT_Correct_Location', 'Mapped_to_MT_Correct_Location_MQ>30', 'Unmapped_Reads']
-    assert set(required_columns).issubset(df.columns), "Required columns missing."
+def calculate_metrics(TP, FP, TN, FN):
+    sensitivity = TP / (TP + FN) if TP + FN != 0 else 0
+    specificity = TN / (TN + FP) if TN + FP != 0 else 0
+    precision = TP / (TP + FP) if TP + FP != 0 else 0
+    accuracy = (TP + TN) / (TP + FP + TN + FN) if TP + FP + TN + FN != 0 else 0
+    f1_score = 2 * (precision * sensitivity) / (precision + sensitivity) if precision + sensitivity != 0 else 0
+    return sensitivity, specificity, precision, accuracy, f1_score
+
+def report_metrics(metrics, label):
+    print(f"{label}:")
+    print(f"Sensitivity: {metrics[0]:.4f}")
+    print(f"Specificity: {metrics[1]:.4f}")
+    print(f"Precision: {metrics[2]:.4f}")
+    print(f"Accuracy: {metrics[3]:.4f}")
+    print(f"F1 Score: {metrics[4]:.4f}\n")
+
+with open('alignment_stats.csv', 'r') as file:
+    csv_reader = csv.DictReader(file)
     
-    df['Mapped_NOT_Correctly'] = df['Mapped_to_MT'] - df['Mapped_to_MT_Correct_Location']
-    df['Damage_Type'] = df['Damage_Type'].astype('category').cat.reorder_categories(damage_type_order, ordered=True).map(damage_type_rename)
-    df['Aligner_Name'] = df['Aligner_Name'].replace('safari', 'SAFARI')
-    questions_columns = [("Mean Total Reads Mapped Correctly", "Mapped_to_MT_Correct_Location"), ("Mean Total Reads Mapped, but Not Correctly", "Mapped_NOT_Correctly"), ("Mean Reads Mapped Correctly (MQ > 30)", "Mapped_to_MT_Correct_Location_MQ>30"), ("Mean Total Reads Unmapped", "Unmapped_Reads")]
-
-    fig, axes = plt.subplots(len(questions_columns), 1, figsize=(16, 25))
-    fig.suptitle(title, fontsize=18, color='black')
-
-    for ax, (label, column) in zip(axes, questions_columns):
-        sns.barplot(x="Aligner_Name", y=column, hue="Damage_Type", data=df, ax=ax, hue_order=['None', 'Mid', 'High', 'Single'])
-        ax.set_title(label, fontsize=16)
-        ax.set_xlabel("Alignment Algorithm", fontsize=14)
-        ax.set_ylabel("Mean Count of Reads", fontsize=14)
+    summary = {}
+    
+    for row in csv_reader:
+        aligner = row["Aligner_Name"]
+        if aligner not in summary:
+            summary[aligner] = {
+                "TP": 0, "FP": 0, "TN": 0, "FN": 0,
+                "TP_MQ30": 0, "FP_MQ30": 0, "TN_MQ30": 0, "FN_MQ30": 0,
+            }
+        for key in summary[aligner]:
+            summary[aligner][key] += int(row[key])
+    
+    # Sort the aligners to display Safari first and then Giraffe
+    aligner_order = ['safari', 'giraffe'] + [aligner for aligner in summary if aligner not in ['safari', 'giraffe']]
+    metrics = ["Sensitivity", "Specificity", "Precision", "Accuracy", "F1 Score"]
+    
+    for metric_type, suffix in [("Overall", ""), ("MQ > 30", "_MQ30")]:
+        print(f"------ {metric_type} ------\n")
+        data_to_plot = {metric: [] for metric in metrics}
         
-        # Compute Mean values for each aligner by damage type
-        table_df = df.groupby(['Aligner_Name', 'Damage_Type'])[column].mean().unstack()
+        for aligner in aligner_order:
+            print(f"Aligner: {aligner}")
+            results = calculate_metrics(summary[aligner]["TP" + suffix], summary[aligner]["FP" + suffix], summary[aligner]["TN" + suffix], summary[aligner]["FN" + suffix])
+            report_metrics(results, metric_type)
+            
+            for i, metric in enumerate(metrics):
+                data_to_plot[metric].append(results[i])
         
-        # Print Latex table
-        table = table_df.to_latex()
-        print(f"\nLaTeX Table for {label}:\n", table)
+        # Plotting
+        x = range(len(aligner_order))
+        width = 0.15
+        fig, ax = plt.subplots(figsize=(12, 7))
 
-        # Calculate and print percent increase or decrease from "giraffe" to "SAFARI" for each damage type
-        for damage in damage_type_rename.values():
-            giraffe_val = table_df.loc["giraffe", damage]
-            safari_val = table_df.loc["SAFARI", damage]
-            if giraffe_val:
-                percent_change = ((safari_val - giraffe_val) / giraffe_val) * 100
-                print(f"Percent change from 'giraffe' to 'SAFARI' for {label} with damage type '{damage}': {percent_change:.2f}%")
+        for i, metric in enumerate(metrics):
+            ax.bar([pos + i * width for pos in x], data_to_plot[metric], width, label=metric)
 
-    plt.tight_layout(rect=[0, 0, 1, 0.96])
-    plt.savefig(file_name)
+        ax.set_xlabel('Aligners')
+        ax.set_title(f'{metric_type} Metrics by Aligner')
+        ax.set_xticks([pos + 2 * width for pos in x])
+        ax.set_xticklabels(aligner_order)
+        ax.legend()
 
-# Load data and check
-file_path = 'alignment_stats.csv'
-df_new = pd.read_csv(file_path)
-assert not df_new.empty, "Dataframe empty."
+        plt.tight_layout()
+        plt.savefig("linear_benchmark.png")
 
-# Customize the Damage_Type levels and order
-damage_type_order = ['none', 'dmid', 'dhigh', 'single']
-damage_type_rename = {'none': 'None', 'dmid': 'Mid', 'dhigh': 'High', 'single': 'Single'}
-create_new_plot(df_new, "linear_benchmark.png", "Alignment Statistics Stratified by DNA Damage Type")
 
