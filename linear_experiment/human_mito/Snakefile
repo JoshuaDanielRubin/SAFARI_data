@@ -11,11 +11,11 @@ RATES=["0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9"]
 #RATES=["0.5"]
 DAMAGE=["dhigh", "dmid", "none", "single"]
 #DAMAGE=["none"]
-#ALIGNERS=["bowtie2", "mem", "aln_anc", "aln", "shrimp", "bb", "giraffe", "safari"]
-ALIGNERS=["mem"]
+ALIGNERS=["bowtie2", "mem", "aln_anc", "aln", "shrimp", "bb", "giraffe", "safari"]
+#ALIGNERS=["bowtie2", "mem"]
 ALIGNERSC=[]
-NUMFRAGS=2000
-FRAGNUM=100
+NUMFRAGS=4000
+FRAGNUM=20
 
 rule all:
     input:
@@ -51,6 +51,7 @@ rule all:
         #expand("alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_safari.bam",step=STEPSMSA,nfrags=NUMFRAGS,fraglen=LENGTHS,dam=DAMAGE,rate=RATES),
         #expand("alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_bb.bam",step=STEPSMSA,nfrags=NUMFRAGS,fraglen=LENGTHS,dam=DAMAGE,rate=RATES),
         expand("alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}.stat",step=STEPSMSA,nfrags=NUMFRAGS,fraglen=LENGTHS,dam=DAMAGE,rate=RATES,align=ALIGNERS),
+
         #expand("alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}.bam.bai",step=STEPSMSA,nfrags=NUMFRAGS,fraglen=LENGTHS,dam=DAMAGE,rate=RATES,align=ALIGNERS),
         #expand("consensus/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}_{cons}.fa.gz",step=STEPSMSA,nfrags=NUMFRAGS,fraglen=LENGTHS,dam=DAMAGE,rate=RATES,align=ALIGNERSC,cons=CONSENSUS),
         #expand("consensus/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_{align}_{cons}.fa.nw",step=STEPSMSA,nfrags=NUMFRAGS,fraglen=LENGTHS,dam=DAMAGE,rate=RATES,align=ALIGNERSC,cons=CONSENSUS),
@@ -197,7 +198,6 @@ rule subsamp_mt:
     wildcard_constraints:
         fraglen="\d+"
     shell: "/home/ctools//seqtk-1.3/seqtk sample -s 321 {input} {wildcards.rate} |gzip > {output}"
-    #shell: "cp {input} {output}"
 
 rule subsamp_r1:
     input: "simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r1.fq.gz"
@@ -205,7 +205,6 @@ rule subsamp_r1:
     wildcard_constraints:
         fraglen="\d+"
     shell: "/home/ctools//seqtk-1.3/seqtk sample -s 321 {input} {wildcards.rate} |gzip > {output}"
-    #shell: "cp {input} {output}"
 
 rule subsamp_r2:
     input: "simulations/gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r2.fq.gz"
@@ -213,7 +212,6 @@ rule subsamp_r2:
     wildcard_constraints:
         fraglen="\d+"
     shell: "/home/ctools//seqtk-1.3/seqtk sample -s 321 {input} {wildcards.rate} |gzip > {output}"
-    #shell: "cp {input} {output}"
 
 #same process for numtS
 
@@ -345,7 +343,7 @@ rule concat_seqtk:
     output: "simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_s{rate}.fq.gz"
     wildcard_constraints:
         fraglen="\d+"
-    shell: "cat {input.input_1} {input.input_2} > {output}"
+    shell: "cat {input.input_1} {input.input_2} bacteria/simulations/refSoil_n10000_l{wildcards.fraglen}_d{wildcards.dam}_o_s{wildcards.rate}.fq.gz > {output}"
 
 rule concat_seqtk_r1:
     input:
@@ -354,7 +352,7 @@ rule concat_seqtk_r1:
     output: "simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r1_s{rate}.fq.gz"
     wildcard_constraints:
         fraglen="\d+"
-    shell: "cat {input.input_1} {input.input_2} > {output}"
+    shell: "cat {input.input_1} {input.input_2} bacteria/simulations/refSoil_n10000_l{wildcards.fraglen}_d{wildcards.dam}_o_r1_s{wildcards.rate}.fq.gz > {output}"
 
 rule concat_seqtk_r2:
     input:
@@ -363,7 +361,7 @@ rule concat_seqtk_r2:
     output: "simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r2_s{rate}.fq.gz"
     wildcard_constraints:
         fraglen="\d+"
-    shell: "cat {input.input_1} {input.input_2} > {output}"
+    shell: "cat {input.input_1} {input.input_2} bacteria/simulations/refSoil_n10000_l{wildcards.fraglen}_d{wildcards.dam}_o_r2_s{wildcards.rate}.fq.gz > {output}"
 
 # mapping to the reference 
 
@@ -376,7 +374,7 @@ rule bwa:
     output: "alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_mem.bam"
     wildcard_constraints:
         fraglen="\d+"
-    shell: "/home/ctools/interleave_fastq/interleavefastq.sh {input.input_1} {input.input_2} {input.input_3} | /home/ctools/bwa-0.7.17/bwa mem -p \
+    shell: "/home/ctools/interleave_fastq/interleavefastq.sh {input.input_1} {input.input_2} {input.input_3} | /home/ctools/bwa-0.7.17/bwa mem -r 2.5 -k 19 -p \
             simulations/gen_0.fa  /dev/stdin | /home/ctools/samtools-1.13/samtools sort /dev/stdin > {output}" 
 
 
@@ -401,10 +399,10 @@ rule alnanc:
         input_2="simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r1_s{rate}.fq.gz",
         input_3="simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r2_s{rate}.fq.gz"
     output: "alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_aln_anc.bam"
-    shell: "cat <(/home/ctools/bwa-0.7.17/bwa aln -n 0.01 -o 2 -l 16500 simulations/gen_0.fa {input.input_1} \
+    shell: "cat <(/home/ctools/bwa-0.7.17/bwa aln -n 0.02 -o 2 -l 1024 simulations/gen_0.fa {input.input_1} \
             | /home/ctools/bwa-0.7.17/bwa samse simulations/gen_0.fa /dev/stdin {input.input_1}) <(/home/ctools/bwa-0.7.17/bwa sampe simulations/gen_0.fa \
-            <(/home/ctools/bwa-0.7.17/bwa aln -n 0.01 -o 2 -l 16500 simulations/gen_0.fa {input.input_2}) \
-            <(/home/ctools/bwa-0.7.17/bwa aln -n 0.01 -o 2 -l 16500 simulations/gen_0.fa {input.input_3}) {input.input_2} {input.input_3} \
+            <(/home/ctools/bwa-0.7.17/bwa aln -n 0.02 -o 2 -l 1024 simulations/gen_0.fa {input.input_2}) \
+            <(/home/ctools/bwa-0.7.17/bwa aln -n 0.02 -o 2 -l 1024 simulations/gen_0.fa {input.input_3}) {input.input_2} {input.input_3} \
             | /home/ctools/samtools-1.13/samtools view -S /dev/stdin) | /home/ctools/samtools-1.13/samtools sort /dev/stdin > {output}"
 
 ##bowtie2
@@ -417,7 +415,7 @@ rule bowtie2:
     shell: "/home/ctools/interleave_fastq/interleavefastq.sh {input.input_1} {input.input_2} {input.input_3}  | \
             /home/ctools/bowtie2-2.4.4/bowtie2 --no-unal -k 1000 -D 15 -R 2 -N 1 -L 22 -i S,1,1.15 --np 1 \
             --mp '1,1' --rdg '0,1' --rfg '0,1' --score-min 'L,0,-0.1' \
-            -x /home/projects/benchmarkmito/bowtie2index/gen_0.fa --interleaved /dev/stdin | /home/ctools/samtools-1.13/samtools sort /dev/stdin > {output}"
+            -x bowtie2index/gen_0.fa --interleaved /dev/stdin | /home/ctools/samtools-1.13/samtools sort /dev/stdin > {output}"
 
 
 ##SHRiMP
@@ -440,6 +438,7 @@ rule safari:
         input_2="simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r1_s{rate}.fq.gz",
         input_3="simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r2_s{rate}.fq.gz"
     output: "alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_safari.bam"
+    benchmark: "benchmarks/safari_numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}.tsv"
     shell: "nice -19 /home/ctools/interleave_fastq/interleavefastq.sh {input.input_1} {input.input_2} {input.input_3} | \
             /home/projects/MAAG/Magpie/Magpie/vgan_corrected/dep/vg/bin/vg giraffe \
            -t 60 \
@@ -463,6 +462,7 @@ rule giraffe:
         input_2="simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r1_s{rate}.fq.gz",
         input_3="simulations/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_o_r2_s{rate}.fq.gz"
     output: "alignments/numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}_giraffe.bam"
+    benchmark: "benchmarks/giraffe_numtS_and_gen_{step}_n{nfrags}_l{fraglen}_d{dam}_s{rate}.tsv"
     shell: "nice -19 /home/ctools/interleave_fastq/interleavefastq.sh {input.input_1} {input.input_2} {input.input_3} | \
             /home/projects/MAAG/Magpie/Magpie/vg_uncorrected/bin/vg giraffe \
            -t 60 \
