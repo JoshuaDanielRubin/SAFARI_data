@@ -9,8 +9,9 @@ def main(bam_file_path):
     # Open the BAM file for reading
     bamInputFile = pysam.Samfile(bam_file_path, "rb")
 
-    # Initialize counters for TP, FP, TN, and FN
+    # Initialize counters for TP, FP, TN, FN and their counterparts with MQ > 30
     TP, FP, TN, FN = 0, 0, 0, 0
+    TP_MQ30, FP_MQ30, TN_MQ30, FN_MQ30 = 0, 0, 0, 0
 
     # Loop through each read in the BAM file
     for read in bamInputFile:
@@ -23,12 +24,20 @@ def main(bam_file_path):
         # Compute TP, FP, TN, and FN
         if is_from_mt and is_mapped_to_mt:
             TP += 1
+            if read.mapping_quality > 30:
+                TP_MQ30 += 1
         elif not is_from_mt and is_mapped_to_mt:
             FP += 1
+            if read.mapping_quality > 30:
+                FP_MQ30 += 1
         elif is_from_mt and not is_mapped_to_mt:
             FN += 1
+            if read.mapping_quality > 30:
+                FN_MQ30 += 1
         elif not is_from_mt and not is_mapped_to_mt:
             TN += 1
+            if read.mapping_quality > 30:
+                TN_MQ30 += 1
 
     # Close the BAM file
     bamInputFile.close()
@@ -38,6 +47,11 @@ def main(bam_file_path):
     print(f"False Positives (FP): {FP}")
     print(f"True Negatives (TN): {TN}")
     print(f"False Negatives (FN): {FN}")
+    print("\nFor reads with MQ > 30:")
+    print(f"True Positives (TP_MQ30): {TP_MQ30}")
+    print(f"False Positives (FP_MQ30): {FP_MQ30}")
+    print(f"True Negatives (TN_MQ30): {TN_MQ30}")
+    print(f"False Negatives (FN_MQ30): {FN_MQ30}")
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
