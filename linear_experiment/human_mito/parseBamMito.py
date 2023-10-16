@@ -32,12 +32,10 @@ def main(bam_file_path):
                 FP_MQ30 += 1
         elif is_from_mt and not is_mapped_to_mt:
             FN += 1
-            if read.mapping_quality > 30:
-                FN_MQ30 += 1
+            FN_MQ30 += 1  # Unmapped reads from MT 
         elif not is_from_mt and not is_mapped_to_mt:
             TN += 1
-            if read.mapping_quality > 30:
-                TN_MQ30 += 1
+            TN_MQ30 += 1  # Unmapped reads not from MT
 
     # Close the BAM file
     bamInputFile.close()
