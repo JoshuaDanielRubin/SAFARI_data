@@ -1,0 +1,10 @@
+True Positives (TP): 1599
+False Positives (FP): 282
+True Negatives (TN): 5320
+False Negatives (FN): 2
+
+For reads with MQ > 30:
+True Positives (TP_MQ30): 1592
+False Positives (FP_MQ30): 58
+True Negatives (TN_MQ30): 5320
+False Negatives (FN_MQ30): 2
