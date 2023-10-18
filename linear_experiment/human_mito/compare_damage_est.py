@@ -175,8 +175,8 @@ def check_data(damage_data_dict, prof_data_dict):
         for damage_type, rmse_values in damage_data.items():
             rmse_median_data[aligner][damage_type] = np.median(rmse_values)
 
-    plot_rmse(rmse_median_data, rmse_sample_count_data, 'Median RMSE by Aligner and Damage Type', 'rmse_plot.png')
-    filtered_rmse_data = filter_rmse_data_for_giraffe_and_safari(rmse_median_data)
+    #plot_rmse(rmse_median_data, rmse_sample_count_data, 'Median RMSE by Aligner and Damage Type', 'rmse_plot.png')
+    #filtered_rmse_data = filter_rmse_data_for_giraffe_and_safari(rmse_median_data)
 
 if __name__ == "__main__":
     damage_data_path = '.'  # Your path to damage data files
