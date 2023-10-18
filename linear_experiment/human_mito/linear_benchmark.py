@@ -105,8 +105,8 @@ with open('alignment_stats.csv', 'r') as file:
     
             for aligner in special_aligners:
                 results = calculate_metrics(summary[damage_type][aligner]["TP"], summary[damage_type][aligner]["FP"], summary[damage_type][aligner]["TN"], summary[damage_type][aligner]["FN"])
-                for metric in metrics:
-                    data_to_plot[metric].append(results[metrics.index(metric)])
+                for metric, value in zip(metrics, results):
+                    data_to_plot[metric].append(value)
     
             x = np.arange(len(metrics))
     
