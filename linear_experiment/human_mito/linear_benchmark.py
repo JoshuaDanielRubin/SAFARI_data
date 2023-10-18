@@ -8,7 +8,7 @@ def calculate_metrics(TP, FP, TN, FN):
     precision = TP / (TP + FP) if TP + FP != 0 else 0
     accuracy = (TP + TN) / (TP + FP + TN + FN) if TP + FP + TN + FN != 0 else 0
     f1_score = 2 * (precision * sensitivity) / (precision + sensitivity) if precision + sensitivity != 0 else 0
-    return sensitivity, specificity, precision, accuracy, f1_score
+    return f1_score, sensitivity, specificity, precision, accuracy
 
 def rename_damage_level(level):
     mapping = {
@@ -52,7 +52,7 @@ with open('alignment_stats.csv', 'r') as file:
             summary[damage_type][aligner][key] += int(row[key])
 
     aligner_order = ['SAFARI', 'giraffe'] + [aligner for aligner in summary[next(iter(summary))].keys() if aligner not in ['SAFARI', 'giraffe']]
-    metrics = ["Sensitivity", "Specificity", "Precision", "Accuracy", "F1 Score"]
+    metrics = ["F1 Score", "Sensitivity", "Specificity", "Precision", "Accuracy"]
     
     for damage_type in summary:
         for metric_type, suffix in [("Overall", ""), ("MQ > 30", "_MQ30")]:
@@ -62,7 +62,8 @@ with open('alignment_stats.csv', 'r') as file:
             available_aligners = [aligner for aligner in aligner_order if aligner in summary[damage_type]]
             
             for aligner in available_aligners:
-                results = calculate_metrics(summary[damage_type][aligner]["TP" + suffix], summary[damage_type][aligner]["FP" + suffix], summary[damage_type][aligner]["TN" + suffix], summary[damage_type][aligner]["FN" + suffix])
+                results = calculate_metrics(summary[damage_type][aligner]["TP" + suffix], summary[damage_type][aligner]["FP" + suffix], \
+                                            summary[damage_type][aligner]["TN" + suffix], summary[damage_type][aligner]["FN" + suffix])
                 
                 # Print metrics to terminal
                 print(f"Metrics for Damage Type: {damage_type}, Aligner: {aligner}, Metric Type: {metric_type}")
@@ -120,7 +121,7 @@ with open('alignment_stats.csv', 'r') as file:
     
             ax.set_xlabel('Metrics')
             ax.set_ylabel('Score')
-            ax.set_title(f'Metrics Comparison (Overall) by Aligner for {damage_type} (SAFARI & Giraffe)')
+            ax.set_title(f'Metric Comparison between giraffe and SAFARI at High Damage Rate')
             ax.set_xticks(x)
             ax.set_xticklabels(metrics)
     
