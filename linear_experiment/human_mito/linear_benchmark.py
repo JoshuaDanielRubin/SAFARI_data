@@ -133,4 +133,4 @@ with open('alignment_stats.csv', 'r') as file:
             plt.ylim([0, 1])
             plt.tight_layout()
 
-            plt.savefig("Fig2.png")
+            plt.savefig("Fig2.png", dpi=350)
