@@ -19,11 +19,11 @@ def parse_stat_file(file_path):
     return stats
 
 def get_aligner_name_and_damage_type(filename):
-    pattern = re.compile(r'.*n([0-9]+)_l([0-9]+)_d([^_]+)_s([\d\.]+)_([\w]+)\.stat')
+    pattern = re.compile(r'.*n([0-9]+)_d([^_]+)_s([\d\.]+)_([\w]+)\.stat')
     match = pattern.match(filename)
     if match:
-        numtS_gen, fragment_length, damage_type, subsampling_rate, aligner_name = match.groups()
-        return aligner_name, damage_type, fragment_length, subsampling_rate
+        numtS_gen, damage_type, subsampling_rate, aligner_name = match.groups()
+        return aligner_name, damage_type, subsampling_rate
     else:
         raise ValueError(f'Unexpected file name format: {filename}')
 
@@ -46,14 +46,14 @@ def compute_proportion(directory, output_csv_path):
         tn_mq30 = stats.get('True Negatives (TN_MQ30)', 0)
         fn_mq30 = stats.get('False Negatives (FN_MQ30)', 0)
         
-        aligner_name, damage_type, fragment_length, subsampling_rate = get_aligner_name_and_damage_type(file)
+        aligner_name, damage_type, subsampling_rate = get_aligner_name_and_damage_type(file)
         
-        data.append([damage_type, aligner_name, fragment_length, subsampling_rate, tp, fp, tn, fn, tp_mq30, fp_mq30, tn_mq30, fn_mq30])
+        data.append([damage_type, aligner_name, subsampling_rate, tp, fp, tn, fn, tp_mq30, fp_mq30, tn_mq30, fn_mq30])
     
     with open(output_csv_path, 'w', newline='') as csvfile:
         csvwriter = csv.writer(csvfile)
         
-        csvwriter.writerow(['Damage_Type', 'Aligner_Name', 'Fragment_Length', 'Subsampling_Rate', 'TP', 'FP', 'TN', 'FN', 'TP_MQ30', 'FP_MQ30', 'TN_MQ30', 'FN_MQ30'])
+        csvwriter.writerow(['Damage_Type', 'Aligner_Name', 'Subsampling_Rate', 'TP', 'FP', 'TN', 'FN', 'TP_MQ30', 'FP_MQ30', 'TN_MQ30', 'FN_MQ30'])
         
         for row in data:
             csvwriter.writerow(row)
