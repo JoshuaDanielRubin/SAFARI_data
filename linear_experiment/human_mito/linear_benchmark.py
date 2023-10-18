@@ -94,40 +94,34 @@ with open('alignment_stats.csv', 'r') as file:
                 plt.savefig(f"{damage_type}_benchmark.png")
             else:
                 plt.savefig(f"{damage_type}_benchmark_mq30.png")
-            plt.show()
+
 
         # Separate plot for safari and giraffe at high damage
         if damage_type == "High":
-            for metric_type, suffix in [("Overall", ""), ("MQ > 30", "_MQ30")]:
-                data_to_plot = {metric: [] for metric in metrics}
-                special_aligners = ['SAFARI', 'giraffe']
-                
+            data_to_plot = {metric: [] for metric in metrics}
+            special_aligners = ['SAFARI', 'giraffe']
+            
+            for metric in metrics:
                 for aligner in special_aligners:
-                    results = calculate_metrics(summary[damage_type][aligner]["TP" + suffix], summary[damage_type][aligner]["FP" + suffix], summary[damage_type][aligner]["TN" + suffix], summary[damage_type][aligner]["FN" + suffix])
-                    
-                    for metric in metrics:
-                        data_to_plot[metric].append(results[metrics.index(metric)])
-                
-                x = np.arange(len(special_aligners))
-                width = 0.15
-                
-                fig, ax = plt.subplots(figsize=(10, 7))
-                
-                for idx, metric in enumerate(metrics):
-                    ax.bar(x + idx*width, data_to_plot[metric], width, label=metric)
+                    results = calculate_metrics(summary[damage_type][aligner]["TP"], summary[damage_type][aligner]["FP"], summary[damage_type][aligner]["TN"], summary[damage_type][aligner]["FN"])
+                    data_to_plot[metric].append(results[metrics.index(metric)])
+            
+            x = np.arange(len(special_aligners) * len(metrics))
+            width = 0.15
+            
+            fig, ax = plt.subplots(figsize=(10, 7))
+            
+            for idx, metric in enumerate(metrics):
+                ax.bar(x[idx*len(special_aligners):(idx+1)*len(special_aligners)], data_to_plot[metric], width, label=metric)
 
-                ax.set_xlabel('Aligners')
-                ax.set_ylabel('Score')
-                ax.set_title(f'Metrics Comparison ({metric_type}) by Aligner for {damage_type} (SAFARI & Giraffe)')
-                ax.set_xticks(x + width)
-                ax.set_xticklabels(special_aligners)
-                ax.legend()
-                plt.ylim([0, 1])
-                plt.tight_layout()
+            ax.set_xlabel('Aligners')
+            ax.set_ylabel('Score')
+            ax.set_title(f'Metrics Comparison (Overall) by Aligner for {damage_type} (SAFARI & Giraffe)')
+            ax.set_xticks(x + width/2)
+            ax.set_xticklabels(special_aligners * len(metrics))
+            ax.legend()
+            plt.ylim([0, 1])
+            plt.tight_layout()
 
-                if metric_type == "Overall":
-                    plt.savefig(f"{damage_type}_benchmark_special.png")
-                else:
-                    plt.savefig(f"{damage_type}_benchmark_special_mq30.png")
-                plt.show()
+            plt.savefig(f"{damage_type}_benchmark_special.png")
 
