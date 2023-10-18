@@ -83,7 +83,7 @@ with open('alignment_stats.csv', 'r') as file:
 
             ax.set_xlabel('Aligners')
             ax.set_ylabel('Score')
-            ax.set_title(f'Metrics Comparison ({metric_type}) by Aligner for {damage_type}')
+            ax.set_title(f'Metrics Comparison ({metric_type}) by Aligner for {damage_type} damage')
             ax.set_xticks(x + 2*width)
             ax.set_xticklabels(available_aligners)
             ax.legend()
@@ -100,28 +100,36 @@ with open('alignment_stats.csv', 'r') as file:
         if damage_type == "High":
             data_to_plot = {metric: [] for metric in metrics}
             special_aligners = ['SAFARI', 'giraffe']
-            
-            for metric in metrics:
-                for aligner in special_aligners:
-                    results = calculate_metrics(summary[damage_type][aligner]["TP"], summary[damage_type][aligner]["FP"], summary[damage_type][aligner]["TN"], summary[damage_type][aligner]["FN"])
+            colors = {'SAFARI': 'green', 'giraffe': 'orange'}
+    
+            for aligner in special_aligners:
+                results = calculate_metrics(summary[damage_type][aligner]["TP"], summary[damage_type][aligner]["FP"], summary[damage_type][aligner]["TN"], summary[damage_type][aligner]["FN"])
+                for metric in metrics:
                     data_to_plot[metric].append(results[metrics.index(metric)])
-            
-            x = np.arange(len(special_aligners) * len(metrics))
-            width = 0.15
-            
+    
+            x = np.arange(len(metrics))
+    
+            # Adjust the width for thicker bars
+            width = 0.4
+    
             fig, ax = plt.subplots(figsize=(10, 7))
-            
+    
             for idx, metric in enumerate(metrics):
-                ax.bar(x[idx*len(special_aligners):(idx+1)*len(special_aligners)], data_to_plot[metric], width, label=metric)
-
-            ax.set_xlabel('Aligners')
+                for aligner_idx, aligner in enumerate(special_aligners):
+                    ax.bar(x[idx] + width * aligner_idx, data_to_plot[metric][aligner_idx], width, label=f'{metric} ({aligner})', color=colors[aligner])
+    
+            ax.set_xlabel('Metrics')
             ax.set_ylabel('Score')
             ax.set_title(f'Metrics Comparison (Overall) by Aligner for {damage_type} (SAFARI & Giraffe)')
-            ax.set_xticks(x + width/2)
-            ax.set_xticklabels(special_aligners * len(metrics))
-            ax.legend()
+            ax.set_xticks(x)
+            ax.set_xticklabels(metrics)
+    
+            # Create a custom legend
+            from matplotlib.lines import Line2D
+            custom_lines = [Line2D([0], [0], color=colors[aligner], lw=4) for aligner in special_aligners]
+            ax.legend(custom_lines, special_aligners, loc='upper left', title='Aligners')
+    
             plt.ylim([0, 1])
             plt.tight_layout()
 
-            plt.savefig(f"{damage_type}_benchmark_special.png")
-
+            plt.savefig("Fig2.png")
