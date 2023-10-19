@@ -51,6 +51,10 @@ with open('alignment_stats.csv', 'r') as file:
         for key in summary[damage_type][aligner]:
             summary[damage_type][aligner][key] += int(row[key])
 
+        # Add this line to calculate the support for each aligner and damage type:
+        summary[damage_type][aligner]["Support"] = summary[damage_type][aligner]["TP"] + summary[damage_type][aligner]["FP"] + summary[damage_type][aligner]["TN"] + summary[damage_type][aligner]["FN"]
+
+
     aligner_order = ['SAFARI', 'giraffe'] + [aligner for aligner in summary[next(iter(summary))].keys() if aligner not in ['SAFARI', 'giraffe']]
     metrics = ["F1 Score", "Sensitivity", "Specificity", "Precision", "Accuracy"]
     
@@ -69,6 +73,7 @@ with open('alignment_stats.csv', 'r') as file:
                 print(f"Metrics for Damage Type: {damage_type}, Aligner: {aligner}, Metric Type: {metric_type}")
                 for metric, value in zip(metrics, results):
                     print(f"{metric}: {value:.4f}")
+                print(f"Support: {summary[damage_type][aligner]['Support']}")
                 print("-" * 50)
                 
                 for metric in metrics:
