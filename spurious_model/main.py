@@ -138,7 +138,7 @@ def process_k(k):
 sequence = read_fasta("rCRS.fa")
 bacterial_reference = read_fasta("refSoilSmall.fa")
 
-k_values = list(range(3, 16))
+k_values = list(range(3, 31))
 results = []
 
 with ProcessPoolExecutor(max_workers=1) as executor:
