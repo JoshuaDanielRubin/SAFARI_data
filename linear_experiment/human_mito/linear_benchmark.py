@@ -46,9 +46,10 @@ with open('alignment_stats.csv', 'r') as file:
         if aligner not in summary[damage_type]:
             summary[damage_type][aligner] = {
                 "TP": 0, "FP": 0, "TN": 0, "FN": 0,
-                "TP_MQ30": 0, "FP_MQ30": 0, "TN_MQ30": 0, "FN_MQ30": 0,
+                "TP_MQ30": 0, "FP_MQ30": 0, "TN_MQ30": 0, "FN_MQ30": 0, "Support": 0
             }
-        for key in summary[damage_type][aligner]:
+
+        for key in ["TP", "FP", "TN", "FN", "TP_MQ30", "FP_MQ30", "TN_MQ30", "FN_MQ30"]:
             summary[damage_type][aligner][key] += int(row[key])
 
         # Add this line to calculate the support for each aligner and damage type:
