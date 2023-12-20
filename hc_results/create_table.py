@@ -96,8 +96,8 @@ pivot_df['Subsampling Rate'] = pivot_df['Subsampling Rate'].astype(str) + 'X'
 pivot_df.rename(columns={
     'Haplogroup_corrected': 'HG_corrected',
     'Haplogroup_uncorrected': 'HG_uncorrected',
-    'Reads_corrected': '# Reads_corrected',
-    'Reads_uncorrected': '# Reads_uncorrected',
+    #'Reads_corrected': '# Reads_corrected',
+    #'Reads_uncorrected': '# Reads_uncorrected',
     'Subsampling Rate': 'Rate',
     'Full Coverage Prediction': 'Full_Coverage_Prediction'
 }, inplace=True)
