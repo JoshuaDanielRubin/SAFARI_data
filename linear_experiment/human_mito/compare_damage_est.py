@@ -107,7 +107,7 @@ def plot_rmse(rmse_data, rmse_sample_count_data, plot_title, save_file_name):
     width = 0.2
 
     fig, axs = plt.subplots(2, 2, figsize=(12, 10))
-    fig.suptitle("Median RMSE between Estimated and Ground Truth Damage Rate Matrices", fontsize=14)
+    fig.suptitle("mean RMSE between Estimated and Ground Truth Damage Rate Matrices", fontsize=14)
 
     for i, damage_type in enumerate(damage_types):
         ax = axs[i // 2, i % 2]
@@ -124,18 +124,18 @@ def plot_rmse(rmse_data, rmse_sample_count_data, plot_title, save_file_name):
             ax.bar(x[j], rmse_values[j], width, label=label, color=color)
         
         ax.set_xlabel('Aligner')
-        ax.set_ylabel('Median RMSE')
+        ax.set_ylabel('mean RMSE')
         ax.set_title(f"Damage Matrix: {damage_type.capitalize()}")
         ax.set_xticks(x)
         ax.set_xticklabels([display_labels.get(aligner, aligner) for aligner in aligners], fontweight='bold' if aligner in ['giraffe', 'safari'] else 'normal')
 
     fig.tight_layout(rect=[0, 0.03, 1, 0.95])
-    plt.savefig(save_file_name)
+    #plt.savefig(save_file_name)
     
     for aligner in aligners:
         for damage_type in damage_types:
             sample_count = rmse_sample_count_data[aligner][damage_type]
-            print(f'Median RMSE for {aligner} with damage_type {damage_type}: {rmse_data[aligner][damage_type]} (based on {sample_count} samples)')
+            print(f'mean RMSE for {aligner} with damage_type {damage_type}: {rmse_data[aligner][damage_type]} (based on {sample_count} samples)')
 
 
 def check_data(damage_data_dict, prof_data_dict):
@@ -170,13 +170,13 @@ def check_data(damage_data_dict, prof_data_dict):
                 rmse_values_data[aligner][damage_type].append(rmse_table2)
                 rmse_sample_count_data[aligner][damage_type] += sample_count_table2
 
-    rmse_median_data = defaultdict(lambda: defaultdict(float))
+    rmse_mean_data = defaultdict(lambda: defaultdict(float))
     for aligner, damage_data in rmse_values_data.items():
         for damage_type, rmse_values in damage_data.items():
-            rmse_median_data[aligner][damage_type] = np.median(rmse_values)
+            rmse_mean_data[aligner][damage_type] = np.mean(rmse_values)
 
-    #plot_rmse(rmse_median_data, rmse_sample_count_data, 'Median RMSE by Aligner and Damage Type', 'rmse_plot.png')
-    #filtered_rmse_data = filter_rmse_data_for_giraffe_and_safari(rmse_median_data)
+    plot_rmse(rmse_mean_data, rmse_sample_count_data, 'mean RMSE by Aligner and Damage Type', 'rmse_plot.png')
+    #filtered_rmse_data = filter_rmse_data_for_giraffe_and_safari(rmse_mean_data)
 
 if __name__ == "__main__":
     damage_data_path = '.'  # Your path to damage data files
