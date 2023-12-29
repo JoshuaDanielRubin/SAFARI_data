@@ -1,142 +1,74 @@
-import csv
-import numpy as np
+
+import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 
-def calculate_metrics(TP, FP, TN, FN):
-    sensitivity = TP / (TP + FN) if TP + FN != 0 else 0
-    specificity = TN / (TN + FP) if TN + FP != 0 else 0
-    precision = TP / (TP + FP) if TP + FP != 0 else 0
-    accuracy = (TP + TN) / (TP + FP + TN + FN) if TP + FP + TN + FN != 0 else 0
-    f1_score = 2 * (precision * sensitivity) / (precision + sensitivity) if precision + sensitivity != 0 else 0
-    return f1_score, sensitivity, specificity, precision, accuracy
+def calculate_precision_recall(df):
+    precision = df['TP'] / (df['TP'] + df['FP'])
+    recall = df['TP'] / (df['TP'] + df['FN'])
+    return precision, recall
 
-def rename_damage_level(level):
-    mapping = {
-        "none": "None",
-        "dmid": "Mid",
-        "dhigh": "High",
-        "single": "Single-stranded"
-    }
-    return mapping.get(level, level)
+def main(file_path):
+    # Load data
+    data = pd.read_csv(file_path)
 
-def rename_aligner(aligner):
-    mapping = {
-        "safari": "SAFARI",
-        "bb": "BBMap",
-        "aln_anc": "BWA-aln (anc)",
-        "aln": "BWA-aln",
-        "mem": "BWA-MEM",
-        "Bowtie2": "Bowtie2",
-        "shrimp": "SHRiMP"
-    }
-    return mapping.get(aligner, aligner)
+    # Filter data for 'giraffe' and 'SAFARI'
+    giraffe_data = data[data['Aligner_Name'].str.lower() == 'giraffe']
+    safari_data = data[data['Aligner_Name'].str.upper() == 'SAFARI']
 
-with open('alignment_stats.csv', 'r') as file:
-    csv_reader = csv.DictReader(file)
-    
-    summary = {}
-    
-    for row in csv_reader:
-        damage_type = rename_damage_level(row["Damage_Type"])
-        aligner = rename_aligner(row["Aligner_Name"])
-        
-        if damage_type not in summary:
-            summary[damage_type] = {}
-        
-        if aligner not in summary[damage_type]:
-            summary[damage_type][aligner] = {
-                "TP": 0, "FP": 0, "TN": 0, "FN": 0,
-                "TP_MQ30": 0, "FP_MQ30": 0, "TN_MQ30": 0, "FN_MQ30": 0, "Support": 0
-            }
+    # Damage types
+    damage_types = data['Damage_Type'].unique()
 
-        for key in ["TP", "FP", "TN", "FN", "TP_MQ30", "FP_MQ30", "TN_MQ30", "FN_MQ30"]:
-            summary[damage_type][aligner][key] += int(row[key])
+    # Colorblind-friendly colors
+    colors = ['orange', 'teal', 'magenta', 'lime']
 
-        # Add this line to calculate the support for each aligner and damage type:
-        summary[damage_type][aligner]["Support"] = summary[damage_type][aligner]["TP"] + summary[damage_type][aligner]["FP"] + summary[damage_type][aligner]["TN"] + summary[damage_type][aligner]["FN"]
+    # Line styles
+    line_styles = {'giraffe': '-', 'SAFARI': '--'}
 
+    # Line thickness
+    line_thickness = 2.5
 
-    aligner_order = ['SAFARI', 'giraffe'] + [aligner for aligner in summary[next(iter(summary))].keys() if aligner not in ['SAFARI', 'giraffe']]
-    metrics = ["F1 Score", "Sensitivity", "Specificity", "Precision", "Accuracy"]
-    
-    for damage_type in summary:
-        for metric_type, suffix in [("Overall", ""), ("MQ > 30", "_MQ30")]:
-            data_to_plot = {metric: [] for metric in metrics}
-            
-            # Check which aligners have data for this damage type
-            available_aligners = [aligner for aligner in aligner_order if aligner in summary[damage_type]]
-            
-            for aligner in available_aligners:
-                results = calculate_metrics(summary[damage_type][aligner]["TP" + suffix], summary[damage_type][aligner]["FP" + suffix], \
-                                            summary[damage_type][aligner]["TN" + suffix], summary[damage_type][aligner]["FN" + suffix])
-                
-                # Print metrics to terminal
-                print(f"Metrics for Damage Type: {damage_type}, Aligner: {aligner}, Metric Type: {metric_type}")
-                for metric, value in zip(metrics, results):
-                    print(f"{metric}: {value:.4f}")
-                print(f"Support: {summary[damage_type][aligner]['Support']}")
-                print("-" * 50)
-                
-                for metric in metrics:
-                    data_to_plot[metric].append(results[metrics.index(metric)])
-            
-            x = np.arange(len(available_aligners))
-            width = 0.15
-            
-            fig, ax = plt.subplots(figsize=(15, 7))
-            
-            for idx, metric in enumerate(metrics):
-                ax.bar(x + idx*width, data_to_plot[metric], width, label=metric)
+    # Prepare plot
+    plt.figure(figsize=(14, 10))
 
-            ax.set_xlabel('Aligners')
-            ax.set_ylabel('Score')
-            ax.set_title(f'Metrics Comparison ({metric_type}) by Aligner for {damage_type} damage')
-            ax.set_xticks(x + 2*width)
-            ax.set_xticklabels(available_aligners)
-            ax.legend()
-            plt.ylim([0, 1])
-            plt.tight_layout()
+    # Plotting
+    for i, damage_type in enumerate(damage_types):
+        # Filter data by damage type
+        giraffe_dt_data = giraffe_data[giraffe_data['Damage_Type'] == damage_type]
+        safari_dt_data = safari_data[safari_data['Damage_Type'] == damage_type]
 
-            if metric_type == "Overall":
-                plt.savefig(f"{damage_type}_benchmark.png")
-            else:
-                plt.savefig(f"{damage_type}_benchmark_mq30.png")
+        # Calculate precision and recall
+        giraffe_precision, giraffe_recall = calculate_precision_recall(giraffe_dt_data)
+        safari_precision, safari_recall = calculate_precision_recall(safari_dt_data)
 
+        # Fit and plot curves for giraffe data
+        if len(giraffe_precision) > 1 and len(giraffe_recall) > 1:
+            giraffe_curve_fit = np.polyfit(giraffe_recall, giraffe_precision, 2)
+            giraffe_fit_fn = np.poly1d(giraffe_curve_fit)
+            recall_range = np.linspace(min(giraffe_recall), max(giraffe_recall), 100)
+            plt.plot(recall_range, giraffe_fit_fn(recall_range), line_styles['giraffe'], color=colors[i], linewidth=line_thickness, label=f'giraffe - {damage_type}')
 
-        # Separate plot for safari and giraffe at high damage
-        if damage_type == "High":
-            data_to_plot = {metric: [] for metric in metrics}
-            special_aligners = ['SAFARI', 'giraffe']
-            colors = {'SAFARI': 'green', 'giraffe': 'orange'}
-    
-            for aligner in special_aligners:
-                results = calculate_metrics(summary[damage_type][aligner]["TP"], summary[damage_type][aligner]["FP"], summary[damage_type][aligner]["TN"], summary[damage_type][aligner]["FN"])
-                for metric, value in zip(metrics, results):
-                    data_to_plot[metric].append(value)
-    
-            x = np.arange(len(metrics))
-    
-            # Adjust the width for thicker bars
-            width = 0.4
-    
-            fig, ax = plt.subplots(figsize=(10, 7))
-    
-            for idx, metric in enumerate(metrics):
-                for aligner_idx, aligner in enumerate(special_aligners):
-                    ax.bar(x[idx] + width * aligner_idx, data_to_plot[metric][aligner_idx], width, label=f'{metric} ({aligner})', color=colors[aligner])
-    
-            ax.set_xlabel('Metrics')
-            ax.set_ylabel('Score')
-            ax.set_title(f'Metric Comparison between giraffe and SAFARI at High Damage Rate')
-            ax.set_xticks(x)
-            ax.set_xticklabels(metrics)
-    
-            # Create a custom legend
-            from matplotlib.lines import Line2D
-            custom_lines = [Line2D([0], [0], color=colors[aligner], lw=4) for aligner in special_aligners]
-            ax.legend(custom_lines, special_aligners, loc='upper left', title='Aligners')
-    
-            plt.ylim([0, 1])
-            plt.tight_layout()
+        # Fit and plot curves for SAFARI data
+        if len(safari_precision) > 1 and len(safari_recall) > 1:
+            safari_curve_fit = np.polyfit(safari_recall, safari_precision, 2)
+            safari_fit_fn = np.poly1d(safari_curve_fit)
+            recall_range = np.linspace(min(safari_recall), max(safari_recall), 100)
+            plt.plot(recall_range, safari_fit_fn(recall_range), line_styles['SAFARI'], color=colors[i], linewidth=line_thickness, label=f'SAFARI - {damage_type}')
 
-            plt.savefig("Fig2.png", dpi=350)
+    # Adding labels and title
+    plt.xlabel('Recall')
+    plt.ylabel('Precision')
+    plt.title('Precision-Recall Tradeoff: giraffe vs SAFARI (Stratified by Damage Type)', fontsize=22)
+    plt.legend(loc='lower left')
+    plt.grid(True)
+
+    # Save the plot with high resolution
+    plt.savefig('precision_recall_tradeoff.png', dpi=300)
+
+if __name__ == '__main__':
+    import sys
+    if len(sys.argv) != 2:
+        print("Usage: python this_script.py <path_to_alignment_stats.csv>")
+    else:
+        main(sys.argv[1])
+
